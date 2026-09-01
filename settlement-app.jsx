@@ -1,22 +1,6 @@
-<!DOCTYPE html>
-<html lang="ko">
-<head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>정산서 - 모임 비용 자동 정산</title>
-<script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
-<script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
-<script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-<script src="https://unpkg.com/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
-<style>
-  html, body { margin: 0; padding: 0; }
-</style>
-</head>
-<body>
-<div id="root"></div>
-
-<script type="text/babel">
-const { useState, useMemo, useRef } = React;
+// npm install html2canvas  (React 18 프로젝트에서 사용할 경우)
+import { useState, useMemo, useRef } from "react";
+import html2canvas from "html2canvas";
 
 const FONT_IMPORT = `@import url('https://fonts.googleapis.com/css2?family=Nanum+Gothic+Coding:wght@400;700&family=Noto+Sans+KR:wght@400;500;700;900&display=swap');`;
 
@@ -67,7 +51,7 @@ function computeFairTransactionsFromBalances(balances) {
     .map((e) => ({ from: e.from, to: e.to, amount: e.floor }));
 }
 
-function SettlementApp() {
+export default function SettlementApp() {
   const initialParticipants = useMemo(
     () => [makeParticipant(), makeParticipant(), makeParticipant()],
     []
@@ -642,8 +626,3 @@ const styles = {
   copyBtn: { flex: 1, padding: "12px 0", border: "none", background: "#0F9D64", color: "#FFFFFF", fontFamily: "inherit", fontSize: 14, fontWeight: 700, cursor: "pointer", transition: "background 0.15s" },
   downloadBtn: { flex: 1, padding: "12px 0", border: "none", background: "#1A1D29", color: "#FFFFFF", fontFamily: "inherit", fontSize: 14, fontWeight: 700, transition: "background 0.15s" },
 };
-
-ReactDOM.createRoot(document.getElementById("root")).render(<SettlementApp />);
-</script>
-</body>
-</html>
