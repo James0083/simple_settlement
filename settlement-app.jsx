@@ -2,12 +2,22 @@
 import { useState, useMemo, useRef } from "react";
 import html2canvas from "html2canvas";
 
-const FONT_IMPORT = `@import url('https://fonts.googleapis.com/css2?family=Nanum+Gothic+Coding:wght@400;700&family=Noto+Sans+KR:wght@400;500;700;900&display=swap');`;
+const FONT_IMPORT = `
+  @import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css');
+  @import url('https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&display=swap');
+`;
 
 const won = (n) => Math.round(n).toLocaleString("ko-KR");
 
 function uid() {
   return Math.random().toString(36).slice(2, 9);
+}
+
+// iOS/Android 휴대폰에서만 true. 맥/윈도우 데스크톱, 아이패드 등은 false로 취급해
+// 공유 시트 대신 곧바로 파일 다운로드가 되도록 한다.
+function isPhoneDevice() {
+  if (typeof navigator === "undefined") return false;
+  return /iPhone|Android/i.test(navigator.userAgent);
 }
 
 function makeParticipant(name = "") {
@@ -248,15 +258,38 @@ export default function SettlementApp() {
     }
   };
 
+  const canvasToBlob = (canvas) =>
+    new Promise((resolve) => canvas.toBlob((blob) => resolve(blob), "image/png"));
+
   const handleDownloadImage = async () => {
     if (!captureRef.current) return;
     setDownloading(true);
     try {
       const canvas = await html2canvas(captureRef.current, { backgroundColor: "#FFFFFF", scale: 2 });
-      const link = document.createElement("a");
-      link.download = "정산결과.png";
-      link.href = canvas.toDataURL("image/png");
-      link.click();
+      const blob = await canvasToBlob(canvas);
+      if (!blob) return;
+
+      const file = new File([blob], "정산결과.png", { type: "image/png" });
+
+      // 아이폰·안드로이드에서만 공유 시트를 띄워 "사진 앱에 저장"이 가능하게 하고,
+      // 그 외(맥/윈도우 등 데스크톱)에서는 항상 파일 다운로드로 처리한다.
+      const canUseShareSheet =
+        isPhoneDevice() && navigator.canShare && navigator.canShare({ files: [file] });
+
+      if (canUseShareSheet) {
+        try {
+          await navigator.share({ files: [file], title: "정산결과" });
+        } catch (shareErr) {
+          // 사용자가 공유를 취소한 경우 등은 무시
+        }
+      } else {
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        link.download = "정산결과.png";
+        link.href = url;
+        link.click();
+        URL.revokeObjectURL(url);
+      }
     } catch (err) {
       console.error(err);
     } finally {
@@ -282,6 +315,7 @@ export default function SettlementApp() {
         .settle-download-btn:hover { background: #0F1218; }
         .settle-chip-inactive:hover { border-color: #9AA0B0; color: #5C6178; }
         .settle-chip-active:hover { opacity: 0.85; }
+        .settle-footer-link:hover { color: #5C6178; text-decoration: underline; }
         @media (prefers-reduced-motion: reduce) { .settle-stamp { animation: none !important; } }
         @keyframes stampIn {
           0% { opacity: 0; transform: rotate(-8deg) scale(1.6); }
@@ -540,6 +574,20 @@ export default function SettlementApp() {
 
         <div style={styles.zigzagBottom} aria-hidden="true" />
       </div>
+
+      <footer style={styles.footer}>
+        <a className="settle-footer-link" href="privacy.html" style={styles.footerLink}>
+          개인정보처리방침
+        </a>
+        <span style={styles.footerDot}>·</span>
+        <a className="settle-footer-link" href="terms.html" style={styles.footerLink}>
+          이용약관
+        </a>
+        <span style={styles.footerDot}>·</span>
+        <a className="settle-footer-link" href="contact.html" style={styles.footerLink}>
+          문의하기
+        </a>
+      </footer>
     </div>
   );
 }
@@ -553,14 +601,14 @@ const zigzag = (flip) => ({
 });
 
 const styles = {
-  page: { minHeight: "100vh", width: "100%", background: "#EEF1F4", display: "flex", justifyContent: "center", padding: "40px 16px", fontFamily: "'Noto Sans KR', -apple-system, sans-serif" },
+  page: { minHeight: "100vh", width: "100%", background: "#EEF1F4", display: "flex", flexDirection: "column", alignItems: "center", padding: "40px 16px", fontFamily: "'Pretendard', -apple-system, sans-serif" },
   receipt: { width: "100%", maxWidth: 440, background: "#FFFFFF", boxShadow: "0 18px 40px rgba(26,29,41,0.12), 0 2px 0 rgba(26,29,41,0.04)", position: "relative" },
   zigzagTop: zigzag(false),
   zigzagBottom: zigzag(true),
   inner: { padding: "8px 30px 34px" },
   header: { textAlign: "center", paddingTop: 22, paddingBottom: 22 },
   eyebrowLine: { width: 40, height: 2, background: "#E8503A", margin: "0 auto 16px" },
-  title: { fontFamily: "'Nanum Gothic Coding', monospace", fontWeight: 700, fontSize: 34, letterSpacing: "2px", color: "#1A1D29", margin: "0 0 10px" },
+  title: { fontFamily: "'Pretendard', sans-serif", fontWeight: 800, fontSize: 34, letterSpacing: "-1px", color: "#1A1D29", margin: "0 0 10px" },
   subtitle: { fontSize: 13.5, lineHeight: 1.6, color: "#5C6178", margin: "0 auto", maxWidth: 300 },
   section: { marginTop: 4 },
   sectionLabel: { fontSize: 12, fontWeight: 700, color: "#8A8FA3", letterSpacing: "1px", marginBottom: 12 },
@@ -568,7 +616,7 @@ const styles = {
   personRow: { display: "flex", alignItems: "center", gap: 8 },
   nameInputFull: { flex: 1, minWidth: 0, fontFamily: "inherit", fontSize: 15, color: "#1A1D29", background: "transparent", border: "none", borderBottom: "1.5px solid #DDE1E8", padding: "8px 4px" },
   amountWrap: { flex: 1, display: "flex", alignItems: "baseline", justifyContent: "flex-end", borderBottom: "1.5px solid #DDE1E8", padding: "8px 4px", gap: 3 },
-  amountInput: { width: "100%", minWidth: 0, textAlign: "right", fontFamily: "'Nanum Gothic Coding', monospace", fontSize: 15, color: "#1A1D29", background: "transparent", border: "none" },
+  amountInput: { width: "100%", minWidth: 0, textAlign: "right", fontFamily: "'Space Mono', 'Pretendard', monospace", fontSize: 15, color: "#1A1D29", background: "transparent", border: "none" },
   wonSuffix: { fontSize: 12.5, color: "#8A8FA3", flexShrink: 0 },
   removeBtn: { width: 24, height: 24, flexShrink: 0, border: "none", background: "transparent", color: "#E8503A", fontSize: 13, opacity: 0.45, cursor: "pointer" },
   addBtn: { marginTop: 14, width: "100%", padding: "10px 0", border: "1.5px dashed #C7CCD8", background: "transparent", color: "#4B5165", fontFamily: "inherit", fontSize: 13.5, fontWeight: 500, cursor: "pointer", transition: "background 0.15s, color 0.15s, border-color 0.15s" },
@@ -592,13 +640,13 @@ const styles = {
   summaryBlock: { display: "flex", flexDirection: "column", gap: 10 },
   summaryRow: { display: "flex", justifyContent: "space-between", alignItems: "baseline" },
   summaryLabel: { fontSize: 13.5, color: "#4B5165" },
-  summaryValue: { fontFamily: "'Nanum Gothic Coding', monospace", fontSize: 16, fontWeight: 700, color: "#1A1D29", fontVariantNumeric: "tabular-nums" },
+  summaryValue: { fontFamily: "'Space Mono', 'Pretendard', monospace", fontSize: 16, fontWeight: 700, color: "#1A1D29", fontVariantNumeric: "tabular-nums" },
   calcBtn: { marginTop: 26, width: "100%", padding: "15px 0", border: "none", background: "#E8503A", color: "#FFFFFF", fontFamily: "inherit", fontSize: 15.5, fontWeight: 700, letterSpacing: "0.5px", boxShadow: "2px 3px 0 #B8391F", transition: "transform 0.12s, box-shadow 0.12s" },
   hint: { marginTop: 10, fontSize: 12, color: "#9AA0B0", textAlign: "center" },
 
-  captureWrap: { background: "#FFFFFF", padding: "4px 0 6px" },
-  captureTitleRow: { display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 2 },
-  captureTitleText: { fontFamily: "'Nanum Gothic Coding', monospace", fontWeight: 700, fontSize: 20, color: "#1A1D29" },
+  captureWrap: { background: "#FFFFFF", padding: "28px 24px 26px" },
+  captureTitleRow: { display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 2, paddingTop: 4, paddingRight: 4 },
+  captureTitleText: { fontFamily: "'Pretendard', sans-serif", fontWeight: 800, fontSize: 20, letterSpacing: "-0.3px", color: "#1A1D29" },
   captureDate: { fontSize: 11.5, color: "#9AA0B0", margin: "2px 0 18px" },
   statsBlock: { marginBottom: 4 },
   statsSubLabel: { fontSize: 12, fontWeight: 700, color: "#8A8FA3", letterSpacing: "0.5px", marginBottom: 8 },
@@ -606,23 +654,27 @@ const styles = {
   statsCell: { fontSize: 11, color: "#9AA0B0", fontWeight: 500 },
   statsRow: { display: "flex", gap: 6, padding: "8px 2px", borderBottom: "1px solid #F0F2F6" },
   statsName: { fontSize: 13.5, fontWeight: 700, color: "#1A1D29" },
-  statsNum: { fontFamily: "'Nanum Gothic Coding', monospace", fontSize: 13, color: "#1A1D29", textAlign: "right", fontVariantNumeric: "tabular-nums" },
+  statsNum: { fontFamily: "'Space Mono', 'Pretendard', monospace", fontSize: 13, color: "#1A1D29", textAlign: "right", fontVariantNumeric: "tabular-nums" },
 
-  stamp: { fontFamily: "'Nanum Gothic Coding', monospace", fontSize: 12, fontWeight: 700, color: "#0F9D64", border: "2px solid #0F9D64", borderRadius: 3, padding: "3px 8px", letterSpacing: "1px", transform: "rotate(-8deg)", display: "inline-block", animation: "stampIn 0.4s ease-out" },
+  stamp: { fontFamily: "'Space Mono', 'Pretendard', monospace", fontSize: 12, fontWeight: 700, color: "#0F9D64", border: "2px solid #0F9D64", borderRadius: 3, padding: "3px 8px", letterSpacing: "1px", transform: "rotate(-8deg)", display: "inline-block", animation: "stampIn 0.4s ease-out" },
   evenText: { fontSize: 14, color: "#4B5165", textAlign: "center", padding: "10px 0" },
   groupHint: { fontSize: 12, color: "#9AA0B0", margin: "0 0 14px" },
   groupList: { display: "flex", flexDirection: "column", gap: 10 },
   groupCard: { background: "#F6F8FB", border: "1px solid #E3E6EC", padding: "12px 14px" },
   groupHeadRow: { display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: 8, paddingBottom: 8, borderBottom: "1px solid #E3E6EC" },
   groupFrom: { fontSize: 15.5, fontWeight: 700, color: "#1A1D29" },
-  groupSubtotal: { fontFamily: "'Nanum Gothic Coding', monospace", fontSize: 12.5, fontWeight: 700, color: "#E8503A" },
+  groupSubtotal: { fontFamily: "'Space Mono', 'Pretendard', monospace", fontSize: 12.5, fontWeight: 700, color: "#E8503A" },
   txList: { listStyle: "none", margin: 0, padding: 0, display: "flex", flexDirection: "column", gap: 5 },
   txRow: { display: "flex", alignItems: "baseline", gap: 8 },
   txArrow: { fontSize: 13, color: "#B9BFCC" },
   txTo: { fontSize: 14.5, fontWeight: 700, color: "#1A1D29", flex: 1 },
-  txAmount: { fontFamily: "'Nanum Gothic Coding', monospace", fontSize: 15, fontWeight: 700, color: "#0F9D64", fontVariantNumeric: "tabular-nums" },
+  txAmount: { fontFamily: "'Space Mono', 'Pretendard', monospace", fontSize: 15, fontWeight: 700, color: "#0F9D64", fontVariantNumeric: "tabular-nums" },
 
   actionRow: { display: "flex", gap: 8, marginTop: 16 },
   copyBtn: { flex: 1, padding: "12px 0", border: "none", background: "#0F9D64", color: "#FFFFFF", fontFamily: "inherit", fontSize: 14, fontWeight: 700, cursor: "pointer", transition: "background 0.15s" },
   downloadBtn: { flex: 1, padding: "12px 0", border: "none", background: "#1A1D29", color: "#FFFFFF", fontFamily: "inherit", fontSize: 14, fontWeight: 700, transition: "background 0.15s" },
+
+  footer: { marginTop: 20, display: "flex", alignItems: "center", gap: 8, fontSize: 12, color: "#9AA0B0" },
+  footerLink: { color: "#9AA0B0", textDecoration: "none" },
+  footerDot: { color: "#C7CCD8" },
 };
