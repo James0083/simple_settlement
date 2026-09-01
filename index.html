@@ -5,14 +5,17 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>정산서 - 모임 비용 자동 정산</title>
 <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin="anonymous" />
-<link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&display=swap" />
+<link rel="preconnect" href="https://fonts.googleapis.com" crossorigin="anonymous" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous" />
+<link rel="stylesheet" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
+<link rel="stylesheet" crossorigin href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&display=swap" />
 <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
 <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
 <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
 <script src="https://unpkg.com/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
 <style>
   html, body { margin: 0; padding: 0; }
+  #root { font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, sans-serif; }
 </style>
 </head>
 <body>
@@ -21,10 +24,7 @@
 <script type="text/babel">
 const { useState, useMemo, useRef } = React;
 
-const FONT_IMPORT = `
-  @import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css');
-  @import url('https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&display=swap');
-`;
+// 폰트는 <head>의 <link>로만 로드한다. (@import 이중 로딩 제거)
 
 const won = (n) => Math.round(n).toLocaleString("ko-KR");
 
@@ -319,7 +319,6 @@ function SettlementApp() {
   return (
     <div style={styles.page}>
       <style>{`
-        ${FONT_IMPORT}
         * { box-sizing: border-box; }
         input[type="number"]::-webkit-outer-spin-button,
         input[type="number"]::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
@@ -635,7 +634,7 @@ const styles = {
   personRow: { display: "flex", alignItems: "center", gap: 8 },
   nameInputFull: { flex: 1, minWidth: 0, fontFamily: "inherit", fontSize: 15, color: "#1A1D29", background: "transparent", border: "none", borderBottom: "1.5px solid #DDE1E8", padding: "8px 4px" },
   amountWrap: { flex: 1, display: "flex", alignItems: "baseline", justifyContent: "flex-end", borderBottom: "1.5px solid #DDE1E8", padding: "8px 4px", gap: 3 },
-  amountInput: { width: "100%", minWidth: 0, textAlign: "right", fontFamily: "'Space Mono', 'Pretendard', monospace", fontSize: 15, color: "#1A1D29", background: "transparent", border: "none" },
+  amountInput: { width: "100%", minWidth: 0, textAlign: "right", fontFamily: "'Space Grotesk', 'Pretendard', sans-serif", fontVariantNumeric: "tabular-nums", fontSize: 15, color: "#1A1D29", background: "transparent", border: "none" },
   wonSuffix: { fontSize: 12.5, color: "#8A8FA3", flexShrink: 0 },
   removeBtn: { width: 24, height: 24, flexShrink: 0, border: "none", background: "transparent", color: "#E8503A", fontSize: 13, opacity: 0.45, cursor: "pointer" },
   addBtn: { marginTop: 14, width: "100%", padding: "10px 0", border: "1.5px dashed #C7CCD8", borderRadius: 4, background: "transparent", color: "#4B5165", fontFamily: "inherit", fontSize: 13.5, fontWeight: 500, cursor: "pointer", transition: "background 0.15s, color 0.15s, border-color 0.15s" },
@@ -659,7 +658,7 @@ const styles = {
   summaryBlock: { display: "flex", flexDirection: "column", gap: 10 },
   summaryRow: { display: "flex", justifyContent: "space-between", alignItems: "baseline" },
   summaryLabel: { fontSize: 13.5, color: "#4B5165" },
-  summaryValue: { fontFamily: "'Space Mono', 'Pretendard', monospace", fontSize: 16, fontWeight: 700, color: "#1A1D29", fontVariantNumeric: "tabular-nums" },
+  summaryValue: { fontFamily: "'Space Grotesk', 'Pretendard', sans-serif", fontSize: 16, fontWeight: 700, color: "#1A1D29", fontVariantNumeric: "tabular-nums" },
   calcBtn: { marginTop: 26, width: "100%", padding: "15px 0", border: "none", borderRadius: 4, background: "#E8503A", color: "#FFFFFF", fontFamily: "inherit", fontSize: 15.5, fontWeight: 700, letterSpacing: "0.5px", boxShadow: "2px 3px 0 #B8391F", transition: "transform 0.12s, box-shadow 0.12s" },
   hint: { marginTop: 10, fontSize: 12, color: "#9AA0B0", textAlign: "center" },
 
@@ -673,21 +672,21 @@ const styles = {
   statsCell: { fontSize: 11, color: "#9AA0B0", fontWeight: 500 },
   statsRow: { display: "flex", gap: 6, padding: "8px 2px", borderBottom: "1px solid #F0F2F6" },
   statsName: { fontSize: 13.5, fontWeight: 700, color: "#1A1D29" },
-  statsNum: { fontFamily: "'Space Mono', 'Pretendard', monospace", fontSize: 13, color: "#1A1D29", textAlign: "right", fontVariantNumeric: "tabular-nums" },
+  statsNum: { fontFamily: "'Space Grotesk', 'Pretendard', sans-serif", fontSize: 13, color: "#1A1D29", textAlign: "right", fontVariantNumeric: "tabular-nums" },
 
-  stamp: { fontFamily: "'Space Mono', 'Pretendard', monospace", fontSize: 12, fontWeight: 700, color: "#0F9D64", border: "2px solid #0F9D64", borderRadius: 4, padding: "3px 8px", letterSpacing: "1px", transform: "rotate(-8deg)", display: "inline-block", animation: "stampIn 0.4s ease-out" },
+  stamp: { fontFamily: "'Space Grotesk', 'Pretendard', sans-serif", fontVariantNumeric: "tabular-nums", fontSize: 12, fontWeight: 700, color: "#0F9D64", border: "2px solid #0F9D64", borderRadius: 4, padding: "3px 8px", letterSpacing: "1px", transform: "rotate(-8deg)", display: "inline-block", animation: "stampIn 0.4s ease-out" },
   evenText: { fontSize: 14, color: "#4B5165", textAlign: "center", padding: "10px 0" },
   groupHint: { fontSize: 12, color: "#9AA0B0", margin: "0 0 14px" },
   groupList: { display: "flex", flexDirection: "column", gap: 10 },
   groupCard: { background: "#F6F8FB", border: "1px solid #E3E6EC", borderRadius: 4, padding: "12px 14px" },
   groupHeadRow: { display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: 8, paddingBottom: 8, borderBottom: "1px solid #E3E6EC" },
   groupFrom: { fontSize: 15.5, fontWeight: 700, color: "#1A1D29" },
-  groupSubtotal: { fontFamily: "'Space Mono', 'Pretendard', monospace", fontSize: 12.5, fontWeight: 700, color: "#E8503A" },
+  groupSubtotal: { fontFamily: "'Space Grotesk', 'Pretendard', sans-serif", fontVariantNumeric: "tabular-nums", fontSize: 12.5, fontWeight: 700, color: "#E8503A" },
   txList: { listStyle: "none", margin: 0, padding: 0, display: "flex", flexDirection: "column", gap: 5 },
   txRow: { display: "flex", alignItems: "baseline", gap: 8 },
   txArrow: { fontSize: 13, color: "#B9BFCC" },
   txTo: { fontSize: 14.5, fontWeight: 700, color: "#1A1D29", flex: 1 },
-  txAmount: { fontFamily: "'Space Mono', 'Pretendard', monospace", fontSize: 15, fontWeight: 700, color: "#0F9D64", fontVariantNumeric: "tabular-nums" },
+  txAmount: { fontFamily: "'Space Grotesk', 'Pretendard', sans-serif", fontSize: 15, fontWeight: 700, color: "#0F9D64", fontVariantNumeric: "tabular-nums" },
 
   actionRow: { display: "flex", gap: 8, marginTop: 16 },
   copyBtn: { flex: 1, padding: "12px 0", border: "none", borderRadius: 4, background: "#0F9D64", color: "#FFFFFF", fontFamily: "inherit", fontSize: 14, fontWeight: 700, cursor: "pointer", transition: "background 0.15s" },
