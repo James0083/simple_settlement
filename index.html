@@ -3,7 +3,9 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>정산서 - 모임 비용 자동 정산</title>
+<title>딱정산 - 모임 비용 자동 정산</title>
+<link rel="icon" type="image/svg+xml" href="favicon.svg" />
+<link rel="apple-touch-icon" href="favicon.svg" />
 <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin="anonymous" />
 <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin="anonymous" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous" />
@@ -46,6 +48,31 @@ function isMobileDevice() {
 
 function makeParticipant(name = "") {
   return { id: uid(), name };
+}
+
+// '딱정산' 로고 — 영수증 + 체크마크 (favicon.svg 와 동일한 도형)
+function BrandLogo({ style }) {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      width="1em"
+      height="1em"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.7"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      style={style}
+      aria-hidden="true"
+    >
+      <path d="M5 19.5V5a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v7" />
+      <path d="M5 19.5 6.6 18l1.6 1.5L9.8 18l1.6 1.5L13 19.2" />
+      <path d="M8 7.5h6" />
+      <path d="M8 10.75h6" />
+      <path d="M8 14h4" />
+      <path d="m13.3 14.7 2.6 2.6L20 11.2" />
+    </svg>
+  );
 }
 
 // 채무자 각각이 채권자 각각에게 "받을 금액에 비례"해서 나눠 보내도록 계산.
@@ -369,8 +396,8 @@ function SettlementApp() {
 
         <div style={styles.inner}>
           <header style={styles.header}>
-            <div style={styles.eyebrowLine} aria-hidden="true" />
-            <h1 style={styles.title}>정산서</h1>
+            <BrandLogo style={styles.logo} />
+            <h1 style={styles.title}>딱정산</h1>
             <p style={styles.subtitle}>회차별로 결제자와 참여자를 나눠 입력하면, 자동으로 정산해드려요</p>
           </header>
 
@@ -432,7 +459,7 @@ function SettlementApp() {
                   <div style={styles.roundFieldRow}>
                     <select
                       className="settle-select"
-                      style={styles.selectInput}
+                      style={{ ...styles.selectInput, ...(r.payerId ? null : styles.selectInputWarn) }}
                       value={r.payerId}
                       onChange={(e) => updateRound(r.id, "payerId", e.target.value)}
                     >
@@ -457,6 +484,9 @@ function SettlementApp() {
                       <span style={styles.wonSuffix}>원</span>
                     </div>
                   </div>
+                  {!r.payerId && (
+                    <p style={styles.payerWarn}>⚠ 결제한 사람을 선택하세요</p>
+                  )}
 
                   <div style={styles.roundChipHeadRow}>
                     <span style={styles.roundChipLabel}>참여한 사람</span>
@@ -533,7 +563,10 @@ function SettlementApp() {
 
               <div ref={captureRef} style={styles.captureWrap}>
                 <div style={styles.captureTitleRow}>
-                  <span style={styles.captureTitleText}>정산서</span>
+                  <span style={styles.captureTitleText}>
+                    <BrandLogo style={styles.captureLogo} />
+                    딱정산
+                  </span>
                   <span className="settle-stamp" style={styles.stamp}>정산 완료</span>
                 </div>
                 <p style={styles.captureDate}>{calcDate}</p>
@@ -643,7 +676,7 @@ function SettlementApp() {
                   style={styles.previewShareBtn}
                   onClick={() => handleShareImage(imagePreview.file)}
                 >
-                  공유로 저장
+                  공유
                 </button>
               )}
               <button style={styles.previewCloseBtn} onClick={() => setImagePreview(null)}>
@@ -672,7 +705,7 @@ const styles = {
   zigzagBottom: zigzag(true),
   inner: { padding: "8px 30px 34px" },
   header: { textAlign: "center", paddingTop: 22, paddingBottom: 22 },
-  eyebrowLine: { width: 40, height: 2, background: "#E8503A", margin: "0 auto 16px" },
+  logo: { fontSize: 40, color: "#1A1D29", display: "block", margin: "0 auto 12px" },
   title: { fontFamily: "'Pretendard', sans-serif", fontWeight: 800, fontSize: 34, letterSpacing: "-1px", color: "#1A1D29", margin: "0 0 10px" },
   subtitle: { fontSize: 13.5, lineHeight: 1.6, color: "#5C6178", margin: "0 auto", maxWidth: 300 },
   section: { marginTop: 4 },
@@ -693,6 +726,8 @@ const styles = {
   roundTitleInput: { flex: 1, minWidth: 0, fontFamily: "inherit", fontSize: 14, fontWeight: 700, color: "#1A1D29", background: "transparent", border: "none", borderBottom: "1.5px solid #DDE1E8", padding: "6px 2px" },
   roundFieldRow: { display: "flex", gap: 8, marginBottom: 10 },
   selectInput: { flex: 1, minWidth: 0, fontFamily: "inherit", fontSize: 13.5, color: "#1A1D29", background: "#FFFFFF", border: "1px solid #DDE1E8", borderRadius: 4, padding: "8px 6px" },
+  selectInputWarn: { borderColor: "#E8503A", color: "#9AA0B0" },
+  payerWarn: { margin: "-2px 0 10px", fontSize: 11.5, fontWeight: 500, color: "#E8503A" },
   roundChipHeadRow: { display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 6 },
   roundChipLabel: { fontSize: 11.5, color: "#8A8FA3", fontWeight: 500 },
   roundToggleAllBtn: { border: "none", background: "transparent", color: "#5C6178", fontSize: 11.5, fontWeight: 500, cursor: "pointer", textDecoration: "underline" },
@@ -711,7 +746,8 @@ const styles = {
 
   captureWrap: { background: "#FFFFFF", padding: "28px 24px 26px" },
   captureTitleRow: { display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 2, paddingTop: 4, paddingRight: 4 },
-  captureTitleText: { fontFamily: "'Pretendard', sans-serif", fontWeight: 800, fontSize: 20, letterSpacing: "-0.3px", color: "#1A1D29" },
+  captureTitleText: { fontFamily: "'Pretendard', sans-serif", fontWeight: 800, fontSize: 20, letterSpacing: "-0.3px", color: "#1A1D29", display: "inline-flex", alignItems: "center", gap: 6 },
+  captureLogo: { fontSize: 22, color: "#1A1D29" },
   captureDate: { fontSize: 11.5, color: "#9AA0B0", margin: "2px 0 18px" },
   statsBlock: { marginBottom: 4 },
   statsSubLabel: { fontSize: 12, fontWeight: 700, color: "#8A8FA3", letterSpacing: "0.5px", marginBottom: 8 },
