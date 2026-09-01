@@ -6,7 +6,13 @@
 <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin="anonymous" />
 <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
 <title>이용약관 - 딱정산</title>
+<link rel="manifest" href="manifest.webmanifest" />
+<meta name="theme-color" content="#EEF1F4" />
 <link rel="icon" type="image/svg+xml" href="favicon.svg" />
+<link rel="apple-touch-icon" href="apple-touch-icon.png" />
+<meta name="mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-title" content="딱정산" />
 <style>
   * { box-sizing: border-box; }
   html, body { margin: 0; padding: 0; }
@@ -106,5 +112,12 @@
       이용약관에 대해 궁금한 점이 있으시면 <a class="inline" href="contact.html">문의하기</a> 페이지를 통해 남겨주세요.
     </p>
   </div>
+<script>
+  if ("serviceWorker" in navigator) {
+    window.addEventListener("load", function () {
+      navigator.serviceWorker.register("sw.js").catch(function () {});
+    });
+  }
+</script>
 </body>
 </html>
