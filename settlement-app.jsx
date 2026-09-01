@@ -14,11 +14,16 @@ function uid() {
   return Math.random().toString(36).slice(2, 9);
 }
 
-// iOS/Android 휴대폰에서만 true. 맥/윈도우 데스크톱, 아이패드 등은 false로 취급해
-// 공유 시트 대신 곧바로 파일 다운로드가 되도록 한다.
-function isPhoneDevice() {
+// 모바일/태블릿이면 true. 데스크톱(맥·윈도우)은 false로 두고 곧바로 파일 다운로드시킨다.
+// 모바일에서는 브라우저가 이미지 파일 다운로드를 막는 경우가 많아, 대신 이미지를
+// 크게 띄워 "길게 눌러 사진에 추가" 하도록 안내한다.
+function isMobileDevice() {
   if (typeof navigator === "undefined") return false;
-  return /iPhone|Android/i.test(navigator.userAgent);
+  const ua = navigator.userAgent || "";
+  if (/iPhone|iPad|iPod|Android/i.test(ua)) return true;
+  // iPadOS 13+ Safari는 UA를 Macintosh로 보고하므로 터치 지원 여부로 구분한다.
+  if (/Macintosh/.test(ua) && navigator.maxTouchPoints > 1) return true;
+  return false;
 }
 
 function makeParticipant(name = "") {
@@ -81,6 +86,7 @@ export default function SettlementApp() {
   const [calcDate, setCalcDate] = useState("");
   const [copied, setCopied] = useState(false);
   const [downloading, setDownloading] = useState(false);
+  const [imagePreview, setImagePreview] = useState(null); // { url, file } — 모바일 저장용 오버레이
   const resultRef = useRef(null);
   const captureRef = useRef(null);
 
@@ -123,6 +129,12 @@ export default function SettlementApp() {
   const updateRound = (id, field, value) => {
     setCalculated(false);
     setRounds((prev) => prev.map((r) => (r.id === id ? { ...r, [field]: value } : r)));
+  };
+
+  // 금액은 숫자만 허용하고 맨 앞 0 은 제거한다. ("0" 단독 입력도 빈 값으로)
+  const updateRoundAmount = (id, raw) => {
+    const digits = String(raw).replace(/[^0-9]/g, "").replace(/^0+/, "");
+    updateRound(id, "amount", digits);
   };
 
   const removeRound = (id) => {
@@ -262,28 +274,37 @@ export default function SettlementApp() {
   const canvasToBlob = (canvas) =>
     new Promise((resolve) => canvas.toBlob((blob) => resolve(blob), "image/png"));
 
+  const canShareFile = (file) =>
+    !!file &&
+    typeof navigator !== "undefined" &&
+    !!navigator.canShare &&
+    navigator.canShare({ files: [file] });
+
+  const handleShareImage = async (file) => {
+    if (!canShareFile(file)) return;
+    try {
+      // iOS에서는 files 만 넘겨야 공유 시트에 "이미지 저장" 항목이 나타난다.
+      // title/text 를 함께 넘기면 텍스트 공유로 인식돼 "이미지 저장"이 사라진다.
+      await navigator.share({ files: [file] });
+    } catch (shareErr) {
+      // 사용자가 취소한 경우 등은 무시
+    }
+  };
+
   const handleDownloadImage = async () => {
     if (!captureRef.current) return;
     setDownloading(true);
     try {
       const canvas = await html2canvas(captureRef.current, { backgroundColor: "#FFFFFF", scale: 2 });
+      const dataUrl = canvas.toDataURL("image/png");
       const blob = await canvasToBlob(canvas);
-      if (!blob) return;
+      const file = blob ? new File([blob], "정산결과.png", { type: "image/png" }) : null;
 
-      const file = new File([blob], "정산결과.png", { type: "image/png" });
-
-      // 아이폰·안드로이드에서만 공유 시트를 띄워 "사진 앱에 저장"이 가능하게 하고,
-      // 그 외(맥/윈도우 등 데스크톱)에서는 항상 파일 다운로드로 처리한다.
-      const canUseShareSheet =
-        isPhoneDevice() && navigator.canShare && navigator.canShare({ files: [file] });
-
-      if (canUseShareSheet) {
-        try {
-          await navigator.share({ files: [file], title: "정산결과" });
-        } catch (shareErr) {
-          // 사용자가 공유를 취소한 경우 등은 무시
-        }
-      } else {
+      if (isMobileDevice()) {
+        // 모바일: 브라우저가 이미지 파일 다운로드를 막는 경우가 많아,
+        // 이미지를 크게 띄워 "길게 눌러 사진에 추가"로 저장하도록 안내한다.
+        setImagePreview({ url: dataUrl, file });
+      } else if (blob) {
         const url = URL.createObjectURL(blob);
         const link = document.createElement("a");
         link.download = "정산결과.png";
@@ -408,11 +429,12 @@ export default function SettlementApp() {
                       <input
                         className="settle-amount-input"
                         style={styles.amountInput}
-                        type="number"
+                        type="text"
                         inputMode="numeric"
+                        pattern="[0-9]*"
                         placeholder="0"
                         value={r.amount}
-                        onChange={(e) => updateRound(r.id, "amount", e.target.value)}
+                        onChange={(e) => updateRoundAmount(r.id, e.target.value)}
                       />
                       <span style={styles.wonSuffix}>원</span>
                     </div>
@@ -589,6 +611,30 @@ export default function SettlementApp() {
           문의하기
         </a>
       </footer>
+
+      {imagePreview && (
+        <div style={styles.previewOverlay} onClick={() => setImagePreview(null)}>
+          <div style={styles.previewBox} onClick={(e) => e.stopPropagation()}>
+            <p style={styles.previewHint}>
+              이미지를 <b>길게 눌러</b> “사진에 추가”를 선택하면 사진 앱에 저장돼요
+            </p>
+            <img src={imagePreview.url} alt="정산결과" style={styles.previewImg} />
+            <div style={styles.previewBtnRow}>
+              {canShareFile(imagePreview.file) && (
+                <button
+                  style={styles.previewShareBtn}
+                  onClick={() => handleShareImage(imagePreview.file)}
+                >
+                  공유로 저장
+                </button>
+              )}
+              <button style={styles.previewCloseBtn} onClick={() => setImagePreview(null)}>
+                닫기
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
@@ -678,4 +724,12 @@ const styles = {
   footer: { marginTop: 20, display: "flex", alignItems: "center", gap: 8, fontSize: 12, color: "#9AA0B0" },
   footerLink: { color: "#9AA0B0", textDecoration: "none" },
   footerDot: { color: "#C7CCD8" },
+
+  previewOverlay: { position: "fixed", inset: 0, zIndex: 1000, background: "rgba(20,22,30,0.82)", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: 20, overflowY: "auto" },
+  previewBox: { width: "100%", maxWidth: 380, display: "flex", flexDirection: "column", alignItems: "center", gap: 12 },
+  previewHint: { margin: 0, color: "#FFFFFF", fontSize: 13.5, lineHeight: 1.6, textAlign: "center" },
+  previewImg: { width: "100%", height: "auto", borderRadius: 6, boxShadow: "0 12px 32px rgba(0,0,0,0.4)", background: "#FFFFFF", WebkitTouchCallout: "default" },
+  previewBtnRow: { display: "flex", gap: 8, width: "100%" },
+  previewShareBtn: { flex: 1, padding: "12px 0", border: "none", borderRadius: 4, background: "#0F9D64", color: "#FFFFFF", fontFamily: "inherit", fontSize: 14, fontWeight: 700, cursor: "pointer" },
+  previewCloseBtn: { flex: 1, padding: "12px 0", border: "1px solid rgba(255,255,255,0.5)", borderRadius: 4, background: "transparent", color: "#FFFFFF", fontFamily: "inherit", fontSize: 14, fontWeight: 700, cursor: "pointer" },
 };
