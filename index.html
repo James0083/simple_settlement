@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>정산서 - 모임 비용 자동 정산</title>
+<script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+<script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+<script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+<style>
+  html, body { margin: 0; padding: 0; }
+</style>
+</head>
+<body>
+<div id="root"></div>
+
+<script type="text/babel">
+const { useState, useMemo, useRef } = React;
+
+const FONT_IMPORT = `@import url('https://fonts.googleapis.com/css2?family=Nanum+Gothic+Coding:wght@400;700&family=Noto+Sans+KR:wght@400;500;700;900&display=swap');`;
+
+const won = (n) => Math.round(n).toLocaleString("ko-KR");
+
+function uid() {
+  return Math.random().toString(36).slice(2, 9);
+}
+
+function makePerson(name = "") {
+  return { id: uid(), name, amount: "" };
+}
+
+function computeFairTransactions(validPeople, average) {
+  const withBalance = validPeople.map((p) => ({
+    name: p.name.trim(),
+    balance: p.num - average,
+  }));
+
+  const creditors = withBalance.filter((p) => p.balance > 0.5);
+  const debtors = withBalance
+    .filter((p) => p.balance < -0.5)
+    .map((p) => ({ name: p.name, debt: -p.balance }));
+
+  if (creditors.length === 0 || debtors.length === 0) return [];
+
+  const totalCredit = creditors.reduce((s, c) => s + c.balance, 0);
+
+  const entries = [];
+  debtors.forEach((d) => {
+    creditors.forEach((c) => {
+      const raw = (d.debt * c.balance) / totalCredit;
+      entries.push({ from: d.name, to: c.name, raw, floor: Math.floor(raw) });
+    });
+  });
+
+  const sumFloor = entries.reduce((s, e) => s + e.floor, 0);
+  const targetTotal = Math.round(totalCredit);
+  const diff = targetTotal - sumFloor;
+
+  const order = entries
+    .map((e, idx) => ({ idx, remainder: e.raw - e.floor }))
+    .sort((a, b) => b.remainder - a.remainder);
+
+  for (let i = 0; i < diff && i < order.length; i++) {
+    entries[order[i].idx].floor += 1;
+  }
+
+  return entries
+    .filter((e) => e.floor > 0)
+    .map((e) => ({ from: e.from, to: e.to, amount: e.floor }));
+}
+
+function SettlementApp() {
+  const [people, setPeople] = useState([makePerson(), makePerson(), makePerson()]);
+  const [calculated, setCalculated] = useState(false);
+  const [copied, setCopied] = useState(false);
+  const resultRef = useRef(null);
+
+  const updatePerson = (id, field, value) => {
+    setCalculated(false);
+    setPeople((prev) => prev.map((p) => (p.id === id ? { ...p, [field]: value } : p)));
+  };
+
+  const addPerson = () => {
+    setCalculated(false);
+    setPeople((prev) => [...prev, makePerson()]);
+  };
+
+  const removePerson = (id) => {
+    setCalculated(false);
+    setPeople((prev) => prev.filter((p) => p.id !== id));
+  };
+
+  const validPeople = useMemo(
+    () =>
+      people
+        .map((p) => ({ ...p, num: parseFloat(p.amount) || 0 }))
+        .filter((p) => p.name.trim().length > 0),
+    [people]
+  );
+
+  const total = useMemo(() => validPeople.reduce((sum, p) => sum + p.num, 0), [validPeople]);
+  const average = validPeople.length > 0 ? total / validPeople.length : 0;
+
+  const flatTransactions = useMemo(() => {
+    if (!calculated || validPeople.length < 2) return [];
+    return computeFairTransactions(validPeople, average);
+  }, [calculated, validPeople, average]);
+
+  const groupedTransactions = useMemo(() => {
+    const order = [];
+    const map = new Map();
+    flatTransactions.forEach((t) => {
+      if (!map.has(t.from)) {
+        map.set(t.from, []);
+        order.push(t.from);
+      }
+      map.get(t.from).push(t);
+    });
+    return order.map((from) => {
+      const items = map.get(from);
+      return { from, items, subtotal: items.reduce((s, i) => s + i.amount, 0) };
+    });
+  }, [flatTransactions]);
+
+  const canCalculate = validPeople.length >= 2 && total > 0;
+
+  const handleCalculate = () => {
+    if (!canCalculate) return;
+    setCalculated(true);
+    setTimeout(() => {
+      resultRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+    }, 50);
+  };
+
+  const handleCopy = async () => {
+    const lines = ["정산 결과"];
+    groupedTransactions.forEach((g) => {
+      lines.push(`${g.from} (총 ${won(g.subtotal)}원)`);
+      g.items.forEach((i) => lines.push(`  → ${i.to}  ${won(i.amount)}원`));
+    });
+    const text = lines.join("\n");
+    try {
+      await navigator.clipboard.writeText(text);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 1800);
+    } catch (e) {
+      setCopied(false);
+    }
+  };
+
+  return (
+    <div style={styles.page}>
+      <style>{`
+        ${FONT_IMPORT}
+        * { box-sizing: border-box; }
+        input[type="number"]::-webkit-outer-spin-button,
+        input[type="number"]::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+        input[type="number"] { -moz-appearance: textfield; }
+        .settle-name-input:focus, .settle-amount-input:focus { outline: none; background: #F3F6FB; }
+        .settle-remove-btn:hover { opacity: 1; }
+        .settle-add-btn:hover { background: #1A1D29; color: #FFFFFF; border-color: #1A1D29; }
+        .settle-calc-btn:hover { transform: translateY(-1px); box-shadow: 3px 5px 0 #B8391F; }
+        .settle-calc-btn:active { transform: translateY(1px); box-shadow: 1px 2px 0 #B8391F; }
+        .settle-copy-btn:hover { background: #0C6B4E; }
+        @media (prefers-reduced-motion: reduce) { .settle-stamp { animation: none !important; } }
+        @keyframes stampIn {
+          0% { opacity: 0; transform: rotate(-8deg) scale(1.6); }
+          60% { opacity: 1; transform: rotate(-8deg) scale(0.92); }
+          100% { opacity: 1; transform: rotate(-8deg) scale(1); }
+        }
+      `}</style>
+
+      <div style={styles.receipt}>
+        <div style={styles.zigzagTop} aria-hidden="true" />
+        <div style={styles.inner}>
+          <header style={styles.header}>
+            <div style={styles.eyebrowLine} aria-hidden="true" />
+            <h1 style={styles.title}>정산서</h1>
+            <p style={styles.subtitle}>각자 낸 돈을 입력하면, 누가 누구에게 얼마를 보내야 하는지 계산해요</p>
+          </header>
+
+          <section style={styles.section}>
+            <div style={styles.sectionLabel}>참가자</div>
+            <div style={styles.peopleList}>
+              <div style={styles.listHeadRow}>
+                <span style={{ ...styles.listHeadCell, flex: 1.3 }}>이름</span>
+                <span style={{ ...styles.listHeadCell, flex: 1, textAlign: "right" }}>낸 금액</span>
+                <span style={{ width: 28 }} />
+              </div>
+              {people.map((p) => (
+                <div key={p.id} style={styles.personRow}>
+                  <input
+                    className="settle-name-input"
+                    style={styles.nameInput}
+                    type="text"
+                    placeholder="이름"
+                    value={p.name}
+                    onChange={(e) => updatePerson(p.id, "name", e.target.value)}
+                  />
+                  <div style={styles.amountWrap}>
+                    <input
+                      className="settle-amount-input"
+                      style={styles.amountInput}
+                      type="number"
+                      inputMode="numeric"
+                      placeholder="0"
+                      value={p.amount}
+                      onChange={(e) => updatePerson(p.id, "amount", e.target.value)}
+                    />
+                    <span style={styles.wonSuffix}>원</span>
+                  </div>
+                  <button
+                    className="settle-remove-btn"
+                    style={styles.removeBtn}
+                    onClick={() => removePerson(p.id)}
+                    aria-label={`${p.name || "참가자"} 삭제`}
+                  >
+                    ✕
+                  </button>
+                </div>
+              ))}
+            </div>
+            <button className="settle-add-btn" style={styles.addBtn} onClick={addPerson}>
+              + 참가자 추가
+            </button>
+          </section>
+
+          <div style={styles.dashedDivider} aria-hidden="true" />
+
+          <section style={styles.summaryBlock}>
+            <div style={styles.summaryRow}>
+              <span style={styles.summaryLabel}>참가 인원</span>
+              <span style={styles.summaryValue}>{validPeople.length}명</span>
+            </div>
+            <div style={styles.summaryRow}>
+              <span style={styles.summaryLabel}>총 사용 금액</span>
+              <span style={styles.summaryValue}>{won(total)}원</span>
+            </div>
+            <div style={styles.summaryRow}>
+              <span style={styles.summaryLabel}>1인당 평균</span>
+              <span style={{ ...styles.summaryValue, color: "#E8503A" }}>
+                {validPeople.length > 0 ? won(average) : 0}원
+              </span>
+            </div>
+          </section>
+
+          <button
+            className="settle-calc-btn"
+            style={{ ...styles.calcBtn, opacity: canCalculate ? 1 : 0.45, cursor: canCalculate ? "pointer" : "not-allowed" }}
+            onClick={handleCalculate}
+            disabled={!canCalculate}
+          >
+            정산 계산하기
+          </button>
+          {!canCalculate && (
+            <p style={styles.hint}>이름과 금액을 입력한 참가자가 2명 이상이어야 계산할 수 있어요.</p>
+          )}
+
+          {calculated && (
+            <div ref={resultRef}>
+              <div style={styles.dashedDivider} aria-hidden="true" />
+              <section style={styles.resultSection}>
+                <div style={styles.resultHeadRow}>
+                  <span style={styles.sectionLabel}>정산 결과</span>
+                  <span className="settle-stamp" style={styles.stamp}>정산 완료</span>
+                </div>
+                <p style={styles.groupHint}>보내는 사람별로 묶어서 보여드려요</p>
+
+                {groupedTransactions.length === 0 ? (
+                  <p style={styles.evenText}>모두 똑같이 냈어요. 보낼 돈이 없어요.</p>
+                ) : (
+                  <div style={styles.groupList}>
+                    {groupedTransactions.map((g, gi) => (
+                      <div key={gi} style={styles.groupCard}>
+                        <div style={styles.groupHeadRow}>
+                          <span style={styles.groupFrom}>{g.from}</span>
+                          <span style={styles.groupSubtotal}>총 {won(g.subtotal)}원</span>
+                        </div>
+                        <ul style={styles.txList}>
+                          {g.items.map((t, i) => (
+                            <li key={i} style={styles.txRow}>
+                              <span style={styles.txArrow}>→</span>
+                              <span style={styles.txTo}>{t.to}</span>
+                              <span style={styles.txAmount}>{won(t.amount)}원</span>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    ))}
+                  </div>
+                )}
+
+                {groupedTransactions.length > 0 && (
+                  <button className="settle-copy-btn" style={styles.copyBtn} onClick={handleCopy}>
+                    {copied ? "복사됐어요" : "결과 복사하기"}
+                  </button>
+                )}
+              </section>
+            </div>
+          )}
+        </div>
+        <div style={styles.zigzagBottom} aria-hidden="true" />
+      </div>
+    </div>
+  );
+}
+
+const zigzag = (flip) => ({
+  height: 14,
+  background: `linear-gradient(${flip ? -135 : 135}deg, #FFFFFF 8px, transparent 0), linear-gradient(${flip ? 135 : -135}deg, #FFFFFF 8px, transparent 0)`,
+  backgroundSize: "16px 16px",
+  backgroundPosition: "left top",
+  backgroundColor: "transparent",
+});
+
+const styles = {
+  page: { minHeight: "100vh", width: "100%", background: "#EEF1F4", display: "flex", justifyContent: "center", padding: "40px 16px", fontFamily: "'Noto Sans KR', -apple-system, sans-serif" },
+  receipt: { width: "100%", maxWidth: 440, background: "#FFFFFF", boxShadow: "0 18px 40px rgba(26,29,41,0.12), 0 2px 0 rgba(26,29,41,0.04)", position: "relative" },
+  zigzagTop: zigzag(false),
+  zigzagBottom: zigzag(true),
+  inner: { padding: "8px 30px 34px" },
+  header: { textAlign: "center", paddingTop: 22, paddingBottom: 22 },
+  eyebrowLine: { width: 40, height: 2, background: "#E8503A", margin: "0 auto 16px" },
+  title: { fontFamily: "'Nanum Gothic Coding', monospace", fontWeight: 700, fontSize: 34, letterSpacing: "2px", color: "#1A1D29", margin: "0 0 10px" },
+  subtitle: { fontSize: 13.5, lineHeight: 1.6, color: "#5C6178", margin: "0 auto", maxWidth: 280 },
+  section: { marginTop: 4 },
+  sectionLabel: { fontSize: 12, fontWeight: 700, color: "#8A8FA3", letterSpacing: "1px", marginBottom: 12 },
+  peopleList: { display: "flex", flexDirection: "column", gap: 6 },
+  listHeadRow: { display: "flex", alignItems: "center", gap: 8, padding: "0 4px", marginBottom: 2 },
+  listHeadCell: { fontSize: 11, color: "#9AA0B0", fontWeight: 500 },
+  personRow: { display: "flex", alignItems: "center", gap: 8 },
+  nameInput: { flex: 1.3, minWidth: 0, fontFamily: "inherit", fontSize: 15, color: "#1A1D29", background: "transparent", border: "none", borderBottom: "1.5px solid #DDE1E8", padding: "8px 4px" },
+  amountWrap: { flex: 1, display: "flex", alignItems: "baseline", justifyContent: "flex-end", borderBottom: "1.5px solid #DDE1E8", padding: "8px 4px", gap: 3 },
+  amountInput: { width: "100%", minWidth: 0, textAlign: "right", fontFamily: "'Nanum Gothic Coding', monospace", fontSize: 15, color: "#1A1D29", background: "transparent", border: "none" },
+  wonSuffix: { fontSize: 12.5, color: "#8A8FA3", flexShrink: 0 },
+  removeBtn: { width: 24, height: 24, flexShrink: 0, border: "none", background: "transparent", color: "#E8503A", fontSize: 13, opacity: 0.45, cursor: "pointer" },
+  addBtn: { marginTop: 14, width: "100%", padding: "10px 0", border: "1.5px dashed #C7CCD8", background: "transparent", color: "#4B5165", fontFamily: "inherit", fontSize: 13.5, fontWeight: 500, cursor: "pointer", transition: "background 0.15s, color 0.15s, border-color 0.15s" },
+  dashedDivider: { borderTop: "1.5px dashed #DDE1E8", margin: "26px 0" },
+  summaryBlock: { display: "flex", flexDirection: "column", gap: 10 },
+  summaryRow: { display: "flex", justifyContent: "space-between", alignItems: "baseline" },
+  summaryLabel: { fontSize: 13.5, color: "#4B5165" },
+  summaryValue: { fontFamily: "'Nanum Gothic Coding', monospace", fontSize: 16, fontWeight: 700, color: "#1A1D29", fontVariantNumeric: "tabular-nums" },
+  calcBtn: { marginTop: 26, width: "100%", padding: "15px 0", border: "none", background: "#E8503A", color: "#FFFFFF", fontFamily: "inherit", fontSize: 15.5, fontWeight: 700, letterSpacing: "0.5px", boxShadow: "2px 3px 0 #B8391F", transition: "transform 0.12s, box-shadow 0.12s" },
+  hint: { marginTop: 10, fontSize: 12, color: "#9AA0B0", textAlign: "center" },
+  resultSection: { position: "relative" },
+  resultHeadRow: { display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 4 },
+  groupHint: { fontSize: 12, color: "#9AA0B0", margin: "0 0 14px" },
+  stamp: { fontFamily: "'Nanum Gothic Coding', monospace", fontSize: 12, fontWeight: 700, color: "#0F9D64", border: "2px solid #0F9D64", borderRadius: 3, padding: "3px 8px", letterSpacing: "1px", transform: "rotate(-8deg)", display: "inline-block", animation: "stampIn 0.4s ease-out" },
+  evenText: { fontSize: 14, color: "#4B5165", textAlign: "center", padding: "10px 0" },
+  groupList: { display: "flex", flexDirection: "column", gap: 10 },
+  groupCard: { background: "#F6F8FB", border: "1px solid #E3E6EC", padding: "12px 14px" },
+  groupHeadRow: { display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: 8, paddingBottom: 8, borderBottom: "1px solid #E3E6EC" },
+  groupFrom: { fontSize: 15.5, fontWeight: 700, color: "#1A1D29" },
+  groupSubtotal: { fontFamily: "'Nanum Gothic Coding', monospace", fontSize: 12.5, fontWeight: 700, color: "#E8503A" },
+  txList: { listStyle: "none", margin: 0, padding: 0, display: "flex", flexDirection: "column", gap: 5 },
+  txRow: { display: "flex", alignItems: "baseline", gap: 8 },
+  txArrow: { fontSize: 13, color: "#B9BFCC" },
+  txTo: { fontSize: 14.5, fontWeight: 700, color: "#1A1D29", flex: 1 },
+  txAmount: { fontFamily: "'Nanum Gothic Coding', monospace", fontSize: 15, fontWeight: 700, color: "#0F9D64", fontVariantNumeric: "tabular-nums" },
+  copyBtn: { marginTop: 16, width: "100%", padding: "12px 0", border: "none", background: "#0F9D64", color: "#FFFFFF", fontFamily: "inherit", fontSize: 14, fontWeight: 700, cursor: "pointer", transition: "background 0.15s" },
+};
+
+ReactDOM.createRoot(document.getElementById("root")).render(<SettlementApp />);
+</script>
+</body>
+</html>
