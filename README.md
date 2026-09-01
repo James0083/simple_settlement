@@ -21,14 +21,21 @@
 - **Babel Standalone** — 브라우저에서 실시간으로 JSX를 변환해주기 때문에 별도의 번들러(Webpack, Vite 등)나 `npm install` 없이 파일 하나로 실행됩니다
 - **html2canvas** — 정산 결과 DOM을 캔버스로 렌더링해 PNG로 저장하는 데 사용
 - **Web Share API** (`navigator.share`) — 모바일 브라우저에서 이미지를 사진 앱으로 바로 저장할 수 있도록 지원 (미지원 환경은 다운로드 링크로 자동 대체)
-- **Pretendard** (헤드라인/본문), **Space Mono** (금액 숫자 전용) — 웹폰트, CDN으로 로드
-- 순수 인라인 스타일 (별도 CSS 프레임워크 없음)
+- **Pretendard** (헤드라인/본문), **Space Mono** (금액 숫자 전용) — `index.html`의 `<head>`에서 `<link rel="stylesheet">`로 로드 (컴포넌트 안에도 `@import` 폴백을 함께 둡니다)
+- 순수 인라인 스타일 (별도 CSS 프레임워크 없음), 카드·버튼·입력창 등 사각형 요소는 4px 라운드 처리
 
 ```html
 <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
 <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
 <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
 <script src="https://unpkg.com/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+```
+
+`index.html`의 `<head>`에는 폰트도 `<link rel="stylesheet">`로 함께 로드합니다. 처음에는 컴포넌트 내부 CSS `@import`로만 폰트를 불러왔는데, 로딩 시점이 늦어 일부 환경에서 폰트가 적용되지 않는 경우가 있어 `<head>` 레벨 `<link>`로 옮겼습니다.
+
+```html
+<link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&display=swap" />
 ```
 
 ## 데이터 구조
