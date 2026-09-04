@@ -87,9 +87,11 @@ export const styles = {
     copyBtn: { flex: 1, padding: "12px 0", border: "none", borderRadius: 4, background: "#0F9D64", color: "#FFFFFF", fontFamily: "inherit", fontSize: 14, fontWeight: 700, cursor: "pointer", transition: "background 0.15s" },
     downloadBtn: { flex: 1, padding: "12px 0", border: "none", borderRadius: 4, background: "#1A1D29", color: "#FFFFFF", fontFamily: "inherit", fontSize: 14, fontWeight: 700, transition: "background 0.15s" },
 
-    footer: { marginTop: 20, display: "flex", alignItems: "center", gap: 8, fontSize: 12, color: "#9AA0B0" },
+    footerWrap: { marginTop: 20, display: "flex", flexDirection: "column", alignItems: "center", gap: 7 },
+    footer: { display: "flex", alignItems: "center", gap: 8, fontSize: 12, color: "#9AA0B0" },
     footerLink: { color: "#9AA0B0", textDecoration: "none" },
     footerDot: { color: "#C7CCD8" },
+    footerLab: { fontSize: 10.5, color: "#CDD1DA", textDecoration: "none", letterSpacing: "0.2px" },
 
     previewOverlay: { position: "fixed", inset: 0, zIndex: 1000, background: "rgba(20,22,30,0.82)", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: 20, overflowY: "auto" },
     previewBox: { width: "100%", maxWidth: 380, display: "flex", flexDirection: "column", alignItems: "center", gap: 12 },
