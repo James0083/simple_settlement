@@ -1,6 +1,6 @@
 /* 딱정산 서비스 워커 — 오프라인 지원 + 앱 설치 */
 // 자원(HTML·JS·아이콘)을 바꾸면 이 값을 올려야 사용자 기기에서 새로 받는다.
-const CACHE = "ddakjeongsan-v2";
+const CACHE = "ddakjeongsan-v3";
 
 // 앱 셸 (같은 출처)
 const CORE = [
@@ -14,7 +14,9 @@ const CORE = [
   "./apple-touch-icon.png",
   "./icons/icon-192.png",
   "./icons/icon-512.png",
+  "./icons/icon-maskable-192.png",
   "./icons/icon-maskable-512.png",
+  "./screenshots/home.png",
   // 앱 소스 (src/main.js 를 진입점으로 하는 ES 모듈 그래프)
   "./src/main.js",
   "./src/App.js",

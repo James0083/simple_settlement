@@ -150,14 +150,24 @@ await navigator.share({ files: [file] });
 
 ## PWA (홈 화면 설치 · 오프라인)
 
-정적 파일 3개를 추가해 PWA로 동작합니다.
+정적 파일(매니페스트 · 서비스 워커 · 아이콘 · 스크린샷)을 추가해 PWA로 동작합니다.
 
-- **`manifest.webmanifest`** — 앱 이름("딱정산"), 시작 URL, `display: standalone`, 테마 색(`#EEF1F4`), 아이콘 3종. `start_url`·`scope`를 상대 경로(`./`)로 둬서 하위 경로(`도메인/딱정산/`)에 배포해도 동작합니다.
-- **`sw.js`** — 서비스 워커. 캐시 이름 `ddakjeongsan-v2`.
-  - 설치 시: 같은 출처 파일(HTML 4종 + 매니페스트 + 아이콘 + `src/`의 앱 소스 15개)과 CDN(React·ReactDOM·scheduler·htm·html2canvas의 ESM + Pretendard·Space Grotesk CSS)을 캐시. CDN은 하나쯤 실패해도 설치가 진행됩니다.
+- **`manifest.webmanifest`** — `id`, `name`/`short_name`, `description`, `start_url`·`scope`(상대 경로 `./` — 하위 경로 배포도 동작), `display: standalone` + `display_override`, 테마/배경색(`#EEF1F4`), `categories`, `prefer_related_applications: false`, 아이콘 4종(any 192·512 + maskable 192·512), `screenshots`(`screenshots/home.png`, narrow). `id`·`screenshots`·maskable 아이콘은 Android WebAPK 품질 분류를 높이고, 지문(fingerprint)이 바뀌면 Chrome 이 WebAPK 를 최신 target SDK 로 다시 발급한다 — Play Protect 의 "이전 버전 앱" 경고 대응(아래 참고).
+- **`sw.js`** — 서비스 워커. 캐시 이름 `ddakjeongsan-v3`.
+  - 설치 시: 같은 출처 파일(HTML 4종 + 매니페스트 + 아이콘·스크린샷 + `src/`의 앱 소스 15개)과 CDN(React·ReactDOM·scheduler·htm·html2canvas의 ESM + Pretendard·Space Grotesk CSS)을 캐시. CDN은 하나쯤 실패해도 설치가 진행됩니다.
   - 요청 처리: 페이지 이동은 네트워크 우선(실패 시 캐시된 `index.html`), 그 외 자원은 캐시 우선 + 백그라운드 갱신(stale-while-revalidate).
-  - **자원(HTML·`src/` JS·아이콘)을 바꾸면** `sw.js`의 `CACHE` 값을 `ddakjeongsan-v3`처럼 올려야 사용자 기기에서 새로 받습니다. `src/`에 파일을 추가·삭제하면 `sw.js`의 `CORE` 목록도 함께 맞추고, vendor 버전을 바꾸면 `index.html`의 import map과 `sw.js`의 `VENDOR`를 함께 고쳐야 합니다.
-- **아이콘** — `favicon.svg`(브라우저 탭), `apple-touch-icon.png`(iOS 홈 화면 180px), `icons/icon-192.png`·`icons/icon-512.png`(any), `icons/icon-maskable-512.png`(Android 어댑티브). 모두 `favicon.svg`의 영수증·체크 도형을 `#1A1D29` 배경 + 흰색 선으로 렌더한 것으로, 로고를 바꾸면 `favicon.svg` 수정 후 아이콘 PNG를 다시 만들면 됩니다.
+  - **자원(HTML·`src/` JS·아이콘·매니페스트)을 바꾸면** `sw.js`의 `CACHE` 값을 `ddakjeongsan-v4`처럼 올려야 사용자 기기에서 새로 받습니다. `src/`·아이콘·스크린샷을 추가·삭제하면 `sw.js`의 `CORE` 목록도 함께 맞추고, vendor 버전을 바꾸면 `index.html`의 import map과 `sw.js`의 `VENDOR`를 함께 고쳐야 합니다.
+- **아이콘** — `favicon.svg`(브라우저 탭), `apple-touch-icon.png`(iOS 홈 화면 180px), `icons/icon-192.png`·`icons/icon-512.png`(any), `icons/icon-maskable-192.png`·`icons/icon-maskable-512.png`(Android 어댑티브). 모두 `favicon.svg`의 영수증·체크 도형을 `#1A1D29` 배경 + 흰색 선으로 렌더한 것으로, 로고를 바꾸면 `favicon.svg` 수정 후 아이콘 PNG를 다시 만들면 됩니다. maskable 192 는 512 를 `sips -z 192 192` 로 축소.
+
+### Google Play Protect "안전하지 않은 앱 / 이전 버전" 경고
+
+Android 에서 PWA 를 설치하면 Chrome/삼성인터넷이 **WebAPK**(구글 발급)를 만든다. 이 APK 의 `targetSdkVersion` 은 개발자가 못 정하고 구글 발급 서버가 정하는데, 오래전 발급된 WebAPK 는 target SDK 가 낮아 Play Protect 가 "이전 버전 앱" 경고를 띄운다. 대응:
+
+1. **매니페스트를 실질적으로 바꿔 재발급을 유도** — `id`·`icons`·`screenshots` 등 지문 필드가 바뀌면 Chrome 이 다음 방문 때 WebAPK 를 최신 target SDK 로 다시 발급한다. (본 저장소는 위 매니페스트 보강으로 적용됨.)
+2. **기기에서**: Chrome·"Google Play Services for WebAPKs" 최신화 → PWA 삭제 후 재설치.
+3. **커스텀 도메인**(예: `ddakjeongsan.com`) — `*.github.io` 는 공용 서브도메인이라 Safe Browsing 평판이 뒤섞여 신규 경로가 불이익을 받는다. 전용 도메인은 자체 평판을 쌓는다.
+4. **시간 + 색인** — Google Search Console 등록, 트래픽·색인이 쌓이면 신규 사이트 페널티가 풀리는 경우가 있다.
+5. Lighthouse PWA 감사로 설치 가능성 경고를 남기지 말 것.
 
 각 HTML `<head>`에 `<link rel="manifest">`·`theme-color`·`apple-touch-icon`·`apple-mobile-web-app-*` 메타를, `</body>` 직전에 서비스 워커 등록 스크립트를 넣었습니다.
 
@@ -205,7 +215,9 @@ manifest.webmanifest             # PWA 매니페스트
 sw.js                            # 서비스 워커 (오프라인 캐시)
 favicon.svg                      # 브라우저 탭 아이콘 (영수증 + 체크 로고)
 apple-touch-icon.png             # iOS 홈 화면 아이콘 (180px)
-icons/                           # PWA 아이콘 (192 / 512 / maskable-512)
+icons/                           # PWA 아이콘 (any 192·512 / maskable 192·512)
+screenshots/                     # 매니페스트 screenshots (설치 UI용, narrow)
+prototype/receipt-ocr.html       # 영수증 OCR 검토용 프로토타입 (앱 본체와 분리)
 ```
 
 `src/`는 표준 ES 모듈이라 `import`/`export`로 서로를 참조하고, 브라우저 모듈 로더가 `src/main.js`에서 시작해 그래프 전체를 해석합니다.
