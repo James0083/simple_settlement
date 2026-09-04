@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>영수증 OCR 프로토타입 — 딱정산</title>
+<!--
+  딱정산 · 영수증 이미지 인식 기능 검토용 프로토타입 (앱 본체와 분리)
+
+  목적: Tesseract.js(클라이언트 OCR, WASM)로 한글 영수증에서 매장명 · 합계 금액 ·
+        날짜를 얼마나 뽑아낼 수 있는지 실제 사진으로 확인한다. 서버 없음, 사진이
+        기기 밖으로 나가지 않음, GitHub Pages 에 그대로 배포 가능.
+
+  본 기능을 앱에 넣을지는 이 프로토타입의 정확도를 보고 결정한다.
+-->
+<style>
+  :root { color-scheme: light dark; }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; padding: 24px 16px 64px;
+    font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", sans-serif;
+    background: #EEF1F4; color: #1A1D29;
+    display: flex; flex-direction: column; align-items: center;
+  }
+  .wrap { width: 100%; max-width: 460px; }
+  h1 { font-size: 20px; margin: 0 0 4px; }
+  p.sub { margin: 0 0 20px; font-size: 13px; color: #5C6178; line-height: 1.6; }
+  .card { background: #fff; border: 1px solid #E3E6EC; border-radius: 8px; padding: 16px; margin-bottom: 14px; }
+  label.field { display: block; font-size: 12px; font-weight: 700; color: #8A8FA3; letter-spacing: .5px; margin-bottom: 6px; }
+  input[type="file"] { width: 100%; font-size: 13px; }
+  .opts { display: flex; flex-wrap: wrap; gap: 12px; margin: 12px 0 4px; font-size: 13px; color: #4B5165; }
+  .opts label { display: flex; align-items: center; gap: 6px; }
+  button.run {
+    margin-top: 14px; width: 100%; padding: 13px 0; border: none; border-radius: 6px;
+    background: #E8503A; color: #fff; font-size: 15px; font-weight: 700; cursor: pointer;
+  }
+  button.run:disabled { opacity: .5; cursor: not-allowed; }
+  .progress { margin-top: 12px; font-size: 12px; color: #5C6178; }
+  .bar { height: 6px; background: #E3E6EC; border-radius: 3px; overflow: hidden; margin-top: 6px; }
+  .bar > i { display: block; height: 100%; width: 0; background: #0F9D64; transition: width .2s; }
+  img.preview { width: 100%; border-radius: 6px; border: 1px solid #E3E6EC; display: block; }
+  .result-row { display: flex; align-items: baseline; gap: 10px; margin-bottom: 10px; }
+  .result-row label { flex: 0 0 64px; font-size: 12px; font-weight: 700; color: #8A8FA3; }
+  .result-row input {
+    flex: 1; min-width: 0; font-size: 15px; padding: 8px 10px;
+    border: 1px solid #DDE1E8; border-radius: 5px; background: #F6F8FB; color: #1A1D29;
+    font-family: inherit;
+  }
+  .result-row .num { font-variant-numeric: tabular-nums; font-weight: 700; }
+  details { margin-top: 10px; font-size: 12px; }
+  details summary { cursor: pointer; color: #5C6178; font-weight: 600; }
+  pre { white-space: pre-wrap; word-break: break-all; background: #F6F8FB; border: 1px solid #E3E6EC; border-radius: 6px; padding: 10px; font-size: 12px; line-height: 1.5; max-height: 320px; overflow: auto; }
+  .chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 6px; }
+  .chip { font-variant-numeric: tabular-nums; font-size: 12px; padding: 3px 8px; border-radius: 4px; background: #EEF1F4; border: 1px solid #DDE1E8; }
+  .chip.pick { background: #E6F7EF; border-color: #0F9D64; color: #0C6B4E; font-weight: 700; }
+  .meta { font-size: 11.5px; color: #9AA0B0; margin-top: 8px; }
+  .hidden { display: none; }
+  @media (prefers-color-scheme: dark) {
+    body { background: #14161E; color: #E8EAF0; }
+    .card { background: #1C1F29; border-color: #2A2E3A; }
+    .result-row input { background: #14161E; border-color: #2A2E3A; color: #E8EAF0; }
+    pre { background: #14161E; border-color: #2A2E3A; }
+    .chip { background: #14161E; border-color: #2A2E3A; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>영수증 OCR 프로토타입</h1>
+  <p class="sub">
+    영수증 사진 한 장을 넣으면 <b>Tesseract.js</b>(브라우저 안에서 도는 OCR)로
+    매장명 · 합계 금액 · 날짜를 추정합니다. 사진은 기기 밖으로 나가지 않고,
+    첫 실행 때 한글 데이터(약 10MB)를 한 번 받습니다.
+  </p>
+
+  <div class="card">
+    <label class="field" for="file">영수증 사진</label>
+    <input id="file" type="file" accept="image/*" capture="environment" />
+    <div class="opts">
+      <label><input type="checkbox" id="opt-gray" checked /> 그레이스케일+대비</label>
+      <label><input type="checkbox" id="opt-binarize" /> 이진화(Otsu)</label>
+      <label><input type="checkbox" id="opt-psm6" checked /> 표 모드(PSM 6)</label>
+    </div>
+    <button class="run" id="run" disabled>인식 시작</button>
+    <div class="progress hidden" id="progress">
+      <span id="progress-label">준비 중…</span>
+      <div class="bar"><i id="progress-bar"></i></div>
+    </div>
+  </div>
+
+  <div class="card hidden" id="preview-card">
+    <label class="field">전처리된 이미지 (OCR 입력)</label>
+    <img class="preview" id="preview" alt="" />
+  </div>
+
+  <div class="card hidden" id="result-card">
+    <label class="field">추정 결과 — 값이 틀리면 직접 고쳐 보세요</label>
+    <div class="result-row">
+      <label>매장명</label>
+      <input id="r-store" type="text" placeholder="(못 찾음)" />
+    </div>
+    <div class="result-row">
+      <label>금액</label>
+      <input id="r-amount" class="num" type="text" inputmode="numeric" placeholder="(못 찾음)" />
+    </div>
+    <div class="result-row">
+      <label>날짜</label>
+      <input id="r-date" type="text" placeholder="(못 찾음)" />
+    </div>
+
+    <details open>
+      <summary>금액 후보</summary>
+      <div class="chips" id="amount-candidates"></div>
+      <div class="meta" id="amount-note"></div>
+    </details>
+    <details>
+      <summary>인식된 전체 텍스트</summary>
+      <pre id="raw-text"></pre>
+    </details>
+    <div class="meta" id="timing"></div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/tesseract.js@5.1.1/dist/tesseract.min.js"></script>
+<script>
+(function () {
+  const $ = (id) => document.getElementById(id);
+  const fileInput = $("file");
+  const runBtn = $("run");
+  const progress = $("progress");
+  const progressLabel = $("progress-label");
+  const progressBar = $("progress-bar");
+
+  let currentFile = null;
+
+  fileInput.addEventListener("change", () => {
+    currentFile = fileInput.files && fileInput.files[0];
+    runBtn.disabled = !currentFile;
+  });
+
+  // ── 이미지 전처리 ─────────────────────────────────────────
+  function loadImage(file) {
+    return new Promise((resolve, reject) => {
+      const img = new Image();
+      img.onload = () => resolve(img);
+      img.onerror = () => reject(new Error("이미지를 열 수 없습니다. (HEIC 형식이면 JPG로 저장해 다시 시도)"));
+      img.src = URL.createObjectURL(file);
+    });
+  }
+
+  function preprocess(img, { gray, binarize }) {
+    // 긴 변을 1800px 정도로 맞춘다 (너무 작으면 인식률↓, 너무 크면 느림).
+    // 작은 이미지는 2.5배까지 확대 허용.
+    const target = 1800;
+    const s = Math.max(0.1, Math.min(2.5, target / Math.max(img.width, img.height)));
+    const cw = Math.round(img.width * s);
+    const ch = Math.round(img.height * s);
+    const canvas = document.createElement("canvas");
+    canvas.width = cw; canvas.height = ch;
+    const ctx = canvas.getContext("2d", { willReadFrequently: true });
+    ctx.drawImage(img, 0, 0, cw, ch);
+
+    if (!gray && !binarize) return canvas;
+
+    const data = ctx.getImageData(0, 0, cw, ch);
+    const px = data.data;
+    const lum = new Uint8ClampedArray(px.length / 4);
+    for (let i = 0, j = 0; i < px.length; i += 4, j++) {
+      lum[j] = (px[i] * 0.299 + px[i + 1] * 0.587 + px[i + 2] * 0.114) | 0;
+    }
+
+    // 대비 스트레치 (2%~98% 분위)
+    const hist = new Array(256).fill(0);
+    for (let j = 0; j < lum.length; j++) hist[lum[j]]++;
+    const total = lum.length;
+    let acc = 0, lo = 0, hi = 255;
+    for (let v = 0; v < 256; v++) { acc += hist[v]; if (acc > total * 0.02) { lo = v; break; } }
+    acc = 0;
+    for (let v = 255; v >= 0; v--) { acc += hist[v]; if (acc > total * 0.02) { hi = v; break; } }
+    const range = Math.max(1, hi - lo);
+    for (let j = 0; j < lum.length; j++) {
+      lum[j] = Math.max(0, Math.min(255, ((lum[j] - lo) / range) * 255));
+    }
+
+    let threshold = -1;
+    if (binarize) {
+      // Otsu
+      const h2 = new Array(256).fill(0);
+      for (let j = 0; j < lum.length; j++) h2[lum[j]]++;
+      let sum = 0;
+      for (let v = 0; v < 256; v++) sum += v * h2[v];
+      let sumB = 0, wB = 0, max = 0;
+      for (let v = 0; v < 256; v++) {
+        wB += h2[v];
+        if (wB === 0) continue;
+        const wF = total - wB;
+        if (wF === 0) break;
+        sumB += v * h2[v];
+        const mB = sumB / wB;
+        const mF = (sum - sumB) / wF;
+        const between = wB * wF * (mB - mF) * (mB - mF);
+        if (between > max) { max = between; threshold = v; }
+      }
+    }
+
+    for (let i = 0, j = 0; i < px.length; i += 4, j++) {
+      let v = lum[j];
+      if (threshold >= 0) v = v > threshold ? 255 : 0;
+      px[i] = px[i + 1] = px[i + 2] = v;
+    }
+    ctx.putImageData(data, 0, 0);
+    return canvas;
+  }
+
+  // ── 파싱 휴리스틱 ────────────────────────────────────────
+  function parseReceipt(text) {
+    const lines = text.split(/\r?\n/).map((l) => l.trim()).filter(Boolean);
+    const numRe = /\d{1,3}(?:,\d{3})+|\d{3,}/g;
+    const toInt = (s) => parseInt(s.replace(/[,\s]/g, ""), 10);
+
+    const allNums = [];
+    lines.forEach((l) => {
+      const m = l.match(numRe);
+      if (m) m.forEach((x) => { const n = toInt(x); if (n >= 100 && n < 1e8) allNums.push(n); });
+    });
+
+    const amountKw = /(합\s*계|총\s*액|결\s*제\s*금?\s*액|받\s*을\s*금?\s*액|판\s*매\s*금?\s*액|승\s*인\s*금?\s*액|청\s*구\s*금?\s*액|총\s*구\s*매|합계금액|total)/i;
+    const strongKw = /(합\s*계|결\s*제|승\s*인|받\s*을|청\s*구)/i;
+    const excludeKw = /(부\s*가|과\s*세|면\s*세|봉\s*사|포\s*인\s*트|적\s*립|잔\s*액|거\s*스\s*름|현\s*금|받\s*은|공\s*급\s*가|세\s*액)/;
+
+    const candidates = [];
+    lines.forEach((l) => {
+      if (!amountKw.test(l) || excludeKw.test(l)) return;
+      const m = l.match(numRe);
+      if (!m) return;
+      candidates.push({ val: toInt(m[m.length - 1]), strong: strongKw.test(l), line: l });
+    });
+
+    let amount = null, amountNote = "";
+    if (candidates.length) {
+      candidates.sort((a, b) => (b.strong - a.strong) || (b.val - a.val));
+      amount = candidates[0].val;
+      amountNote = `키워드 "${candidates[0].line}" 에서 추출`;
+    } else if (allNums.length) {
+      amount = Math.max(...allNums);
+      amountNote = "키워드를 못 찾아 '가장 큰 금액'으로 대체";
+    }
+
+    // 매장명: 상단 6줄 중 한글 위주 · 숫자 거의 없음
+    let store = null;
+    for (const l of lines.slice(0, 6)) {
+      const hangul = (l.match(/[가-힣]/g) || []).length;
+      const digits = (l.match(/\d/g) || []).length;
+      if (hangul >= 2 && digits <= 2 && l.length <= 25) { store = l; break; }
+    }
+
+    // 날짜
+    let date = null;
+    const dm = text.match(/20\d{2}\s*[.\-/년]\s*\d{1,2}\s*[.\-/월]\s*\d{1,2}/);
+    if (dm) date = dm[0].replace(/\s+/g, "");
+
+    return { amount, amountNote, store, date, candidates, allNums, lines };
+  }
+
+  // ── 실행 ────────────────────────────────────────────────
+  let worker = null;
+  async function getWorker(psm6) {
+    if (worker) {
+      await worker.setParameters({ tessedit_pageseg_mode: psm6 ? "6" : "3" });
+      return worker;
+    }
+    progressLabel.textContent = "OCR 엔진·한글 데이터 다운로드 중… (최초 1회, ~10MB)";
+    worker = await Tesseract.createWorker(["kor", "eng"], 1, {
+      logger: (m) => {
+        if (m.status && typeof m.progress === "number") {
+          progressLabel.textContent = m.status + " " + Math.round(m.progress * 100) + "%";
+          progressBar.style.width = Math.round(m.progress * 100) + "%";
+        }
+      },
+    });
+    await worker.setParameters({
+      tessedit_pageseg_mode: psm6 ? "6" : "3",
+      preserve_interword_spaces: "1",
+    });
+    return worker;
+  }
+
+  runBtn.addEventListener("click", async () => {
+    if (!currentFile) return;
+    runBtn.disabled = true;
+    progress.classList.remove("hidden");
+    progressBar.style.width = "0";
+    $("result-card").classList.add("hidden");
+    const t0 = performance.now();
+
+    try {
+      const img = await loadImage(currentFile);
+      const canvas = preprocess(img, {
+        gray: $("opt-gray").checked,
+        binarize: $("opt-binarize").checked,
+      });
+      $("preview").src = canvas.toDataURL("image/png");
+      $("preview-card").classList.remove("hidden");
+
+      const w = await getWorker($("opt-psm6").checked);
+      progressLabel.textContent = "글자 인식 중…";
+      const { data } = await w.recognize(canvas);
+      const text = data.text || "";
+      const parsed = parseReceipt(text);
+
+      $("r-store").value = parsed.store || "";
+      $("r-amount").value = parsed.amount != null ? parsed.amount.toLocaleString("ko-KR") : "";
+      $("r-date").value = parsed.date || "";
+      $("raw-text").textContent = text.trim() || "(빈 결과)";
+
+      const cont = $("amount-candidates");
+      cont.innerHTML = "";
+      const shown = parsed.candidates.length
+        ? parsed.candidates.map((c) => c.val)
+        : parsed.allNums.slice().sort((a, b) => b - a).slice(0, 8);
+      [...new Set(shown)].forEach((v) => {
+        const el = document.createElement("span");
+        el.className = "chip" + (v === parsed.amount ? " pick" : "");
+        el.textContent = v.toLocaleString("ko-KR") + "원";
+        el.onclick = () => { $("r-amount").value = v.toLocaleString("ko-KR"); };
+        cont.appendChild(el);
+      });
+      $("amount-note").textContent = parsed.amountNote;
+
+      const secs = ((performance.now() - t0) / 1000).toFixed(1);
+      $("timing").textContent =
+        `처리 ${secs}s · 신뢰도(평균) ${Math.round(data.confidence)}% · 줄 ${parsed.lines.length}개`;
+      $("result-card").classList.remove("hidden");
+      progress.classList.add("hidden");
+    } catch (e) {
+      progressLabel.textContent = "오류: " + (e && e.message || e);
+      console.error(e);
+    } finally {
+      runBtn.disabled = false;
+    }
+  });
+})();
+</script>
+</body>
+</html>
