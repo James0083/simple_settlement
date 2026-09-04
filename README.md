@@ -1,6 +1,10 @@
 # 딱정산 (Settlement App)
 
-모임 비용을 회차별로 나눠 기록하면, 사람별 결제/부담 내역을 계산하고 최소한의 송금 구조로 누가 누구에게 얼마를 보내야 하는지 자동으로 알려주는 웹앱입니다. 별도의 빌드 과정이 없으며, `index.html`을 브라우저에서 바로 열 수 있습니다. (PWA로 배포할 때는 매니페스트·서비스 워커·아이콘 파일을 함께 올립니다 — "PWA" 섹션 참고.)
+모임 비용을 회차별로 나눠 기록하면, 사람별 결제/부담 내역을 계산하고 최소한의 송금 구조로 누가 누구에게 얼마를 보내야 하는지 자동으로 알려주는 웹앱입니다.
+
+**빌드 과정이 없습니다.** 앱 소스는 `src/` 아래 표준 ES 모듈(`import`/`export`)로 나뉘어 있고, `index.html`은 진입점 `src/main.js` 하나만 `<script type="module">`로 로드합니다. 나머지 파일은 브라우저 네이티브 모듈 로더가 해석하고, vendor(React·htm·html2canvas)는 `<script type="importmap">`이 jsdelivr의 ESM 빌드로 매핑합니다. JSX 대신 [htm](https://github.com/developit/htm)(태그드 템플릿 리터럴)을 쓰므로 트랜스파일러(Babel 등)가 필요 없습니다.
+
+번들러나 `npm install`은 필요 없지만, 모듈이 `fetch`로 로드되므로 **로컬 정적 서버**를 통해 열어야 합니다(아래 "실행 방법"). GitHub Pages 등 HTTP 호스팅에 올리면 그대로 동작합니다. (PWA로 배포할 때는 매니페스트·서비스 워커·아이콘 파일을 함께 올립니다 — "PWA" 섹션 참고.)
 
 ## 주요 기능
 
@@ -18,19 +22,26 @@
 
 ## 기술 스택
 
-- **React 18** (UMD 빌드, CDN으로 로드)
-- **Babel Standalone** — 브라우저에서 실시간으로 JSX를 변환해주기 때문에 별도의 번들러(Webpack, Vite 등)나 `npm install` 없이 파일 하나로 실행됩니다
-- **html2canvas** — 정산 결과 DOM을 캔버스로 렌더링해 PNG로 저장하는 데 사용
+- **React 18** — `import`/`export`로 사용. `<script type="importmap">`이 `react` / `react-dom/client`를 jsdelivr ESM(`https://cdn.jsdelivr.net/npm/react@18.3.1/+esm` 등)으로 매핑합니다.
+- **htm** — JSX를 대체하는 태그드 템플릿 리터럴. `htm.bind(React.createElement)`로 묶어 `src/lib/html.js`에서 내보냅니다. 브라우저에서 바로 실행되므로 트랜스파일러(Babel·Vite 등)와 `npm install`이 필요 없습니다. 문법은 JSX와 거의 같습니다: `html\`<div className=${styles.box}>${child}</div>\``, 컴포넌트는 `html\`<${Child} prop=${value} />\``.
+- **html2canvas** — 정산 결과 DOM을 캔버스로 렌더링해 PNG로 저장하는 데 사용 (importmap으로 ESM 로드)
 - **Web Share API** (`navigator.share`) — 모바일에서 결과 이미지를 시스템 공유로 저장할 수 있도록 지원. 모바일에서는 기본적으로 결과 이미지를 큰 오버레이로 띄워 "길게 눌러 사진에 추가"로 저장하도록 안내하고, 공유가 가능하면 오버레이 안에 공유 버튼도 함께 제공합니다.
 - **Pretendard** (헤드라인/본문), **Space Grotesk** (금액 숫자 전용) — `index.html`의 `<head>`에서 `<link rel="stylesheet">`로만 로드. 두 서체 모두 `0`에 사선·점이 없어 금액 표기가 깔끔합니다. 숫자에는 `font-variant-numeric: tabular-nums`로 자릿수를 정렬합니다.
 - **PWA** — `manifest.webmanifest` + `sw.js`(서비스 워커)로 홈 화면 설치와 오프라인 실행 지원
 - 순수 인라인 스타일 (별도 CSS 프레임워크 없음), 카드·버튼·입력창 등 사각형 요소는 4px 라운드 처리
 
 ```html
-<script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
-<script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
-<script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-<script src="https://unpkg.com/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+<script type="importmap">
+{
+  "imports": {
+    "react": "https://cdn.jsdelivr.net/npm/react@18.3.1/+esm",
+    "react-dom/client": "https://cdn.jsdelivr.net/npm/react-dom@18.3.1/client/+esm",
+    "htm": "https://cdn.jsdelivr.net/npm/htm@3.1.1/+esm",
+    "html2canvas": "https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/+esm"
+  }
+}
+</script>
+<script type="module" src="src/main.js"></script>
 ```
 
 `index.html`의 `<head>`에는 폰트도 `<link rel="stylesheet">`로 함께 로드합니다. 처음에는 컴포넌트 내부 CSS `@import`로만 폰트를 불러왔는데, 로딩 시점이 늦어 일부 환경에서 폰트가 적용되지 않는 경우가 있어 `<head>` 레벨 `<link>`로 옮겼습니다.
@@ -52,7 +63,7 @@
 { id, title, payerId, amount, participantIds: [id, id, ...] }
 ```
 
-모든 계산은 참가자 목록과 회차 목록, 이 두 가지 상태로부터 파생됩니다.
+모든 계산은 참가자 목록과 회차 목록, 이 두 가지 상태로부터 파생됩니다. 상태와 이벤트 핸들러, 파생 값은 `src/hooks/useSettlement.js`에, 아래 정산 알고리즘(순수 함수)은 `src/lib/settlement.js`에 있습니다.
 
 ## 정산 알고리즘
 
@@ -142,10 +153,10 @@ await navigator.share({ files: [file] });
 정적 파일 3개를 추가해 PWA로 동작합니다.
 
 - **`manifest.webmanifest`** — 앱 이름("딱정산"), 시작 URL, `display: standalone`, 테마 색(`#EEF1F4`), 아이콘 3종. `start_url`·`scope`를 상대 경로(`./`)로 둬서 하위 경로(`도메인/딱정산/`)에 배포해도 동작합니다.
-- **`sw.js`** — 서비스 워커. 캐시 이름 `ddakjeongsan-v1`.
-  - 설치 시: 같은 출처 파일(HTML 4종 + 매니페스트 + 아이콘)과 CDN 6종(React·ReactDOM·Babel standalone·html2canvas·Pretendard·Space Grotesk)을 캐시. CDN은 하나쯤 실패해도 설치가 진행됩니다.
+- **`sw.js`** — 서비스 워커. 캐시 이름 `ddakjeongsan-v2`.
+  - 설치 시: 같은 출처 파일(HTML 4종 + 매니페스트 + 아이콘 + `src/`의 앱 소스 15개)과 CDN(React·ReactDOM·scheduler·htm·html2canvas의 ESM + Pretendard·Space Grotesk CSS)을 캐시. CDN은 하나쯤 실패해도 설치가 진행됩니다.
   - 요청 처리: 페이지 이동은 네트워크 우선(실패 시 캐시된 `index.html`), 그 외 자원은 캐시 우선 + 백그라운드 갱신(stale-while-revalidate).
-  - **자원을 바꾸면** `sw.js`의 `CACHE` 값을 `ddakjeongsan-v2`처럼 올려야 사용자 기기에서 새로 받습니다.
+  - **자원(HTML·`src/` JS·아이콘)을 바꾸면** `sw.js`의 `CACHE` 값을 `ddakjeongsan-v3`처럼 올려야 사용자 기기에서 새로 받습니다. `src/`에 파일을 추가·삭제하면 `sw.js`의 `CORE` 목록도 함께 맞추고, vendor 버전을 바꾸면 `index.html`의 import map과 `sw.js`의 `VENDOR`를 함께 고쳐야 합니다.
 - **아이콘** — `favicon.svg`(브라우저 탭), `apple-touch-icon.png`(iOS 홈 화면 180px), `icons/icon-192.png`·`icons/icon-512.png`(any), `icons/icon-maskable-512.png`(Android 어댑티브). 모두 `favicon.svg`의 영수증·체크 도형을 `#1A1D29` 배경 + 흰색 선으로 렌더한 것으로, 로고를 바꾸면 `favicon.svg` 수정 후 아이콘 PNG를 다시 만들면 됩니다.
 
 각 HTML `<head>`에 `<link rel="manifest">`·`theme-color`·`apple-touch-icon`·`apple-mobile-web-app-*` 메타를, `</body>` 직전에 서비스 워커 등록 스크립트를 넣었습니다.
@@ -156,7 +167,7 @@ if ("serviceWorker" in navigator) {
 }
 ```
 
-> 서비스 워커는 **HTTPS(또는 localhost)** 에서만 등록됩니다. `file://`로 열면 PWA 기능은 동작하지 않고 일반 웹앱으로만 실행됩니다.
+> 서비스 워커는 **HTTPS(또는 localhost)** 에서만 등록됩니다. `file://`로 열면 `src/` 스크립트 자체가 로드되지 않으므로, 로컬에서도 정적 서버(localhost)로 열어야 합니다.
 
 ## 법적 페이지 & 문의하기
 
@@ -165,26 +176,52 @@ if ("serviceWorker" in navigator) {
 ## 파일 구조
 
 ```
-index.html             # CDN 기반 독립 실행형 웹앱 (배포용, 바로 실행 가능)
-settlement-app.jsx     # 동일한 컴포넌트의 React 프로젝트용 버전 (npm install html2canvas 필요)
-privacy.html           # 개인정보처리방침
-terms.html             # 이용약관
-contact.html           # 문의하기 (Google 설문지로 연결)
-manifest.webmanifest   # PWA 매니페스트
-sw.js                  # 서비스 워커 (오프라인 캐시)
-favicon.svg            # 브라우저 탭 아이콘 (영수증 + 체크 로고)
-apple-touch-icon.png   # iOS 홈 화면 아이콘 (180px)
-icons/                 # PWA 아이콘 (192 / 512 / maskable-512)
+index.html                       # 앱 셸 — <head> 메타·폰트·전역 CSS + import map + <script type=module src=src/main.js>
+src/
+  main.js                        # 진입점 — createRoot 로 <App/> 마운트
+  App.js                         # 최상위 컴포넌트 (조립)
+  lib/
+    html.js                      # html = htm.bind(React.createElement)  (JSX 대체)
+    util.js                      # won(금액 표기) · uid · makeParticipant · isMobileDevice
+    settlement.js                # 정산 알고리즘 (순수 함수): computeStats · computeFairTransactions
+                                 #                            · groupTransactions · buildResultText
+    exportImage.js               # 결과 DOM → PNG 캡처(html2canvas) · 공유 · 다운로드
+  ui/
+    styles.js                    # 인라인 스타일 객체 (styles)
+  components/
+    BrandLogo.js                 # 로고 SVG
+    ParticipantsSection.js       # 참가자 이름 입력 목록
+    RoundsSection.js             # 회차 입력 카드 목록 (+ 내부 RoundCard)
+    SummarySection.js            # 계산 전 요약 (인원 · 회차 · 총액)
+    ResultReceipt.js             # 이미지로 캡처되는 결과 영역 (forwardRef)
+    ImagePreviewOverlay.js       # 모바일 저장용 오버레이
+    SiteFooter.js                # 하단 링크
+  hooks/
+    useSettlement.js             # 모든 상태 · 파생 값 · 이벤트 핸들러
+privacy.html                     # 개인정보처리방침
+terms.html                       # 이용약관
+contact.html                     # 문의하기 (Google 설문지로 연결)
+manifest.webmanifest             # PWA 매니페스트
+sw.js                            # 서비스 워커 (오프라인 캐시)
+favicon.svg                      # 브라우저 탭 아이콘 (영수증 + 체크 로고)
+apple-touch-icon.png             # iOS 홈 화면 아이콘 (180px)
+icons/                           # PWA 아이콘 (192 / 512 / maskable-512)
 ```
+
+`src/`는 표준 ES 모듈이라 `import`/`export`로 서로를 참조하고, 브라우저 모듈 로더가 `src/main.js`에서 시작해 그래프 전체를 해석합니다.
 
 ## 실행 방법
 
-- **바로 실행**: 빌드 과정이 없으므로 `index.html`을 브라우저에서 열면 바로 동작합니다.
-- **React 프로젝트에 통합**: `settlement-app.jsx`를 프로젝트에 넣고 `npm install html2canvas` 실행 후 컴포넌트로 불러와 사용하세요.
+- **로컬 실행**: 빌드는 없지만 모듈이 `fetch`로 로드되므로 정적 서버가 필요합니다. 프로젝트 폴더에서:
+  ```sh
+  python3 -m http.server 8000      # 또는:  npx serve
+  ```
+  그 다음 `http://localhost:8000` 접속. (`index.html`을 `file://`로 바로 열면 모듈이 로드되지 않아 화면이 비어 있습니다.)
+- **React 프로젝트에 통합**: `src/`가 이미 표준 ES 모듈이므로 그대로 가져다 쓸 수 있습니다. 번들러 환경에서는 `src/lib/html.js`를 프로젝트의 `htm` + `react`로 바꾸거나, htm 대신 JSX로 다시 쓰면 됩니다. `src/lib/settlement.js`(순수 함수)는 아무 의존성 없이 재사용 가능합니다.
 
 ## 배포
 
-GitHub Pages, Netlify, Vercel 등 정적 파일 호스팅 서비스 어디에나 폴더 전체(HTML 4종 + `manifest.webmanifest` + `sw.js` + `favicon.svg` + `apple-touch-icon.png` + `icons/`)를 그대로 올리면 바로 배포됩니다. 폴더 구조를 유지해야 상대 경로가 맞습니다.
+GitHub Pages, Netlify, Vercel 등 정적 파일 호스팅 서비스 어디에나 폴더 전체(HTML 4종 + `src/` + `manifest.webmanifest` + `sw.js` + `favicon.svg` + `apple-touch-icon.png` + `icons/`)를 그대로 올리면 바로 배포됩니다. 폴더 구조를 유지해야 상대 경로가 맞습니다. (호스팅은 HTTP로 서빙하므로 로컬과 달리 별도 서버 준비가 필요 없습니다.)
 
 1. GitHub 저장소 생성 후 위 파일들을 폴더 구조 그대로 업로드 (필요하면 `contact.html`의 설문지 `href`를 원하는 링크로 교체)
 2. Settings → Pages → Source를 `main` 브랜치 `/ (root)`로 설정
