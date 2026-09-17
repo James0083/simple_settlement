@@ -32,6 +32,7 @@ export const styles = {
     amountInput: { width: "100%", minWidth: 0, textAlign: "right", fontFamily: "'Space Grotesk', 'Pretendard', sans-serif", fontVariantNumeric: "tabular-nums", fontSize: 15, color: "#1A1D29", background: "transparent", border: "none" },
     wonSuffix: { fontSize: 12.5, color: "#8A8FA3", flexShrink: 0 },
     removeBtn: { width: 24, height: 24, flexShrink: 0, border: "none", background: "transparent", color: "#E8503A", fontSize: 13, opacity: 0.45, cursor: "pointer" },
+    nameWarn: { margin: "-2px 0 0", fontSize: 11.5, fontWeight: 500, color: "#E8503A" },
     addBtn: { marginTop: 14, width: "100%", padding: "10px 0", border: "1.5px dashed #C7CCD8", borderRadius: 4, background: "transparent", color: "#4B5165", fontFamily: "inherit", fontSize: 13.5, fontWeight: 500, cursor: "pointer", transition: "background 0.15s, color 0.15s, border-color 0.15s" },
     dashedDivider: { borderTop: "1.5px dashed #DDE1E8", margin: "26px 0" },
 

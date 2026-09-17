@@ -33,6 +33,7 @@ export function useSettlement() {
   const [calculated, setCalculated] = useState(false);
   const [calcDate, setCalcDate] = useState("");
   const [copied, setCopied] = useState(false);
+  const [copyFailed, setCopyFailed] = useState(false);
   const [downloading, setDownloading] = useState(false);
   const [imagePreview, setImagePreview] = useState(null); // { url, file }
   const resultRef = useRef(null);
@@ -108,10 +109,10 @@ export function useSettlement() {
   };
   const toggleAllRoundParticipants = (roundId) => {
     invalidate();
+    const allIds = validParticipants.map((p) => p.id);
     setRounds((prev) =>
       prev.map((r) => {
         if (r.id !== roundId) return r;
-        const allIds = participants.filter((p) => p.name.trim()).map((p) => p.id);
         const allSelected = allIds.length > 0 && allIds.every((id) => r.participantIds.includes(id));
         return { ...r, participantIds: allSelected ? [] : allIds };
       })
@@ -164,10 +165,13 @@ export function useSettlement() {
   const handleCopy = async () => {
     try {
       await navigator.clipboard.writeText(buildResultText(stats, groupedTransactions));
+      setCopyFailed(false);
       setCopied(true);
       setTimeout(() => setCopied(false), 1800);
     } catch (e) {
       setCopied(false);
+      setCopyFailed(true);
+      setTimeout(() => setCopyFailed(false), 1800);
     }
   };
 
@@ -220,6 +224,7 @@ export function useSettlement() {
     // 액션 · 상태
     handleCalculate,
     copied,
+    copyFailed,
     handleCopy,
     downloading,
     handleDownloadImage,
