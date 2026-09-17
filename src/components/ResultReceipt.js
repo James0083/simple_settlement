@@ -68,10 +68,13 @@ export const ResultReceipt = forwardRef(function ResultReceipt(
                     <ul style=${styles.txList}>
                       ${g.items.map(
                         (t, i) => html`
-                          <li key=${i} style=${styles.txRow}>
-                            <span style=${styles.txArrow}>→</span>
-                            <span style=${styles.txTo}>${t.to}</span>
-                            <span style=${styles.txAmount}>${won(t.amount)}원</span>
+                          <li key=${i} style=${styles.txItem}>
+                            <div style=${styles.txRow}>
+                              <span style=${styles.txArrow}>→</span>
+                              <span style=${styles.txTo}>${t.to}</span>
+                              <span style=${styles.txAmount}>${won(t.amount)}원</span>
+                            </div>
+                            ${t.toAccount && html`<div style=${styles.txAccount}>${t.toAccount}</div>`}
                           </li>
                         `
                       )}

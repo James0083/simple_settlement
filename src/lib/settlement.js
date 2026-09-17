@@ -2,7 +2,7 @@
  * 정산 알고리즘 — 딱정산의 핵심. 순수 함수만 모아 둔다. (React 의존 없음)
  *
  * 데이터 구조
- *   참가자: { id, name }
+ *   참가자: { id, name, account }   — account 는 정산받을 계좌(선택, 빈 문자열 가능)
  *   회차:   { id, title, payerId, amount, participantIds: [id, ...] }
  *
  * 흐름: computeStats → computeFairTransactions → groupTransactions
@@ -23,7 +23,7 @@ export function computeStats(validParticipants, rounds) {
   const validIdSet = new Set(validParticipants.map((p) => p.id));
   const map = new Map();
   validParticipants.forEach((p) =>
-    map.set(p.id, { id: p.id, name: p.name.trim(), paid: 0, share: 0 })
+    map.set(p.id, { id: p.id, name: p.name.trim(), account: (p.account || "").trim(), paid: 0, share: 0 })
   );
 
   rounds.forEach((r) => {
@@ -44,6 +44,8 @@ export function computeStats(validParticipants, rounds) {
 // 채무자 각각이 채권자 각각에게 "받을 금액에 비례"해서 나눠 보내도록 계산.
 // -> 한 사람에게 정산이 몰리지 않고, 여러 채무자가 비슷한 구조로 나눠 보내게 됨.
 // 원 단위 반올림 오차는 나머지가 큰 거래부터 1원씩 보정한다(최대 나머지법).
+// 채권자의 계좌(account)도 거래 항목에 그대로 실어 보낸다 — 이름이 같은 참가자가
+// 있어도 채권자 "객체" 자체를 참조하므로 계좌가 엇갈리지 않는다.
 export function computeFairTransactions(balances) {
   const creditors = balances.filter((p) => p.balance > 0.5);
   const debtors = balances
@@ -58,7 +60,7 @@ export function computeFairTransactions(balances) {
   debtors.forEach((d) => {
     creditors.forEach((c) => {
       const raw = (d.debt * c.balance) / totalCredit;
-      entries.push({ from: d.name, to: c.name, raw, floor: Math.floor(raw) });
+      entries.push({ from: d.name, to: c.name, toAccount: c.account || "", raw, floor: Math.floor(raw) });
     });
   });
 
@@ -76,7 +78,7 @@ export function computeFairTransactions(balances) {
 
   return entries
     .filter((e) => e.floor > 0)
-    .map((e) => ({ from: e.from, to: e.to, amount: e.floor }));
+    .map((e) => ({ from: e.from, to: e.to, toAccount: e.toAccount, amount: e.floor }));
 }
 
 // 개별 송금 내역을 "보내는 사람" 기준으로 묶는다.
@@ -108,7 +110,10 @@ export function buildResultText(stats, groupedTransactions) {
   lines.push("");
   groupedTransactions.forEach((g) => {
     lines.push(`${g.from} (총 ${won(g.subtotal)}원)`);
-    g.items.forEach((i) => lines.push(`  → ${i.to}  ${won(i.amount)}원`));
+    g.items.forEach((i) => {
+      const acc = i.toAccount ? ` (${i.toAccount})` : "";
+      lines.push(`  → ${i.to}${acc}  ${won(i.amount)}원`);
+    });
   });
   return lines.join("\n");
 }

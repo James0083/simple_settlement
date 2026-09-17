@@ -31,6 +31,8 @@ export function App() {
             participants=${s.participants}
             onAdd=${s.addParticipant}
             onUpdateName=${s.updateParticipantName}
+            onUpdateAccount=${s.updateParticipantAccount}
+            onToggleAccount=${s.toggleParticipantAccount}
             onRemove=${s.removeParticipant}
           />
 

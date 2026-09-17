@@ -46,6 +46,17 @@ export function useSettlement() {
     invalidate();
     setParticipants((prev) => prev.map((p) => (p.id === id ? { ...p, name } : p)));
   };
+  // 계좌는 금액 계산에 영향이 없으므로 계산 결과(calculated)를 무효화하지 않는다.
+  // stats/groupedTransactions 가 participants 를 그대로 파생하므로 입력하는 즉시
+  // 이미 계산된 결과 화면에도 반영된다.
+  const updateParticipantAccount = (id, account) => {
+    setParticipants((prev) => prev.map((p) => (p.id === id ? { ...p, account } : p)));
+  };
+  const toggleParticipantAccount = (id) => {
+    setParticipants((prev) =>
+      prev.map((p) => (p.id === id ? { ...p, showAccount: !p.showAccount } : p))
+    );
+  };
   const addParticipant = () => {
     invalidate();
     setParticipants((prev) => [...prev, makeParticipant()]);
@@ -184,6 +195,8 @@ export function useSettlement() {
     participants,
     addParticipant,
     updateParticipantName,
+    updateParticipantAccount,
+    toggleParticipantAccount,
     removeParticipant,
     // 회차
     rounds,
