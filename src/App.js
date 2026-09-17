@@ -92,7 +92,7 @@ export function App() {
 
               <div style=${styles.actionRow}>
                 <button className="settle-copy-btn" style=${styles.copyBtn} onClick=${s.handleCopy}>
-                  ${s.copied ? "복사됐어요" : "결과 복사하기"}
+                  ${s.copied ? "복사됐어요" : s.copyFailed ? "복사 실패, 다시 시도" : "결과 복사하기"}
                 </button>
                 <button
                   className="settle-download-btn"

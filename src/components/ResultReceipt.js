@@ -3,6 +3,7 @@ import { forwardRef } from "react";
 import { html } from "../lib/html.js";
 import { styles } from "../ui/styles.js";
 import { won } from "../lib/util.js";
+import { BALANCE_EPS } from "../lib/settlement.js";
 import { BrandLogo } from "./BrandLogo.js";
 
 export const ResultReceipt = forwardRef(function ResultReceipt(
@@ -39,10 +40,10 @@ export const ResultReceipt = forwardRef(function ResultReceipt(
                   ...styles.statsNum,
                   flex: 1,
                   fontWeight: 700,
-                  color: s.balance > 0.5 ? "#0F9D64" : s.balance < -0.5 ? "#E8503A" : "#9AA0B0",
+                  color: s.balance > BALANCE_EPS ? "#0F9D64" : s.balance < -BALANCE_EPS ? "#E8503A" : "#9AA0B0",
                 }}
               >
-                ${s.balance > 0.5 ? "+" : ""}${won(s.balance)}원
+                ${s.balance > BALANCE_EPS ? "+" : ""}${won(s.balance)}원
               </span>
             </div>
           `

@@ -2,6 +2,18 @@
 import { html } from "../lib/html.js";
 import { styles } from "../ui/styles.js";
 
+// 트림한 이름별 등장 횟수 — 2번 이상이면 동명이인으로 간주해 경고를 보여준다.
+// (송금 대상/결제자 선택 등에서 동명이인이 구분되지 않아 혼동될 수 있음)
+function countNames(participants) {
+  const counts = new Map();
+  participants.forEach((p) => {
+    const name = p.name.trim();
+    if (!name) return;
+    counts.set(name, (counts.get(name) || 0) + 1);
+  });
+  return counts;
+}
+
 export function ParticipantsSection({
   participants,
   onAdd,
@@ -10,12 +22,16 @@ export function ParticipantsSection({
   onToggleAccount,
   onRemove,
 }) {
+  const nameCounts = countNames(participants);
+
   return html`
     <section style=${styles.section}>
       <div style=${styles.sectionLabel}>참가자</div>
       <div style=${styles.peopleList}>
-        ${participants.map(
-          (p) => html`
+        ${participants.map((p) => {
+          const trimmedName = p.name.trim();
+          const isDuplicateName = trimmedName.length > 0 && nameCounts.get(trimmedName) > 1;
+          return html`
             <div key=${p.id} style=${styles.personBlock}>
               <div style=${styles.personRow}>
                 <input
@@ -43,6 +59,8 @@ export function ParticipantsSection({
                   ✕
                 </button>
               </div>
+              ${isDuplicateName &&
+              html`<p style=${styles.nameWarn}>⚠ 같은 이름이 있어요 — 구분을 위해 다르게 입력해주세요 (예: 철수1, 철수2)</p>`}
               ${p.showAccount &&
               html`
                 <input
@@ -55,8 +73,8 @@ export function ParticipantsSection({
                 />
               `}
             </div>
-          `
-        )}
+          `;
+        })}
       </div>
       <button className="settle-add-btn" style=${styles.addBtn} onClick=${onAdd}>
         + 참가자 추가

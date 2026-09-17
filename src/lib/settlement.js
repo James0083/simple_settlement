@@ -9,6 +9,9 @@
  */
 import { won } from "./util.js";
 
+// 잔액이 이 값보다 작으면 부동소수점 오차로 보고 0(정산 불필요)으로 취급한다.
+export const BALANCE_EPS = 0.5;
+
 // 회차가 계산에 포함될 수 있는지 — 금액 > 0, 결제자가 유효, 참여자 1명 이상
 export function isRoundValid(round, validIdSet) {
   const amount = parseFloat(round.amount) || 0;
@@ -44,13 +47,14 @@ export function computeStats(validParticipants, rounds) {
 // 채무자 각각이 채권자 각각에게 "받을 금액에 비례"해서 나눠 보내도록 계산.
 // -> 한 사람에게 정산이 몰리지 않고, 여러 채무자가 비슷한 구조로 나눠 보내게 됨.
 // 원 단위 반올림 오차는 나머지가 큰 거래부터 1원씩 보정한다(최대 나머지법).
-// 채권자의 계좌(account)도 거래 항목에 그대로 실어 보낸다 — 이름이 같은 참가자가
-// 있어도 채권자 "객체" 자체를 참조하므로 계좌가 엇갈리지 않는다.
+// 채권자/채무자는 id 로 구분해서 거래를 묶는다 — 이름이 같은 참가자가 있어도
+// (동명이인) 서로 다른 사람의 거래가 섞이지 않는다. 계좌(account)도 채권자
+// 객체에서 그대로 실어 보낸다.
 export function computeFairTransactions(balances) {
-  const creditors = balances.filter((p) => p.balance > 0.5);
+  const creditors = balances.filter((p) => p.balance > BALANCE_EPS);
   const debtors = balances
-    .filter((p) => p.balance < -0.5)
-    .map((p) => ({ name: p.name, debt: -p.balance }));
+    .filter((p) => p.balance < -BALANCE_EPS)
+    .map((p) => ({ id: p.id, name: p.name, debt: -p.balance }));
 
   if (creditors.length === 0 || debtors.length === 0) return [];
 
@@ -60,7 +64,14 @@ export function computeFairTransactions(balances) {
   debtors.forEach((d) => {
     creditors.forEach((c) => {
       const raw = (d.debt * c.balance) / totalCredit;
-      entries.push({ from: d.name, to: c.name, toAccount: c.account || "", raw, floor: Math.floor(raw) });
+      entries.push({
+        fromId: d.id,
+        from: d.name,
+        to: c.name,
+        toAccount: c.account || "",
+        raw,
+        floor: Math.floor(raw),
+      });
     });
   });
 
@@ -78,23 +89,24 @@ export function computeFairTransactions(balances) {
 
   return entries
     .filter((e) => e.floor > 0)
-    .map((e) => ({ from: e.from, to: e.to, toAccount: e.toAccount, amount: e.floor }));
+    .map((e) => ({ fromId: e.fromId, from: e.from, to: e.to, toAccount: e.toAccount, amount: e.floor }));
 }
 
-// 개별 송금 내역을 "보내는 사람" 기준으로 묶는다.
+// 개별 송금 내역을 "보내는 사람" 기준으로 묶는다. 동명이인이 섞이지 않도록
+// 이름이 아닌 id 로 그룹핑한다.
 export function groupTransactions(flatTransactions) {
   const order = [];
   const map = new Map();
   flatTransactions.forEach((t) => {
-    if (!map.has(t.from)) {
-      map.set(t.from, []);
-      order.push(t.from);
+    if (!map.has(t.fromId)) {
+      map.set(t.fromId, []);
+      order.push(t.fromId);
     }
-    map.get(t.from).push(t);
+    map.get(t.fromId).push(t);
   });
-  return order.map((from) => {
-    const items = map.get(from);
-    return { from, items, subtotal: items.reduce((s, i) => s + i.amount, 0) };
+  return order.map((fromId) => {
+    const items = map.get(fromId);
+    return { from: items[0].from, items, subtotal: items.reduce((s, i) => s + i.amount, 0) };
   });
 }
 
@@ -102,7 +114,7 @@ export function groupTransactions(flatTransactions) {
 export function buildResultText(stats, groupedTransactions) {
   const lines = ["정산 결과"];
   stats.forEach((s) => {
-    const sign = s.balance > 0.5 ? "+" : "";
+    const sign = s.balance > BALANCE_EPS ? "+" : "";
     lines.push(
       `${s.name}  낸 금액 ${won(s.paid)}원 / 부담 ${won(s.share)}원 / 차액 ${sign}${won(s.balance)}원`
     );
