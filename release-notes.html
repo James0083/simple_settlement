@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin="anonymous" />
+<link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
+<title>버전정보 - 딱정산</title>
+<link rel="manifest" href="manifest.webmanifest" />
+<meta name="theme-color" content="#EEF1F4" />
+<link rel="icon" type="image/svg+xml" href="favicon.svg" />
+<link rel="apple-touch-icon" href="apple-touch-icon.png" />
+<meta name="mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-title" content="딱정산" />
+<style>
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    background: #EEF1F4;
+    font-family: 'Pretendard', -apple-system, sans-serif;
+    color: #1A1D29;
+    display: flex;
+    justify-content: center;
+    padding: 40px 16px;
+  }
+  .card {
+    width: 100%;
+    max-width: 560px;
+    background: #FFFFFF;
+    box-shadow: 0 18px 40px rgba(26,29,41,0.12), 0 2px 0 rgba(26,29,41,0.04);
+    padding: 36px 32px 44px;
+  }
+  .back {
+    display: inline-block;
+    font-size: 13px;
+    color: #9AA0B0;
+    text-decoration: none;
+    margin-bottom: 20px;
+  }
+  .back:hover { color: #5C6178; }
+  h1 {
+    font-size: 24px;
+    font-weight: 800;
+    letter-spacing: -0.5px;
+    margin: 0 0 6px;
+  }
+  .updated {
+    font-size: 12.5px;
+    color: #9AA0B0;
+    margin: 0 0 28px;
+  }
+  p, li {
+    font-size: 14px;
+    line-height: 1.7;
+    color: #4B5165;
+  }
+
+  /* 타임라인 — 왼쪽 세로선 + 원형 점 (기업 소개 페이지의 "연혁" 스타일) */
+  .timeline { position: relative; margin-top: 4px; }
+  .timeline::before {
+    content: "";
+    position: absolute;
+    left: 5px;
+    top: 6px;
+    bottom: 6px;
+    width: 2px;
+    background: #DDE1E8;
+  }
+  .entry { position: relative; padding-left: 26px; margin-bottom: 32px; }
+  .entry:last-child { margin-bottom: 0; }
+  .entry::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 4px;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: #FFFFFF;
+    border: 2.5px solid #C7CCD8;
+  }
+  .entry.latest::before {
+    border-color: #E8503A;
+    background: #E8503A;
+    box-shadow: 0 0 0 4px rgba(232,80,58,0.14);
+  }
+  .entry-head { display: flex; align-items: center; gap: 8px; }
+  .version {
+    font-family: 'Space Grotesk', 'Pretendard', sans-serif;
+    font-size: 16px;
+    font-weight: 800;
+    color: #1A1D29;
+    letter-spacing: -0.2px;
+  }
+  .badge {
+    display: inline-block;
+    font-size: 10.5px;
+    font-weight: 700;
+    color: #FFFFFF;
+    background: #E8503A;
+    padding: 2px 7px;
+    border-radius: 10px;
+    letter-spacing: 0.2px;
+  }
+  .entry-date { font-size: 12px; color: #9AA0B0; margin: 3px 0 10px; }
+  .changes { margin: 0; padding-left: 18px; }
+  .changes li { margin-bottom: 4px; }
+  .changes li:last-child { margin-bottom: 0; }
+</style>
+</head>
+<body>
+  <div class="card">
+    <a class="back" href="index.html">← 딱정산으로 돌아가기</a>
+    <h1>버전정보</h1>
+    <p class="updated">출시 이후 업데이트 내역을 최신순으로 정리했어요.</p>
+
+    <div class="timeline">
+      <div class="entry latest">
+        <div class="entry-head">
+          <span class="version">v1.6.1</span>
+          <span class="badge">최신</span>
+        </div>
+        <p class="entry-date">2026.09.17</p>
+        <ul class="changes">
+          <li>동명이인 참가자가 있을 때 정산 결과 송금 내역이 잘못 합쳐지던 문제를 고쳤어요.</li>
+          <li>참가자 이름이 겹치면 미리 알려드려요.</li>
+          <li>결과 복사가 실패했을 때도 버튼에 안내가 뜨도록 했어요.</li>
+        </ul>
+      </div>
+
+      <div class="entry">
+        <div class="entry-head">
+          <span class="version">v1.6.0</span>
+        </div>
+        <p class="entry-date">2026.09.17</p>
+        <ul class="changes">
+          <li>정산받을 계좌번호(선택)를 추가했어요. 정산 결과·복사·이미지에 함께 표시돼요.</li>
+        </ul>
+      </div>
+
+      <div class="entry">
+        <div class="entry-head">
+          <span class="version">v1.5.0</span>
+        </div>
+        <p class="entry-date">2026.09.04</p>
+        <ul class="changes">
+          <li>코드 구조를 개선해 앞으로의 업데이트가 더 안정적으로 이뤄지도록 했어요.</li>
+          <li>PWA(홈 화면 설치) 안정성을 개선했어요.</li>
+        </ul>
+      </div>
+
+      <div class="entry">
+        <div class="entry-head">
+          <span class="version">v1.4.0</span>
+        </div>
+        <p class="entry-date">2026.09.01</p>
+        <ul class="changes">
+          <li>홈 화면에 앱처럼 설치할 수 있는 PWA 기능을 추가했어요.</li>
+        </ul>
+      </div>
+
+      <div class="entry">
+        <div class="entry-head">
+          <span class="version">v1.3.0</span>
+        </div>
+        <p class="entry-date">2026.09.01</p>
+        <ul class="changes">
+          <li>앱 아이콘을 추가했어요.</li>
+          <li>이름을 '정산서'에서 '딱정산'으로 바꿨어요.</li>
+        </ul>
+      </div>
+
+      <div class="entry">
+        <div class="entry-head">
+          <span class="version">v1.2.2</span>
+        </div>
+        <p class="entry-date">2026.09.01</p>
+        <ul class="changes">
+          <li>드롭박스 테두리, 폰트 표시 버그를 고쳤어요.</li>
+        </ul>
+      </div>
+
+      <div class="entry">
+        <div class="entry-head">
+          <span class="version">v1.2</span>
+        </div>
+        <p class="entry-date">2026.09.01</p>
+        <ul class="changes">
+          <li>첫 공개 — 회차별로 정산을 계산하고, 결과를 이미지로 저장할 수 있어요.</li>
+          <li>개인정보처리방침·이용약관·문의하기 페이지를 추가했어요.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+<script>
+  if ("serviceWorker" in navigator) {
+    window.addEventListener("load", function () {
+      navigator.serviceWorker.register("sw.js").catch(function () {});
+    });
+  }
+</script>
+</body>
+</html>

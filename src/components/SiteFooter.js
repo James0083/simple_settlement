@@ -1,4 +1,4 @@
-/* 하단 링크 — 개인정보처리방침 · 이용약관 · 문의하기 (+ 눈에 안 띄는 실험 링크) */
+/* 하단 링크 — 개인정보처리방침 · 이용약관 · 버전정보 · 문의하기 (+ 눈에 안 띄는 실험 링크) */
 import { html } from "../lib/html.js";
 import { styles } from "../ui/styles.js";
 
@@ -12,6 +12,10 @@ export function SiteFooter() {
         <span style=${styles.footerDot}>·</span>
         <a className="settle-footer-link" href="terms.html" style=${styles.footerLink}>
           이용약관
+        </a>
+        <span style=${styles.footerDot}>·</span>
+        <a className="settle-footer-link" href="release-notes.html" style=${styles.footerLink}>
+          버전정보
         </a>
         <span style=${styles.footerDot}>·</span>
         <a className="settle-footer-link" href="contact.html" style=${styles.footerLink}>
