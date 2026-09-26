@@ -156,10 +156,11 @@ await navigator.share({ files: [file] });
 정적 파일(매니페스트 · 서비스 워커 · 아이콘 · 스크린샷)을 추가해 PWA로 동작합니다.
 
 - **`manifest.webmanifest`** — `id`, `name`/`short_name`, `description`, `start_url`·`scope`(상대 경로 `./` — 하위 경로 배포도 동작), `display: standalone` + `display_override`, 테마/배경색(`#EEF1F4`), `categories`, `prefer_related_applications: false`, 아이콘 4종(any 192·512 + maskable 192·512), `screenshots`(`screenshots/home.png`, narrow). `id`·`screenshots`·maskable 아이콘은 Android WebAPK 품질 분류를 높이고, 지문(fingerprint)이 바뀌면 Chrome 이 WebAPK 를 최신 target SDK 로 다시 발급한다 — Play Protect 의 "이전 버전 앱" 경고 대응(아래 참고).
-- **`sw.js`** — 서비스 워커. 캐시 이름 `ddakjeongsan-v3`.
-  - 설치 시: 같은 출처 파일(HTML 4종 + 매니페스트 + 아이콘·스크린샷 + `src/`의 앱 소스 15개)과 CDN(React·ReactDOM·scheduler·htm·html2canvas의 ESM + Pretendard·Space Grotesk CSS)을 캐시. CDN은 하나쯤 실패해도 설치가 진행됩니다.
+- **`sw.js`** — 서비스 워커. 캐시 이름은 `ddakjeongsan-v1.6.2`처럼 릴리즈 노트(`release-notes.html`)의
+  실제 앱 버전을 그대로 따라간다 — 캐시 이름만 보고도 사용자 기기에 배포된 버전을 알 수 있다.
+  - 설치 시: 같은 출처 파일(HTML 5종 + 매니페스트 + 아이콘·스크린샷 + `src/`의 앱 소스 15개)과 CDN(React·ReactDOM·scheduler·htm·html2canvas의 ESM + Pretendard·Space Grotesk CSS)을 캐시. CDN은 하나쯤 실패해도 설치가 진행됩니다.
   - 요청 처리: 페이지 이동은 네트워크 우선(실패 시 캐시된 `index.html`), 그 외 자원은 캐시 우선 + 백그라운드 갱신(stale-while-revalidate).
-  - **자원(HTML·`src/` JS·아이콘·매니페스트)을 바꾸면** `sw.js`의 `CACHE` 값을 `ddakjeongsan-v4`처럼 올려야 사용자 기기에서 새로 받습니다. `src/`·아이콘·스크린샷을 추가·삭제하면 `sw.js`의 `CORE` 목록도 함께 맞추고, vendor 버전을 바꾸면 `index.html`의 import map과 `sw.js`의 `VENDOR`를 함께 고쳐야 합니다.
+  - **자원(HTML·`src/` JS·아이콘·매니페스트)을 바꾸면** `sw.js`의 `CACHE` 값을 새 앱 버전(`release-notes.html`에 추가한 버전과 동일하게)으로 올려야 사용자 기기에서 새로 받습니다. `src/`·아이콘·스크린샷을 추가·삭제하면 `sw.js`의 `CORE` 목록도 함께 맞추고, vendor 버전을 바꾸면 `index.html`의 import map과 `sw.js`의 `VENDOR`를 함께 고쳐야 합니다.
 - **아이콘** — `favicon.svg`(브라우저 탭), `apple-touch-icon.png`(iOS 홈 화면 180px), `icons/icon-192.png`·`icons/icon-512.png`(any), `icons/icon-maskable-192.png`·`icons/icon-maskable-512.png`(Android 어댑티브). 모두 `favicon.svg`의 영수증·체크 도형을 `#1A1D29` 배경 + 흰색 선으로 렌더한 것으로, 로고를 바꾸면 `favicon.svg` 수정 후 아이콘 PNG를 다시 만들면 됩니다. maskable 192 는 512 를 `sips -z 192 192` 로 축소.
 
 ### Google Play Protect "안전하지 않은 앱 / 이전 버전" 경고
