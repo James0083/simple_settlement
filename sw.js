@@ -1,6 +1,6 @@
 /* 딱정산 서비스 워커 — 오프라인 지원 + 앱 설치 */
 // 자원(HTML·JS·아이콘)을 바꾸면 이 값을 올려야 사용자 기기에서 새로 받는다.
-const CACHE = "ddakjeongsan-v5";
+const CACHE = "ddakjeongsan-v1.6.2";
 
 // 앱 셸 (같은 출처)
 const CORE = [
