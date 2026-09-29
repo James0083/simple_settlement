@@ -83,6 +83,8 @@ export function FoodScreen({ s }) {
 
       <${FoodForm} input=${input} onChange=${changeInput} />
 
+      <${AdSlot} placement="food-form" />
+
       <button className="settle-calc-btn" style=${{ ...styles.calcBtn, cursor: "pointer" }} onClick=${run}>
         메뉴 정하기
       </button>

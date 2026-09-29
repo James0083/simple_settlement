@@ -82,6 +82,7 @@ function GamePlay({ game, players, s }) {
         <p style=${styles.subtitle}>${game.desc}</p>
       </header>
       <${SoundHint} />
+      <${AdSlot} placement="game-start" />
 
       <${Game} key=${`game-${round}`} players=${players} onFinish=${finish} />
 
@@ -180,6 +181,8 @@ export function GamesScreen({ s, sub }) {
       </section>
 
       <div style=${styles.dashedDivider} aria-hidden="true"></div>
+
+      <${AdSlot} placement="games-mid" />
 
       <div style=${styles.sectionLabel}>게임</div>
       <div style=${styles.gameGrid}>

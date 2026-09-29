@@ -49,6 +49,8 @@ export function SettleScreen({ s }) {
         totalAmount=${s.totalAmount}
       />
 
+      <${AdSlot} placement="settle-mid" />
+
       <button
         className="settle-calc-btn"
         style=${{
