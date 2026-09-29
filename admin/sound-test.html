@@ -76,10 +76,16 @@
   <button data-play="pop">튀어나오기 "펑" + "으아악!"</button>
   <button data-play="scream">"으아악!"만</button>
 </section>
+<section>
+  <h2>😱 해적룰렛 비명</h2>
+  <p style="font-size:13px;color:#5C6178;margin:0 0 8px">/audio/scream.mp3 원본 재생. unlockAudio 시 미리 디코딩됨.</p>
+  <button data-play="scream">비명 "으아아아악!" (0.12s 딜레이)</button>
+  <button data-play="screamNow">비명 즉시 재생</button>
+</section>
 
 <script type="module">
-  import * as sfx from "./src/lib/sfx.js";
-  import { clickTimes } from "./src/lib/wheel.js";
+  import * as sfx from "../src/games/sfx.js";
+  import { clickTimes } from "../src/games/wheel.js";
 
   const toggle = document.getElementById("toggle");
   const paint = () => {
@@ -125,7 +131,8 @@
       sfx.popUp();
       sfx.scream(0.12);
     },
-    scream: () => sfx.scream(0),
+    scream: () => sfx.scream(0.12),
+    screamNow: () => sfx.scream(0),
     tapA: () => sfx.tapPop(0),
     tapB: () => sfx.tapPop(1),
     count: () => {

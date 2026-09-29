@@ -1,6 +1,6 @@
 /* 딱정산 서비스 워커 — 오프라인 지원 + 앱 설치 */
 // 자원(HTML·JS·아이콘)을 바꾸면 이 값을 올려야 사용자 기기에서 새로 받는다.
-const CACHE = "ddakjeongsan-v2.0.0";
+const CACHE = "ddakjeongsan-v2.1.0";
 
 // 앱 셸 (같은 출처)
 const CORE = [
@@ -27,6 +27,7 @@ const CORE = [
   "./src/shared/storage.js",
   "./src/shared/router.js",
   "./src/shared/styles.js",
+  "./src/shared/tokens.css",
   "./src/shared/entitlements.js",
   "./src/shared/icons.js",
   "./src/shared/BrandLogo.js",
@@ -55,6 +56,7 @@ const CORE = [
   // games — 미니게임 기능
   "./src/games/random.js",
   "./src/games/sfx.js",
+  "./audio/scream.mp3",
   "./src/games/wheel.js",
   "./src/games/josa.js",
   "./src/games/palette.js",

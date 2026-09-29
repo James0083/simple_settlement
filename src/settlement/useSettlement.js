@@ -214,7 +214,7 @@ export function useSettlement() {
     } catch (e) {
       setCopied(false);
       setCopyFailed(true);
-      setTimeout(() => setCopyFailed(false), 1800);
+      setTimeout(() => setCopyFailed(false), TOAST_MS);
     }
   };
 

@@ -15,13 +15,13 @@ const OPEN = -0.72; // 윗턱 벌린 각도 (라디안)
 const RX = 0.95;
 const RZ = 1.15;
 const CZ = 1.05;
-const LIP = 0.07; // 입술 테두리 굵기
+const LIP = 0.04; // 입술 테두리 굵기
 const PIVOT_Z = 0.8; // 좌우로 돌릴 때의 축 (입 가운데쯤)
 const TURN_MAX = (70 * Math.PI) / 180;
 
 export function buildCrocScene(THREE, container, { teeth, onTooth }) {
   const CAMERA = [0.6, 4.2, 4.6]; // 비스듬히 내려다봄 — 두 눈과 모든 이빨이 보인다
-  const stage = createStage(THREE, container, { pos: CAMERA, target: [0, 0.6, 0.72], fov: 36 });
+  const stage = createStage(THREE, container, { pos: CAMERA, target: [0, 0.68, 0.72], fov: 36 });
   const { scene } = stage;
   const mesh = (geo, mat, { shadow = true } = {}) => {
     const m = new THREE.Mesh(geo, mat);
@@ -66,7 +66,7 @@ export function buildCrocScene(THREE, container, { teeth, onTooth }) {
   };
 
   // ── 아래턱 (둥근 그릇) · 빨간 잇몸 · 혀 ─────────
-  const LOWER_TOP = 0.42;
+  const LOWER_TOP = 0.50;
   // 바닥에 닿는 두툼한 받침 — 아래 모서리만 둥글게. 눌린 이빨이 속으로 들어가도 밖으로 비치지 않는다.
   const lowerProfile = [[0, 0], [0.9, 0], [0.96, 0.02], [0.995, 0.07], [1, 0.13], [1, LOWER_TOP]].map(
     ([r, y]) => new THREE.Vector2(r, y)
@@ -137,7 +137,7 @@ export function buildCrocScene(THREE, container, { teeth, onTooth }) {
   upperLip.position.set(0, 0, CZ);
   const palate = ellipseDisc(RX - LIP * 1.4, RZ - LIP * 1.4, red, false);
   palate.position.set(0, -0.005, CZ);
-  upper.add(dome, upperLip, palate);
+  upper.add(dome, palate);
 
   // 윗니 — 아랫니와 같은 모양을 뒤집어서 입천장에 박는다 (누르지는 않음).
   // 경첩 가까이는 아랫니와 맞닿아 기둥처럼 보이므로 앞쪽에만 둔다.
@@ -152,32 +152,6 @@ export function buildCrocScene(THREE, container, { teeth, onTooth }) {
     const collar = mesh(collarGeo, red, { shadow: false });
     collar.position.set(x, -0.01, z);
     upper.add(tooth, collar);
-  }
-
-  // 송곳니 — 물 때 입 밖으로 드러나는 지그재그 이빨. 벌린 동안은 숨겨 두고(크기 0) 닫히면서 자라난다.
-  // 윗니는 윗입술 바깥에서 아래로, 아랫니는 아랫입술 바깥에서 위로 — 서로 엇갈려 맞물린다.
-  const fangGeo = new THREE.ConeGeometry(0.075, 0.24, 14);
-  const fangs = [];
-  const FANG_SPAN = Math.PI * 0.6;
-  const UPPER_FANGS = 9;
-  for (let k = 0; k < UPPER_FANGS; k++) {
-    const phi = phiOf(k, UPPER_FANGS, FANG_SPAN);
-    const [x, z] = rimAt(phi, RX + 0.02, RZ + 0.02);
-    const f = mesh(fangGeo, white);
-    f.rotation.x = Math.PI; // 아래를 향해
-    f.position.set(x, -0.1, z);
-    f.scale.setScalar(0.001);
-    upper.add(f);
-    fangs.push(f);
-  }
-  for (let k = 0; k < UPPER_FANGS - 1; k++) {
-    const phi = phiOf(k + 0.5, UPPER_FANGS, FANG_SPAN); // 윗니 사이사이
-    const [x, z] = rimAt(phi, RX + 0.02, RZ + 0.02);
-    const f = mesh(fangGeo, white);
-    f.position.set(x, LOWER_TOP + 0.1, z);
-    f.scale.setScalar(0.001);
-    croc.add(f);
-    fangs.push(f);
   }
 
   // 콧구멍 — 주둥이 앞 위의 둥근 혹 두 개 (화나면 벌름거린다)
@@ -279,28 +253,49 @@ export function buildCrocScene(THREE, container, { teeth, onTooth }) {
     bolt.position.set((RX - 0.02) * s, HINGE_Y, 0.02);
     croc.add(bolt);
   }
-  const body = mesh(new THREE.SphereGeometry(1, 32, 20), green);
-  body.scale.set(0.72, 0.42, 0.7);
-  body.position.set(0, 0.42, -0.55);
-  const tail = mesh(new THREE.ConeGeometry(0.28, 0.9, 20), green);
-  tail.rotation.x = -Math.PI / 2 - 0.25;
-  tail.position.set(0, 0.3, -1.4);
-  croc.add(body, tail);
-  // 등 돌기 — 작은 둥근 혹
-  for (let i = 0; i < 4; i++) {
-    const b = mesh(new THREE.SphereGeometry(0.07, 12, 10), greenDark);
-    b.position.set(0, 0.84 - i * 0.04, -0.35 - i * 0.22);
+  // 목 — 경첩 바로 뒤 짧은 원뿔대 (경첩 끝 z≈0 → 몸통 시작 z≈-0.30)
+  // CylinderGeometry: rotation.x=-PI/2 → top(y+)→-Z(몸통), bottom(y-)→+Z(경첩)
+  const neck = mesh(new THREE.CylinderGeometry(0.30, 0.22, 0.30, 20), green);
+  neck.rotation.x = -Math.PI / 2;
+  neck.position.set(0, 0.34, -0.15); // center → 경첩끝 z≈0, 몸통끝 z≈-0.30
+  // 몸통 — 납작하고 옆으로 넓은 타원 껍데기 (장난감 악어처럼 낮고 둥근 몸통)
+  const body = mesh(new THREE.SphereGeometry(1, 48, 32), green);
+  body.scale.set(0.68, 0.26, 0.80);
+  body.position.set(0, 0.22, -0.90); // y 범위: -0.04~0.48, z 범위: -0.10~-1.70
+  // 꼬리 — ConeGeometry 팁(y+)→-Z, 끝이 살짝 위로 들림
+  const tail = mesh(new THREE.ConeGeometry(0.20, 0.90, 14), green);
+  tail.rotation.x = -Math.PI / 2 + 0.25;
+  tail.position.set(0, 0.16, -1.68);
+  croc.add(neck, body, tail);
+  // 등 돌기 — 몸통 표면에 붙은 가로로 납작한 혹, 뒤로 갈수록 작아짐
+  const BODY_CY = 0.22; // 몸통 y 중심
+  const BODY_CZ2 = -0.90;           // 몸통 z 중심
+  const BODY_SY = 0.26;             // 몸통 y 반지름
+  const BODY_SZ = 0.80;             // 몸통 z 반지름
+  for (let i = 0; i < 5; i++) {
+    const bz = -0.36 - i * 0.26;
+    const dz = (bz - BODY_CZ2) / BODY_SZ;
+    const yTop = Math.abs(dz) < 1 ? BODY_CY + BODY_SY * Math.sqrt(1 - dz * dz) : BODY_CY;
+    const r = 0.055 - i * 0.006;
+    const b = mesh(new THREE.SphereGeometry(r, 10, 8), greenDark);
+    b.scale.set(0.85, 0.55, 1.4);
+    b.position.set(0, yTop + 0.01, bz);
     croc.add(b);
   }
-  // 짧은 다리 + 노란 발톱
-  for (const [sx, z] of [[-1, -0.2], [1, -0.2], [-1, -0.85], [1, -0.85]]) {
-    const leg = mesh(new THREE.SphereGeometry(0.2, 20, 14), green);
-    leg.scale.set(1, 0.8, 1.2);
-    leg.position.set(0.66 * sx, 0.16, z);
+  // 짧은 다리 — 어깨 덩어리 + 납작한 발 + 노란 발톱
+  for (const [sx, z] of [[-1, -0.42], [1, -0.42], [-1, -0.92], [1, -0.92]]) {
+    const shoulder = mesh(new THREE.SphereGeometry(0.18, 14, 10), green);
+    shoulder.scale.set(0.7, 0.85, 1.1);
+    shoulder.position.set(0.62 * sx, 0.22, z);
+    croc.add(shoulder);
+    const leg = mesh(new THREE.SphereGeometry(0.15, 14, 10), green);
+    leg.scale.set(1.05, 0.52, 1.45);
+    leg.position.set(0.76 * sx, 0.06, z + 0.14);
     croc.add(leg);
     for (let c = -1; c <= 1; c++) {
-      const claw = mesh(new THREE.SphereGeometry(0.05, 12, 10), yellow);
-      claw.position.set(0.7 * sx + c * 0.08, 0.05, z + 0.22);
+      const claw = mesh(new THREE.SphereGeometry(0.048, 8, 6), yellow);
+      claw.scale.set(0.6, 0.6, 1.6);
+      claw.position.set(0.78 * sx + c * 0.065, 0.01, z + 0.32 + Math.abs(c) * 0.03);
       croc.add(claw);
     }
   }
@@ -358,8 +353,8 @@ export function buildCrocScene(THREE, container, { teeth, onTooth }) {
       tooth.material.color.set(0xe6e6de);
       stage.tween(140, (e) => (tooth.position.y = LOWER_TOP - 0.13 * e), easeOutCubic);
     },
-    // 아픈 이빨 — 입을 한 번 더 크게 벌렸다가(예비 동작) 쾅 닫히며 앞으로 튀어나온다. 표정이 사나워지고
-    // 송곳니가 드러난다. 닫히는 순간 onChomp() (소리·진동·화면 번쩍임). 잠시 뒤 살짝 벌려 아픈 이빨(노랑)을 보여준다.
+    // 아픈 이빨 — 입을 한 번 더 크게 벌렸다가(예비 동작) 쾅 닫히며 앞으로 튀어나온다. 표정이 사나워진다.
+    // 닫히는 순간 onChomp() (소리·진동·화면 번쩍임). 잠시 뒤 살짝 벌려 아픈 이빨(노랑)을 보여준다.
     async snap(bad, { onChomp } = {}) {
       snapped = true;
       const from = upper.rotation.x;
@@ -367,8 +362,7 @@ export function buildCrocScene(THREE, container, { teeth, onTooth }) {
       stage.tween(260, (e) => setAngry((angry = e)), easeOutCubic);
       await stage.tween(150, (e) => (upper.rotation.x = from + (WIDE - from) * e), easeOutCubic);
       await stage.tween(95, (e) => {
-        upper.rotation.x = WIDE + (0.02 - WIDE) * e;
-        fangs.forEach((f) => f.scale.setScalar(Math.max(0.001, e)));
+        upper.rotation.x = WIDE + (0 - WIDE) * e;
       }, easeInQuad);
       onChomp?.();
       stage.shake(0.3, 560);
@@ -379,7 +373,7 @@ export function buildCrocScene(THREE, container, { teeth, onTooth }) {
         turntable.position.y = 0.12 * b;
         turntable.scale.setScalar(1 + 0.1 * b);
       });
-      await stage.tween(260, (e) => (upper.rotation.x = 0.02 - 0.08 * Math.sin(Math.PI * e)));
+      await stage.tween(260, (e) => (upper.rotation.x = -0.08 * Math.sin(Math.PI * e)));
       upper.rotation.x = 0;
       turntable.position.set(0, 0, PIVOT_Z);
       turntable.scale.setScalar(1);

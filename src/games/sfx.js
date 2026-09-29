@@ -55,9 +55,21 @@ function wake(a) {
   }
 }
 
+// MP3 음원을 WebAudio 버퍼로 미리 디코딩해 캐시 (unlockAudio 시점에 선로딩)
+let screamBuf = null;
+function loadScreamBuf() {
+  if (screamBuf) return screamBuf;
+  screamBuf = fetch("/audio/scream.mp3")
+    .then((r) => r.arrayBuffer())
+    .then((ab) => ensureCtx().decodeAudioData(ab))
+    .catch(() => null);
+  return screamBuf;
+}
+
 export function unlockAudio() {
   try {
     wake(ensureCtx());
+    loadScreamBuf(); // 첫 상호작용 시 미리 디코딩
   } catch (e) {
     // 오디오를 못 쓰는 환경 — 무시
   }
@@ -410,109 +422,20 @@ export function popUp() {
   });
 }
 
-// "으아악!" — 수염 난 아저씨의 굵고 낮은 목소리 합성: 톱니파 성대 + 남성 모음 공명(포먼트).
-// 낮은 '으'(≈110Hz)에서 '아'로 벌어지며 음이 올라갔다가(≈210Hz) 떨어지고, 끝의 '악' 에서 뚝 끊긴다.
-// 한 옥타브 아래 음(목 긁는 소리)과 불규칙한 떨림을 섞어 걸걸하게.
+// "으아악!" — /audio/scream.mp3 원본 재생 (unlockAudio 시점에 미리 디코딩)
 export function scream(delay = 0) {
-  play((a, t0, out) => {
-    const t = t0 + delay;
-    const LEN = 1.1;
-    const pitch = [
-      [0, 95],
-      [0.12, 125], // 으
-      [0.34, 210], // 아— 치솟음
-      [0.6, 190],
-      [LEN, 140], // 악
-    ];
-    const voices = [
-      ["sawtooth", 1, 1],
-      ["sawtooth", 0.5, 0.35], // 한 옥타브 아래 — 걸걸한 목
-    ].map(([type, ratio, gain]) => {
-      const o = a.createOscillator();
-      o.type = type;
-      pitch.forEach(([d, f], i) => (i ? o.frequency.exponentialRampToValueAtTime(f * ratio, t + d) : o.frequency.setValueAtTime(f * ratio, t)));
-      const g = a.createGain();
-      g.gain.value = gain;
-      o.connect(g);
-      return { o, g, ratio };
-    });
-    // 떨림 — 규칙적인 떨림 + 불규칙한 흔들림
-    const vib = a.createOscillator();
-    vib.frequency.setValueAtTime(5, t);
-    vib.frequency.linearRampToValueAtTime(7.5, t + LEN);
-    const wob = a.createBufferSource();
-    wob.buffer = noiseBuffer(a);
-    const wobLp = a.createBiquadFilter();
-    wobLp.type = "lowpass";
-    wobLp.frequency.value = 14;
-    voices.forEach(({ o, ratio }) => {
-      const vd = a.createGain();
-      vd.gain.value = 7 * ratio;
-      vib.connect(vd).connect(o.frequency);
-      const wd = a.createGain();
-      wd.gain.value = 120 * ratio;
-      wobLp.connect(wd).connect(o.frequency);
-    });
-    wob.connect(wobLp);
-
-    // 소리 크기에 거친 떨림(목 긁힘) — 빠르고 불규칙한 진폭 흔들림
-    const grit = a.createGain();
-    grit.gain.value = 0.8;
-    const gritSrc = a.createBufferSource();
-    gritSrc.buffer = noiseBuffer(a);
-    const gritLp = a.createBiquadFilter();
-    gritLp.type = "lowpass";
-    gritLp.frequency.value = 45;
-    const gritDepth = a.createGain();
-    gritDepth.gain.value = 0.9;
-    gritSrc.connect(gritLp).connect(gritDepth).connect(grit.gain);
-
-    const env = a.createGain();
-    env.gain.setValueAtTime(0.0001, t);
-    env.gain.exponentialRampToValueAtTime(0.3, t + 0.07);
-    env.gain.exponentialRampToValueAtTime(0.8, t + 0.34);
-    env.gain.exponentialRampToValueAtTime(0.5, t + LEN - 0.08);
-    env.gain.exponentialRampToValueAtTime(0.0001, t + LEN);
-    const rough = shaper(a, 3);
-    grit.connect(env).connect(rough).connect(out);
-
-    // 남성 포먼트 — 으(F1 320 · F2 1250) → 아(F1 720 · F2 1150), F3 · F4 는 굵은 목소리 색
-    [
-      [320, 720, 6, 1],
-      [1250, 1150, 8, 0.55],
-      [2450, 2450, 10, 0.25],
-      [3300, 3300, 12, 0.1],
-    ].forEach(([f0, f1, q, v]) => {
-      const bp = a.createBiquadFilter();
-      bp.type = "bandpass";
-      bp.frequency.setValueAtTime(f0, t);
-      bp.frequency.setValueAtTime(f0, t + 0.12);
-      bp.frequency.exponentialRampToValueAtTime(f1, t + 0.28);
-      bp.Q.value = q;
-      const g = a.createGain();
-      g.gain.value = v * 3.2;
-      voices.forEach(({ g: vg }) => vg.connect(bp));
-      bp.connect(g).connect(grit);
-    });
-    // 쉰 숨소리 (낮게)
-    const breath = noise(a, env, t, LEN, 0.18, "bandpass", 1100, 0.9, 0.05);
-    breath.filter.frequency.exponentialRampToValueAtTime(1600, t + LEN);
-    // 끝의 "ㄱ" — 목이 막히는 짧은 딸깍
-    noise(a, out, t + LEN - 0.01, 0.03, 0.2, "bandpass", 1000, 2, 0.001);
-
-    const end = t + LEN + 0.05;
-    voices.forEach(({ o }) => {
-      o.start(t);
-      o.stop(end);
-    });
-    vib.start(t);
-    vib.stop(end);
-    wob.start(t, Math.random());
-    wob.stop(end);
-    gritSrc.start(t, Math.random());
-    gritSrc.stop(end);
-  });
+  if (!soundOn) return;
+  const a = audio();
+  if (!a) return;
+  loadScreamBuf().then((buf) => {
+    if (!buf) return;
+    const src = a.createBufferSource();
+    src.buffer = buf;
+    src.connect(master(a));
+    src.start(a.currentTime + (delay || 0));
+  }).catch(() => {});
 }
+
 
 export function vibrate(pattern) {
   try {
