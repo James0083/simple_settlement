@@ -11,7 +11,7 @@
  */
 import { useState, useRef, useEffect } from "react";
 import { html } from "../shared/html.js";
-import { styles } from "../shared/styles.js";
+import { styles, C_DARK, C_WHITE } from "../shared/styles.js";
 import { randomFloat, shuffle } from "./random.js";
 import { vibrate, ladderRun, ladderPass, fanfare, prefersReducedMotion } from "./sfx.js";
 import { colorOf, shortName } from "./palette.js";
@@ -177,7 +177,7 @@ export function LadderGame({ players: initialPlayers, onFinish }) {
             <button
               key=${p.id}
               type="button"
-              style=${{ ...styles.ladderName, background: traced[i] ? bg : "#FFFFFF", color: traced[i] ? fg : "#1A1D29", borderColor: bg }}
+              style=${{ ...styles.ladderName, background: traced[i] ? bg : C_WHITE, color: traced[i] ? fg : C_DARK, borderColor: bg }}
               onClick=${() => trace(i)}
               aria-label=${`${p.name} 사다리 타기`}
             >

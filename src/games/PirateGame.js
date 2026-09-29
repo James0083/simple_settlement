@@ -9,7 +9,7 @@ import { styles } from "../shared/styles.js";
 import { randInt, shuffle } from "./random.js";
 import { swordIn, popUp, scream, vibrate, unlockAudio } from "./sfx.js";
 import { colorOf } from "./palette.js";
-import { TurnBanner, useScrollToStage } from "./common.js";
+import { TurnBanner, useScrollToStage, GAME_FINISH_MS } from "./common.js";
 import { TurnOrderSetup, TurnStrip } from "./TurnOrder.js";
 import { ThreeView } from "./three/ThreeView.js";
 import { loadThree } from "./three/stage.js";
@@ -57,7 +57,7 @@ export function PirateGame({ players: initialPlayers, onFinish }) {
       // 해적이 떨어지는 것까지 보고 나서 결과 (3D 를 못 불러왔으면 바로)
       const landed = scene.current ? scene.current.pop(trap) : Promise.resolve();
       landed.then(() => {
-        if (alive.current) timer.current = setTimeout(() => onFinish(players[who].id), 500);
+        if (alive.current) timer.current = setTimeout(() => onFinish(players[who].id), GAME_FINISH_MS);
       });
     } else {
       swordIn();

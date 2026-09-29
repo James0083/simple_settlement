@@ -12,7 +12,7 @@
  */
 import { useState, useRef, useEffect } from "react";
 import { html } from "../shared/html.js";
-import { styles } from "../shared/styles.js";
+import { styles, C_RED, C_DARK } from "../shared/styles.js";
 import { shuffle } from "./random.js";
 import { tapPop, countBeep, fanfare, vibrate, unlockAudio } from "./sfx.js";
 import { colorOf } from "./palette.js";
@@ -187,7 +187,7 @@ function Duel({ players, onFinish }) {
   `;
 
   return html`
-    <${FullScreen} background="#1A1D29">
+    <${FullScreen} background=${C_DARK}>
       ${half(0, share, topBg, topFg, true)}
       ${half(1, 1 - share, botBg, botFg, false)}
       <${CountBubble} count=${cd.count} />
@@ -334,7 +334,7 @@ function Relay({ players, onFinish }) {
     return html`
       <div style=${styles.gameStage}>
         ${board}
-        <p style=${{ ...styles.hint, color: "#E8503A", fontWeight: 700 }}>꼴찌 동점! 동점인 사람끼리 다시 해요</p>
+        <p style=${{ ...styles.hint, color: C_RED, fontWeight: 700 }}>꼴찌 동점! 동점인 사람끼리 다시 해요</p>
       </div>
     `;
   }

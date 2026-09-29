@@ -3,20 +3,27 @@
  * 매장: 네이버지도·카카오맵 검색 / 배달: 메뉴명 복사. 공통: 다시 뽑기 · 정산에 회차로 추가.
  * 4명 이상이면 함께 먹으면 더 맛있는 곁들임 메뉴를 보여준다.
  */
+import { useState } from "react";
 import { html } from "../shared/html.js";
 import { styles } from "../shared/styles.js";
 import { GENRES } from "./foodData.js";
 import { formatPrice, searchQuery, naverMapUrl, kakaoMapUrl, RELAX_MESSAGES } from "./food.js";
-import { getCoupangLink, DISCLOSURE } from "./coupang.js";
+import { DISCLOSURE, TRACKING_CODE, pickBanner } from "./coupang.js";
 
-function CoupangBanner({ genreId }) {
-  const link = getCoupangLink(genreId);
-  if (!link) return null;
+function CoupangBanner() {
+  const [banner] = useState(() => pickBanner());
+  const src = `https://ads-partners.coupang.com/widgets.html?id=${banner.id}&template=carousel&trackingCode=${TRACKING_CODE}&subId=&width=680&height=${banner.height}&tsource=`;
   return html`
-    <div style=${styles.coupangBanner}>
-      <a href=${link} target="_blank" rel="noopener sponsored" style=${styles.coupangLink}>
-        🛒 이 음식과 어울리는 상품 보기
-      </a>
+    <div style=${{ margin: "12px 0", overflow: "hidden" }}>
+      <iframe
+        src=${src}
+        width="100%"
+        height=${banner.height}
+        frameborder="0"
+        scrolling="no"
+        referrerpolicy="unsafe-url"
+        title="쿠팡 파트너스"
+      ></iframe>
       <p style=${styles.coupangDisclosure}>${DISCLOSURE}</p>
     </div>
   `;
@@ -111,7 +118,7 @@ export function FoodResult({ result, mode, copied, onPromote, onReroll, onChoose
         </div>
       `}
 
-      <${CoupangBanner} genreId=${main.genre} />
+      <${CoupangBanner} />
 
       <div style=${styles.actionRow}>
         <button className="settle-add-btn" style=${styles.rerollBtn} onClick=${onReroll}>다시 뽑기</button>

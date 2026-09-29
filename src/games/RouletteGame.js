@@ -5,7 +5,7 @@
  */
 import { useState, useRef, useEffect } from "react";
 import { html } from "../shared/html.js";
-import { styles } from "../shared/styles.js";
+import { styles, C_DARK, C_WHITE } from "../shared/styles.js";
 import { randInt, randomFloat } from "./random.js";
 import { wheelClicks, chime, vibrate, prefersReducedMotion } from "./sfx.js";
 import { WHEEL_EASE, clickTimes } from "./wheel.js";
@@ -85,7 +85,7 @@ export function RouletteGame({ players: initialPlayers, onFinish }) {
                 <g key=${p.id}>
                   ${n === 1
                     ? html`<circle cx=${C} cy=${C} r=${R} fill=${bg} />`
-                    : html`<path d=${slicePath(i * seg, (i + 1) * seg)} fill=${bg} stroke="#FFFFFF" strokeWidth="2" />`}
+                    : html`<path d=${slicePath(i * seg, (i + 1) * seg)} fill=${bg} stroke=${C_WHITE} strokeWidth="2" />`}
                   <text
                     x=${C}
                     y=${C - R * 0.62}
@@ -101,8 +101,8 @@ export function RouletteGame({ players: initialPlayers, onFinish }) {
               `;
             })}
           </g>
-          <circle cx=${C} cy=${C} r="18" fill="#FFFFFF" stroke="#1A1D29" strokeWidth="3" />
-          <path d="M ${C - 13} 2 L ${C + 13} 2 L ${C} 30 Z" fill="#1A1D29" stroke="#FFFFFF" strokeWidth="2" strokeLinejoin="round" />
+          <circle cx=${C} cy=${C} r="18" fill=${C_WHITE} stroke=${C_DARK} strokeWidth="3" />
+          <path d="M ${C - 13} 2 L ${C + 13} 2 L ${C} 30 Z" fill=${C_DARK} stroke=${C_WHITE} strokeWidth="2" strokeLinejoin="round" />
         </svg>
       </div>
       <${BigButton} onClick=${spin} disabled=${phase !== "ready"}>

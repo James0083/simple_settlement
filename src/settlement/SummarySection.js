@@ -1,6 +1,6 @@
 /* 계산 전 요약 — 참가 인원 · 정산 회차 · 총 사용 금액 */
 import { html } from "../shared/html.js";
-import { styles } from "../shared/styles.js";
+import { styles, C_RED } from "../shared/styles.js";
 import { won } from "../shared/util.js";
 
 export function SummarySection({ participantsCount, roundsCount, totalAmount }) {
@@ -16,7 +16,7 @@ export function SummarySection({ participantsCount, roundsCount, totalAmount }) 
       </div>
       <div style=${styles.summaryRow}>
         <span style=${styles.summaryLabel}>총 사용 금액</span>
-        <span style=${{ ...styles.summaryValue, color: "#E8503A" }}>${won(totalAmount)}원</span>
+        <span style=${{ ...styles.summaryValue, color: C_RED }}>${won(totalAmount)}원</span>
       </div>
     </section>
   `;

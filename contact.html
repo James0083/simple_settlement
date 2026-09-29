@@ -17,7 +17,7 @@
   * { box-sizing: border-box; }
   html, body { margin: 0; padding: 0; }
   body {
-    background: #EEF1F4;
+    background: var(--c-bg);
     font-family: 'Pretendard', -apple-system, sans-serif;
     color: #1A1D29;
     display: flex;
@@ -48,7 +48,7 @@
   p {
     font-size: 14px;
     line-height: 1.7;
-    color: #4B5165;
+    color: var(--c-dim);
     margin: 0 0 28px;
   }
   .cta {
@@ -68,6 +68,7 @@
   .cta:hover { transform: translateY(-1px); box-shadow: 3px 5px 0 #B8391F; }
   .cta:active { transform: translateY(1px); box-shadow: 1px 2px 0 #B8391F; }
 </style>
+  <link rel="stylesheet" href="./src/shared/tokens.css" />
 </head>
 <body>
   <div class="card">

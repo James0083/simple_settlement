@@ -6,6 +6,7 @@ import { load, save } from "../shared/storage.js";
 import { navigate } from "../shared/router.js";
 import { FOODS, PAIRS } from "./foodData.js";
 import { recommend, mealForHour, searchQuery } from "./food.js";
+import { TOAST_MS } from "../shared/util.js";
 import { ReceiptCard, ScreenHeader } from "../shared/ReceiptCard.js";
 import { FoodIcon } from "../shared/icons.js";
 import { FoodForm } from "./FoodForm.js";
@@ -60,7 +61,7 @@ export function FoodScreen({ s }) {
     try {
       await navigator.clipboard.writeText(pair ? `${searchQuery(food)}, ${searchQuery(pair)}` : searchQuery(food));
       setCopied(true);
-      setTimeout(() => setCopied(false), 1800);
+      setTimeout(() => setCopied(false), TOAST_MS);
     } catch (e) {
       setCopied(false);
     }

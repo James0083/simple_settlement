@@ -7,7 +7,7 @@
  */
 import { useState, useEffect } from "react";
 import { html } from "../shared/html.js";
-import { styles } from "../shared/styles.js";
+import { styles, C_RED, C_MUTED } from "../shared/styles.js";
 import { navigate, routeHref } from "../shared/router.js";
 import { canPlay } from "../shared/entitlements.js";
 import { josa } from "./josa.js";
@@ -174,7 +174,7 @@ export function GamesScreen({ s, sub }) {
           />
           <button type="submit" className="settle-download-btn" style=${styles.addPlayerBtn}>추가</button>
         </form>
-        <p style=${{ ...styles.hint, textAlign: "left", color: countOk ? "#9AA0B0" : "#E8503A" }}>
+        <p style=${{ ...styles.hint, textAlign: "left", color: countOk ? C_MUTED : C_RED }}>
           ${players.length}명 참가 · ${MIN_PLAYERS}~${MAX_PLAYERS}명까지 할 수 있어요. 여기서 추가한 이름은 정산 명단에도 들어가요.
         </p>
       </section>

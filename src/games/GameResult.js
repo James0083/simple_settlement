@@ -4,7 +4,7 @@
  */
 import { useRef, useEffect } from "react";
 import { html } from "../shared/html.js";
-import { styles } from "../shared/styles.js";
+import { styles, C_RED } from "../shared/styles.js";
 import { AdSlot } from "../shared/AdSlot.js";
 
 export function GameResult({ game, losers, players, onAgain, onAddToSettle }) {
@@ -28,7 +28,7 @@ export function GameResult({ game, losers, players, onAgain, onAddToSettle }) {
       <div style=${styles.captureWrap}>
         <div style=${styles.captureTitleRow}>
           <span style=${styles.captureTitleText}>${game.emoji} 미니게임 결과</span>
-          <span className="settle-stamp" style=${{ ...styles.stamp, color: "#E8503A", borderColor: "#E8503A" }}>당첨</span>
+          <span className="settle-stamp" style=${{ ...styles.stamp, color: C_RED, borderColor: C_RED }}>당첨</span>
         </div>
         <div style=${styles.captureDate}>${date} · ${game.name}</div>
         <div style=${styles.loserBlock}>

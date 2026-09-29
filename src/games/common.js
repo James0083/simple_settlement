@@ -1,4 +1,5 @@
 /* 게임 공용 조각 — 차례 표시 · 큰 버튼 · 플레이 화면 스크롤 */
+export const GAME_FINISH_MS = 500;
 import { useRef, useEffect } from "react";
 import { html } from "../shared/html.js";
 import { styles } from "../shared/styles.js";

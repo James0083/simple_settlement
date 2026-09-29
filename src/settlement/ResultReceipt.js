@@ -1,7 +1,7 @@
 /* 이미지로 캡처되는 영역 — 사람별 결제 내역 표 + 최종 송금 결과 */
 import { forwardRef } from "react";
 import { html } from "../shared/html.js";
-import { styles } from "../shared/styles.js";
+import { styles, C_RED, C_GREEN, C_MUTED } from "../shared/styles.js";
 import { won } from "../shared/util.js";
 import { BrandLogo } from "../shared/BrandLogo.js";
 
@@ -39,10 +39,10 @@ export const ResultReceipt = forwardRef(function ResultReceipt(
                   ...styles.statsNum,
                   flex: 1,
                   fontWeight: 700,
-                  color: s.balance > BALANCE_EPS ? "#0F9D64" : s.balance < -BALANCE_EPS ? "#E8503A" : "#9AA0B0",
+                  color: s.balance > 0.5 ? C_GREEN : s.balance < -0.5 ? C_RED : C_MUTED,
                 }}
               >
-                ${s.balance > BALANCE_EPS ? "+" : ""}${won(s.balance)}원
+                ${s.balance > 0.5 ? "+" : ""}${won(s.balance)}원
               </span>
             </div>
           `

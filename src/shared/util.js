@@ -2,6 +2,8 @@
  * 공통 유틸 — 딱정산
  */
 
+export const TOAST_MS = 1800;
+
 // 금액 표기: 반올림 후 천단위 구분
 export const won = (n) => Math.round(n).toLocaleString("ko-KR");
 

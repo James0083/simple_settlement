@@ -8,7 +8,7 @@
  * 다음 방문 때 다시 채우고, 뭐먹지·미니게임 탭이 같은 명단을 읽는다.
  */
 import { useState, useMemo, useRef, useEffect } from "react";
-import { uid, makeParticipant, isMobileDevice } from "../shared/util.js";
+import { uid, makeParticipant, isMobileDevice, TOAST_MS } from "../shared/util.js";
 import { load, save } from "../shared/storage.js";
 import {
   isRoundValid,
@@ -210,7 +210,7 @@ export function useSettlement() {
       await navigator.clipboard.writeText(buildResultText(stats, groupedTransactions));
       setCopyFailed(false);
       setCopied(true);
-      setTimeout(() => setCopied(false), 1800);
+      setTimeout(() => setCopied(false), TOAST_MS);
     } catch (e) {
       setCopied(false);
       setCopyFailed(true);

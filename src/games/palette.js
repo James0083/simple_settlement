@@ -1,15 +1,17 @@
 /* 게임 공용 색 — [배경, 글자] 쌍. 플레이어 순서대로 돌아가며 쓴다. */
+import { C_RED, C_DARK, C_WHITE, C_MUTED, C_GREEN } from "../shared/styles.js";
+
 export const PLAYER_COLORS = [
-  ["#E8503A", "#FFFFFF"],
-  ["#1A1D29", "#FFFFFF"],
-  ["#0F9D64", "#FFFFFF"],
-  ["#F2B233", "#1A1D29"],
-  ["#3A6FE8", "#FFFFFF"],
-  ["#8E5BD0", "#FFFFFF"],
-  ["#F28C38", "#1A1D29"],
-  ["#2BB5A8", "#1A1D29"],
-  ["#C2185B", "#FFFFFF"],
-  ["#9AA0B0", "#1A1D29"],
+  [C_RED,   C_WHITE],
+  [C_DARK,  C_WHITE],
+  [C_GREEN, C_WHITE],
+  ["#F2B233", C_DARK],
+  ["#3A6FE8", C_WHITE],
+  ["#8E5BD0", C_WHITE],
+  ["#F28C38", C_DARK],
+  ["#2BB5A8", C_DARK],
+  ["#C2185B", C_WHITE],
+  [C_MUTED, C_DARK],
 ];
 
 export const colorOf = (index) => PLAYER_COLORS[index % PLAYER_COLORS.length];

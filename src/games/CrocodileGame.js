@@ -9,7 +9,7 @@ import { html } from "../shared/html.js";
 import { styles } from "../shared/styles.js";
 import { randInt, shuffle } from "./random.js";
 import { chomp as chompSound, toothClick, tensionLoop, vibrate, unlockAudio } from "./sfx.js";
-import { TurnBanner, useScrollToStage } from "./common.js";
+import { TurnBanner, useScrollToStage, GAME_FINISH_MS } from "./common.js";
 import { TurnOrderSetup, TurnStrip } from "./TurnOrder.js";
 import { ThreeView } from "./three/ThreeView.js";
 import { loadThree } from "./three/stage.js";
@@ -73,7 +73,7 @@ export function CrocodileGame({ players: initialPlayers, onFinish }) {
           };
           const shown = scene.current ? scene.current.snap(bad, { onChomp: chomp }) : (chomp(), Promise.resolve());
           shown.then(() => {
-            if (alive.current) timers.current.push(setTimeout(() => onFinish(players[who].id), 500));
+            if (alive.current) timers.current.push(setTimeout(() => onFinish(players[who].id), GAME_FINISH_MS));
           });
         }, 160)
       );

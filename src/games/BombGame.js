@@ -7,7 +7,7 @@
  */
 import { useState, useRef, useEffect } from "react";
 import { html } from "../shared/html.js";
-import { styles } from "../shared/styles.js";
+import { styles, C_RED, C_DARK, C_WHITE, C_SUB } from "../shared/styles.js";
 import { randInt, shuffle } from "./random.js";
 import { beep, explosion, tick as tickSound, vibrate, unlockAudio, prefersReducedMotion } from "./sfx.js";
 import { josa } from "./josa.js";
@@ -43,8 +43,8 @@ function BombSvg({ progress, exploded }) {
       <svg viewBox="0 0 200 200" style=${styles.bombSvg} role="img" aria-label="폭발">
         <polygon
           points="100,8 118,62 172,34 142,86 194,104 140,120 164,176 110,142 92,196 78,140 22,168 56,116 6,92 60,80 36,28 88,60"
-          fill="#E8503A"
-          stroke="#1A1D29"
+          fill=${C_RED}
+          stroke=${C_DARK}
           strokeWidth="4"
           strokeLinejoin="round"
         />
@@ -70,22 +70,22 @@ function BombSvg({ progress, exploded }) {
         width="30"
         height="20"
         rx="3"
-        fill="#5C6178"
-        stroke="#1A1D29"
+        fill=${C_SUB}
+        stroke=${C_DARK}
         strokeWidth="2"
         transform=${`rotate(${CAP_DEG} ${CAP[0]} ${CAP[1]})`}
       />
-      <circle cx=${C[0]} cy=${C[1]} r=${R} fill="#1A1D29" />
+      <circle cx=${C[0]} cy=${C[1]} r=${R} fill=${C_DARK} />
       ${progress > 0.75 &&
       html`<circle
         cx=${C[0]}
         cy=${C[1]}
         r=${R}
-        fill="#E8503A"
+        fill=${C_RED}
         style=${{ animation: `bombFlash ${Math.max(0.18, 0.5 - 1.2 * (progress - 0.75))}s ease-in-out infinite` }}
       />`}
-      <circle cx=${C[0] - 22} cy=${C[1] - 22} r="14" fill="#FFFFFF" opacity="0.25" />
-      <circle cx=${C[0] - 34} cy=${C[1] - 2} r="5" fill="#FFFFFF" opacity="0.18" />
+      <circle cx=${C[0] - 22} cy=${C[1] - 22} r="14" fill=${C_WHITE} opacity="0.25" />
+      <circle cx=${C[0] - 34} cy=${C[1] - 2} r="5" fill=${C_WHITE} opacity="0.18" />
     </svg>
   `;
 }
