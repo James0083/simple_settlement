@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta http-equiv="refresh" content="5; url=https://REPLACE_WITH_PAGES_DEV_URL" />
+  <title>딱정산 - 주소가 변경되었습니다</title>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      margin: 0; min-height: 100vh;
+      display: flex; align-items: center; justify-content: center;
+      background: #EEF1F4;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    }
+    .card {
+      background: #fff; padding: 40px 32px; max-width: 400px; width: 90%;
+      box-shadow: 0 18px 40px rgba(26,29,41,0.12), 0 2px 0 rgba(26,29,41,0.04);
+      text-align: center;
+    }
+    .emoji { font-size: 36px; margin-bottom: 12px; }
+    h1 { font-size: 20px; font-weight: 800; margin: 0 0 10px; color: #1A1D29; letter-spacing: -0.3px; }
+    p  { font-size: 14px; color: #5C6178; line-height: 1.7; margin: 0 0 24px; }
+    a.btn {
+      display: inline-block; background: #E8503A; color: #fff;
+      padding: 13px 28px; text-decoration: none; font-weight: 700;
+      font-size: 15px; border-radius: 2px;
+    }
+    a.btn:hover { background: #C83020; }
+    .timer { font-size: 12px; color: #9AA0B0; margin-top: 14px; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <div class="emoji">🔔</div>
+    <h1>딱정산이 새 주소로 이동했습니다</h1>
+    <p>더 빠르고 안정적인 서버로 이전했습니다.<br>5초 후 자동으로 이동합니다.</p>
+    <a class="btn" href="https://REPLACE_WITH_PAGES_DEV_URL">지금 바로 이동하기 →</a>
+    <p class="timer" id="t">5초 후 이동...</p>
+  </div>
+  <script>
+    var n = 5;
+    var el = document.getElementById('t');
+    var dest = 'https://REPLACE_WITH_PAGES_DEV_URL';
+    var iv = setInterval(function () {
+      n--;
+      el.textContent = n + '초 후 이동...';
+      if (n <= 0) { clearInterval(iv); location.href = dest; }
+    }, 1000);
+  </script>
+</body>
+</html>

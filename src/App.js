@@ -4,16 +4,16 @@
  * 다른 탭(뭐먹지·미니게임)이 명단을 읽거나 회차를 넘길 수 있다.
  */
 import { useEffect } from "react";
-import { html } from "./lib/html.js";
-import { styles } from "./ui/styles.js";
-import { useHashRoute } from "./lib/router.js";
-import { useSettlement } from "./hooks/useSettlement.js";
-import { SettleScreen } from "./screens/SettleScreen.js";
-import { FoodScreen } from "./screens/FoodScreen.js";
-import { GamesScreen } from "./screens/GamesScreen.js";
-import { TabBar } from "./components/TabBar.js";
-import { ImagePreviewOverlay } from "./components/ImagePreviewOverlay.js";
-import { SiteFooter } from "./components/SiteFooter.js";
+import { html } from "./shared/html.js";
+import { styles } from "./shared/styles.js";
+import { useHashRoute } from "./shared/router.js";
+import { useSettlement } from "./settlement/useSettlement.js";
+import { SettleScreen } from "./settlement/SettleScreen.js";
+import { FoodScreen } from "./food/FoodScreen.js";
+import { GamesScreen } from "./games/GamesScreen.js";
+import { TabBar } from "./shared/TabBar.js";
+import { ImagePreviewOverlay } from "./settlement/ImagePreviewOverlay.js";
+import { SiteFooter } from "./shared/SiteFooter.js";
 
 export function App() {
   const s = useSettlement();
