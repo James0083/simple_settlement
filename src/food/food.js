@@ -111,7 +111,11 @@ export function pairFor(main, input, foods, pairs, rng = Math.random) {
   return ok[weightedIndex(ok.map((_, i) => 1 / (i + 1)), rng)];
 }
 
-export function recommend(input, foods, { rng = Math.random, history = [], seen = [], count = 3, pairs = null } = {}) {
+export function recommend(input, foods, { rng = Math.random, history = [], seen = [], pairs = null } = {}) {
+  // 4명당 메뉴 1개 (1-4명→1, 5-8명→2, ..., 17-20명→5)
+  const menuCount = Math.min(Math.ceil(input.people / 4), 5);
+  const count = menuCount + 3; // 주 추천 N개 + 대안 3개
+
   let candidates = [];
   let relaxed = [];
   for (const step of RELAX_STEPS) {
@@ -119,7 +123,7 @@ export function recommend(input, foods, { rng = Math.random, history = [], seen 
     relaxed = step;
     if (candidates.length > 0) break;
   }
-  if (candidates.length === 0) return { picks: [], relaxed: [], total: 0, reset: false, pairs: {} };
+  if (candidates.length === 0) return { picks: [], menuCount, relaxed: [], total: 0, reset: false, pairs: {} };
 
   const unseen = candidates.filter((f) => !seen.includes(f.id));
   const reset = seen.length > 0 && unseen.length < Math.min(count, candidates.length);
@@ -140,7 +144,7 @@ export function recommend(input, foods, { rng = Math.random, history = [], seen 
   if (pairs && input.people >= PAIR_MIN_PEOPLE) {
     picks.forEach((f) => (pairMap[f.id] = pairFor(f, input, foods, pairs, rng)));
   }
-  return { picks, relaxed, total: candidates.length, reset, pairs: pairMap };
+  return { picks, menuCount, relaxed, total: candidates.length, reset, pairs: pairMap };
 }
 
 export const formatPrice = (food) => `1인 ${won(food.price[0])}~${won(food.price[1])}원`;

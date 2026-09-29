@@ -1,7 +1,7 @@
 /* 오늘 뭐먹지 탭 — 조건을 고르면 메뉴를 추천하고, 지도 검색·정산 회차로 이어준다. */
 import { useState, useRef } from "react";
 import { html } from "../shared/html.js";
-import { styles } from "../shared/styles.js";
+import { styles, C_MUTED } from "../shared/styles.js";
 import { load, save } from "../shared/storage.js";
 import { navigate } from "../shared/router.js";
 import { FOODS, PAIRS } from "./foodData.js";
@@ -11,6 +11,7 @@ import { ReceiptCard, ScreenHeader } from "../shared/ReceiptCard.js";
 import { FoodIcon } from "../shared/icons.js";
 import { FoodForm } from "./FoodForm.js";
 import { FoodResult } from "./FoodResult.js";
+import { FoodListScreen } from "./FoodListScreen.js";
 import { AdSlot } from "../shared/AdSlot.js";
 
 const HISTORY_KEY = "foodHistory";
@@ -35,6 +36,7 @@ export function FoodScreen({ s }) {
   const [result, setResult] = useState(null);
   const [seen, setSeen] = useState([]);
   const [copied, setCopied] = useState(false);
+  const [view, setView] = useState("form"); // "form" | "result" | "list"
   const resultRef = useRef(null);
 
   const changeInput = (next) => {
@@ -49,17 +51,32 @@ export function FoodScreen({ s }) {
     setSeen(r.reset ? ids : [...seen, ...ids]);
     setResult({ ...r, mode: input.mode, people: input.people });
     setCopied(false);
+    setView("form"); // 결과는 form 뷰에서 보여준다
     setTimeout(() => resultRef.current?.scrollIntoView({ behavior: "smooth", block: "start" }), 50);
   };
 
-  const promote = (food) =>
-    setResult((prev) => ({ ...prev, picks: [food, ...prev.picks.filter((f) => f.id !== food.id)] }));
+  // 대안 음식을 cardIndex 위치의 주 추천으로 교체
+  const promote = (food, cardIndex = 0) =>
+    setResult((prev) => {
+      const picks = [...prev.picks];
+      const from = picks.findIndex((f) => f.id === food.id);
+      if (from === -1) return prev;
+      picks.splice(from, 1);
+      picks.splice(cardIndex, 0, food);
+      return { ...prev, picks };
+    });
 
-  // 곁들임이 있으면 "치킨, 피자" 처럼 함께 복사한다
-  const copy = async (food, pair) => {
-    remember(food);
+  // 배달: 주 추천(들) + 곁들임을 합쳐서 복사
+  const copy = async (mains, pairMap) => {
+    mains.forEach(remember);
+    const text = mains
+      .map((f) => {
+        const pair = pairMap?.[f.id];
+        return pair ? `${searchQuery(f)}, ${searchQuery(pair)}` : searchQuery(f);
+      })
+      .join(" + ");
     try {
-      await navigator.clipboard.writeText(pair ? `${searchQuery(food)}, ${searchQuery(pair)}` : searchQuery(food));
+      await navigator.clipboard.writeText(text);
       setCopied(true);
       setTimeout(() => setCopied(false), TOAST_MS);
     } catch (e) {
@@ -67,11 +84,23 @@ export function FoodScreen({ s }) {
     }
   };
 
-  const addToSettle = (food, pair) => {
-    remember(food);
-    s.addRoundFrom({ title: `${s.nextRoundNo}차 ${food.name}${pair ? ` + ${pair.name}` : ""}` });
+  const addToSettle = (mains, pairMap) => {
+    mains.forEach(remember);
+    const title =
+      mains.length > 1
+        ? `${s.nextRoundNo}차 ${mains.map((m) => m.name).join(" + ")}`
+        : `${s.nextRoundNo}차 ${mains[0].name}${pairMap?.[mains[0].id] ? ` + ${pairMap[mains[0].id].name}` : ""}`;
+    s.addRoundFrom({ title });
     navigate("settle");
   };
+
+  if (view === "list") {
+    return html`
+      <${ReceiptCard}>
+        <${FoodListScreen} onBack=${() => setView("form")} />
+      <//>
+    `;
+  }
 
   return html`
     <${ReceiptCard}>
@@ -80,6 +109,25 @@ export function FoodScreen({ s }) {
         title="오늘 뭐먹지"
         subtitle="인원·장르·가격대만 고르면 메뉴를 딱 정해드려요"
       />
+
+      <div style=${{ textAlign: "right", marginBottom: 8, marginTop: -4 }}>
+        <button
+          style=${{
+            background: "none",
+            border: "none",
+            cursor: "pointer",
+            color: C_MUTED,
+            fontFamily: "inherit",
+            fontSize: 12.5,
+            fontWeight: 600,
+            padding: "2px 0",
+            textDecoration: "underline",
+          }}
+          onClick=${() => setView("list")}
+        >
+          전체 목록 보기 →
+        </button>
+      </div>
 
       <${FoodForm} input=${input} onChange=${changeInput} />
 
