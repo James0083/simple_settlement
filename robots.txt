@@ -3,4 +3,4 @@ Allow: /
 Disallow: /prototype/
 Disallow: /admin/
 
-Sitemap: https://simple-settlement.pages.dev/sitemap.xml
+Sitemap: https://ddakjeongsan.com/sitemap.xml

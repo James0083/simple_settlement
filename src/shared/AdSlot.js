@@ -27,8 +27,8 @@ import { isAdFree } from "./entitlements.js";
 // 애드센스 승인 후 true 로 변경
 const AD_ENABLED = false;
 
-// 애드센스 Publisher ID — 승인 후 발급된 ID로 교체 (ca-pub-으로 시작)
-const ADSENSE_PUB_ID = "ca-pub-XXXXXXXXXXXXXXXX";
+// 애드센스 Publisher ID
+const ADSENSE_PUB_ID = "ca-pub-3948983509562369";
 
 // 애드센스 슬롯 ID — 승인 후 각 광고 단위 생성 시 발급된 숫자 ID로 교체
 const UNIT_IDS = {
