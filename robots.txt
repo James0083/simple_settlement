@@ -1,0 +1,6 @@
+User-agent: *
+Allow: /
+Disallow: /prototype/
+Disallow: /admin/
+
+Sitemap: https://simple-settlement.pages.dev/sitemap.xml

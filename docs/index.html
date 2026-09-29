@@ -54,7 +54,8 @@
     }
     .copy-btn:hover { background: #DDE1E8; }
     .copy-btn.copied { background: #0F9D64; }
-    .copy-btn.copied svg path { stroke: #fff; }
+    .copy-btn.copied svg path,
+    .copy-btn.copied svg rect { stroke: #fff; }
     .copy-tip {
       position: absolute; bottom: calc(100% + 6px); left: 50%; transform: translateX(-50%);
       background: #1A1D29; color: #fff; font-size: 11px; white-space: nowrap;
@@ -155,14 +156,9 @@
     } else if (isAndroid) {
       browsers = [
         {
-          label: 'Chrome에서 열기', sub: '설치 추천',
-          href: 'intent://' + HOST + '#Intent;scheme=https;package=com.android.chrome;end;',
+          label: '브라우저에서 열기', sub: '설치 추천',
+          href: 'intent://' + HOST + '#Intent;scheme=https;end;',
           icon: '<svg viewBox="0 0 22 22" fill="none"><circle cx="11" cy="11" r="10" stroke="white" stroke-width="1.5"/><circle cx="11" cy="11" r="4" fill="white"/><circle cx="11" cy="11" r="2.5" fill="#1A1D29"/></svg>'
-        },
-        {
-          label: '삼성 인터넷에서 열기', sub: '',
-          href: 'intent://' + HOST + '#Intent;scheme=https;package=com.sec.android.app.sbrowser;end;',
-          icon: '<svg viewBox="0 0 22 22" fill="none"><circle cx="11" cy="11" r="10" stroke="white" stroke-width="1.5"/><path d="M7 11c0-2.2 1.8-4 4-4s4 1.8 4 4-1.8 4-4 4" stroke="white" stroke-width="1.5" stroke-linecap="round"/></svg>'
         }
       ];
     } else {
