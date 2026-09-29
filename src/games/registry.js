@@ -21,9 +21,9 @@ export const GAMES = [
   { id: "pirate", name: "해적룰렛", emoji: "🏴‍☠️", desc: "해적을 튀어나오게 하면 당첨", tier: "free", component: PirateGame },
   { id: "crocodile", name: "악어이빨", emoji: "🐊", desc: "아픈 이빨을 누르면 당첨", tier: "free", component: CrocodileGame },
 
-  { id: "tap", name: "터치 대결", emoji: "⚡", desc: "2명은 화면 땅따먹기, 3명부터는 5초 연타 — 지면 당첨", tier: "premium", component: TapBattleGame },
-  { id: "finger", name: "손가락 룰렛", emoji: "👆", desc: "화면에 손가락을 올리면 한 명 선택", tier: "premium", component: null },
-  { id: "updown", name: "업다운 숫자폭탄", emoji: "🔢", desc: "숨은 숫자를 부르면 당첨", tier: "premium", component: null },
-  { id: "tensec", name: "10초 맞추기", emoji: "⏱️", desc: "10초에서 가장 먼 사람이 당첨", tier: "premium", component: null },
-  { id: "race", name: "동물 레이스", emoji: "🏇", desc: "꼴찌로 들어오면 당첨", tier: "premium", component: null },
+  { id: "tap", name: "터치 대결", emoji: "⚡", desc: "2명은 화면 땅따먹기, 3명부터는 5초 연타 — 지면 당첨", tier: "free", component: TapBattleGame },
+  { id: "finger", name: "손가락 룰렛", emoji: "👆", desc: "화면에 손가락을 올리면 한 명 선택", tier: "free", component: null },
+  { id: "updown", name: "업다운 숫자폭탄", emoji: "🔢", desc: "숨은 숫자를 부르면 당첨", tier: "free", component: null },
+  { id: "tensec", name: "10초 맞추기", emoji: "⏱️", desc: "10초에서 가장 먼 사람이 당첨", tier: "free", component: null },
+  { id: "race", name: "동물 레이스", emoji: "🏇", desc: "꼴찌로 들어오면 당첨", tier: "free", component: null },
 ];

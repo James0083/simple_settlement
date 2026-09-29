@@ -198,7 +198,7 @@ export function GamesScreen({ s, sub }) {
             >
               <span style=${styles.gameCardEmoji} aria-hidden="true">${g.emoji}</span>
               <span style=${styles.gameCardName}>${g.name}</span>
-              <span style=${styles.gameCardDesc}>${open ? (g.tier === "premium" ? `💎 ${g.desc}` : g.desc) : "🔒 곧 출시"}</span>
+              <span style=${styles.gameCardDesc}>${open ? g.desc : "🔒 곧 출시"}</span>
             </button>
           `;
         })}
