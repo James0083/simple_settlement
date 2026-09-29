@@ -1,0 +1,154 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>딱정산 소리 테스트</title>
+<meta name="robots" content="noindex" />
+<!-- 개발용: 게임 효과음을 하나씩 들어보는 페이지. 앱 화면과 연결돼 있지 않고 오프라인 캐시에도 넣지 않는다. -->
+<script type="importmap">
+{
+  "imports": {
+    "react": "https://cdn.jsdelivr.net/npm/react@18.3.1/+esm",
+    "react-dom/client": "https://cdn.jsdelivr.net/npm/react-dom@18.3.1/client/+esm",
+    "htm": "https://cdn.jsdelivr.net/npm/htm@3.1.1/+esm",
+    "html2canvas": "https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/+esm",
+    "three": "https://cdn.jsdelivr.net/npm/three@0.186.1/+esm"
+  }
+}
+</script>
+<style>
+  body { margin: 0; padding: 20px 16px 40px; font-family: -apple-system, "Apple SD Gothic Neo", sans-serif; background: #F3F4F7; color: #1A1D29; }
+  h1 { font-size: 20px; margin: 0 0 4px; }
+  p { font-size: 13px; color: #5C6178; margin: 0 0 16px; }
+  section { background: #fff; border-radius: 6px; padding: 14px; margin-bottom: 12px; }
+  h2 { font-size: 15px; margin: 0 0 10px; }
+  button { font: inherit; font-size: 14px; font-weight: 600; padding: 10px 14px; margin: 0 6px 6px 0; border-radius: 4px; border: 1px solid #DDE1E8; background: #fff; cursor: pointer; }
+  button.on { background: #1A1D29; color: #fff; border-color: #1A1D29; }
+  label { font-size: 13px; display: flex; gap: 8px; align-items: center; }
+</style>
+</head>
+<body>
+<h1>🔊 소리 테스트</h1>
+<p>게임 효과음을 하나씩 들어봐요. 이어지는 소리(심장박동 등)를 켜 둔 채로 소리 켬/끔을 눌러 바로 반영되는지도 확인할 수 있어요.</p>
+
+<div id="loadError" hidden style="background:#FFF1EE;border:1px solid #E8503A;color:#C23E2A;border-radius:6px;padding:12px;margin-bottom:12px;font-size:13px;font-weight:600">
+  소리 모듈을 불러오지 못했어요. 이전 버전 파일이 남아 있을 수 있으니 <b>Cmd+Shift+R</b>(강력 새로고침)을 눌러 주세요.
+  <div id="loadErrorDetail" style="font-weight:400;margin-top:6px"></div>
+</div>
+<section>
+  <h2>소리 설정</h2>
+  <button id="toggle"></button>
+</section>
+<section>
+  <h2>🎯 룰렛</h2>
+  <button data-play="wheel">딱딱딱… (7초, 점점 느려짐)</button>
+  <button data-play="chime">멈춤 "띵!"</button>
+</section>
+<section>
+  <h2>💣 폭탄 돌리기</h2>
+  <button data-play="tick">똑딱</button>
+  <button data-play="tickUrgent">똑딱 (막판)</button>
+  <button data-play="explosion">펑!</button>
+</section>
+<section>
+  <h2>🐊 악어이빨</h2>
+  <button id="tension">긴장감 배경음 시작</button>
+  <label>긴장도 <input id="level" type="range" min="0" max="1" step="0.05" value="0" /></label>
+  <button data-play="tooth">이빨 누름 "딸깍"</button>
+  <button data-play="chomp">딱! (물기)</button>
+</section>
+<section>
+  <h2>🪜 사다리 타기</h2>
+  <button data-play="run">타는 중 멜로디 (2.6초)</button>
+  <button data-play="pass">통과 "띵동"</button>
+  <button data-play="fanfare">당첨 "빰빠밤"</button>
+</section>
+<section>
+  <h2>⚡ 터치 대결</h2>
+  <button data-play="tapA">터치 "톡" (아래)</button>
+  <button data-play="tapB">터치 "톡" (위)</button>
+  <button data-play="count">카운트다운 3·2·1·GO</button>
+</section>
+<section>
+  <h2>🏴‍☠️ 해적룰렛</h2>
+  <button data-play="sword">칼 꽂기 "스으윽-턱"</button>
+  <button data-play="pop">튀어나오기 "펑" + "으아악!"</button>
+  <button data-play="scream">"으아악!"만</button>
+</section>
+
+<script type="module">
+  import * as sfx from "./src/lib/sfx.js";
+  import { clickTimes } from "./src/lib/wheel.js";
+
+  const toggle = document.getElementById("toggle");
+  const paint = () => {
+    toggle.textContent = sfx.isSoundOn() ? "🔊 소리 켬 (누르면 끔)" : "🔇 소리 끔 (누르면 켬)";
+    toggle.className = sfx.isSoundOn() ? "on" : "";
+  };
+  toggle.onclick = () => sfx.setSoundOn(!sfx.isSoundOn());
+  sfx.onSoundChange(paint);
+  paint();
+
+  let tension = null;
+  const tBtn = document.getElementById("tension");
+  const level = document.getElementById("level");
+  tBtn.onclick = () => {
+    sfx.unlockAudio();
+    if (tension) {
+      tension.stop();
+      tension = null;
+      tBtn.textContent = "긴장감 배경음 시작";
+      return;
+    }
+    tension = sfx.tensionLoop();
+    tension.setLevel(Number(level.value));
+    tBtn.textContent = "긴장감 배경음 멈춤";
+  };
+  level.oninput = () => tension?.setLevel(Number(level.value));
+
+  const actions = {
+    wheel: () => sfx.wheelClicks(clickTimes(360 * 8 + 200, 72, 7000)),
+    chime: sfx.chime,
+    tick: () => sfx.tick(false),
+    tickUrgent: () => sfx.tick(true),
+    explosion: sfx.explosion,
+    tooth: sfx.toothClick,
+    chomp: () => {
+      sfx.chomp();
+    },
+    run: () => sfx.ladderRun(2.6),
+    pass: sfx.ladderPass,
+    fanfare: sfx.fanfare,
+    sword: sfx.swordIn,
+    pop: () => {
+      sfx.popUp();
+      sfx.scream(0.12);
+    },
+    scream: () => sfx.scream(0),
+    tapA: () => sfx.tapPop(0),
+    tapB: () => sfx.tapPop(1),
+    count: () => {
+      [0, 700, 1400].forEach((ms) => setTimeout(() => sfx.countBeep(false), ms));
+      setTimeout(() => sfx.countBeep(true), 2100);
+    },
+  };
+  document.querySelectorAll("[data-play]").forEach((b) => {
+    b.onclick = () => {
+      sfx.unlockAudio();
+      actions[b.dataset.play]();
+    };
+  });
+  window.__soundTestReady = true;
+</script>
+<script>
+  // 모듈을 못 불러오면(옛 캐시 · 오프라인) 버튼이 아무 반응이 없으므로 이유를 보여준다
+  window.addEventListener("error", (e) => {
+    document.getElementById("loadErrorDetail").textContent = e.message || "";
+  });
+  setTimeout(() => {
+    if (!window.__soundTestReady) document.getElementById("loadError").hidden = false;
+  }, 3000);
+</script>
+</body>
+</html>
