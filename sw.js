@@ -129,6 +129,10 @@ self.addEventListener("fetch", (event) => {
   const req = event.request;
   if (req.method !== "GET") return;
 
+  // http(s): 이외 스킴(chrome-extension:// 등)은 Cache API가 지원하지 않으므로 그냥 통과
+  const { protocol } = new URL(req.url);
+  if (protocol !== "https:" && protocol !== "http:") return;
+
   // 광고·제휴 도메인은 서비스워커를 통하지 않고 직접 네트워크로
   if (AD_HOSTS.some((h) => new URL(req.url).hostname.endsWith(h))) return;
 

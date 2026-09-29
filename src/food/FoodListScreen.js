@@ -125,7 +125,7 @@ export function FoodListScreen({ onBack }) {
                 ${f.name}
               </span>
               <span style=${{ fontSize: 10.5, color: C_MUTED }}>
-                ~${Math.round(f.price[1] / 1000)}천
+                약 ${f.price[1].toLocaleString()}원
               </span>
             </div>
           `
