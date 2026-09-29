@@ -3,7 +3,6 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta http-equiv="refresh" content="5; url=https://REPLACE_WITH_PAGES_DEV_URL" />
   <title>딱정산 - 주소가 변경되었습니다</title>
   <style>
     * { box-sizing: border-box; }
@@ -35,17 +34,20 @@
     <div class="emoji">🔔</div>
     <h1>딱정산이 새 주소로 이동했습니다</h1>
     <p>더 빠르고 안정적인 서버로 이전했습니다.<br>5초 후 자동으로 이동합니다.</p>
-    <a class="btn" href="https://REPLACE_WITH_PAGES_DEV_URL">지금 바로 이동하기 →</a>
+    <a class="btn" id="link" href="#">지금 바로 이동하기 →</a>
     <p class="timer" id="t">5초 후 이동...</p>
   </div>
   <script>
+    var DEST = 'https://REPLACE_WITH_PAGES_DEV_URL';
+
+    document.getElementById('link').href = DEST;
+
     var n = 5;
     var el = document.getElementById('t');
-    var dest = 'https://REPLACE_WITH_PAGES_DEV_URL';
     var iv = setInterval(function () {
       n--;
       el.textContent = n + '초 후 이동...';
-      if (n <= 0) { clearInterval(iv); location.href = dest; }
+      if (n <= 0) { clearInterval(iv); location.href = DEST; }
     }, 1000);
   </script>
 </body>
