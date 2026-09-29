@@ -2,7 +2,7 @@
 <html lang="ko">
 <head>
 <meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
 <title>딱정산 - 모임 비용 자동 정산</title>
 <meta name="description" content="모임 비용을 회차별로 나눠 자동으로 정산해주는 무료 도구" />
 <link rel="manifest" href="manifest.webmanifest" />
@@ -22,7 +22,8 @@
 <!--
   번들러 없음. 앱 소스는 src/ 아래 표준 ES 모듈(import/export)이고, index.html 은
   진입점 src/main.js 하나만 로드한다. 브라우저 네이티브 모듈 로더가 나머지를 해석한다.
-  vendor(React·htm·html2canvas)는 아래 import map 으로 jsdelivr ESM 을 가리킨다.
+  vendor(React·htm·html2canvas·three)는 아래 import map 으로 jsdelivr ESM 을 가리킨다.
+  three(3D 게임용)는 해적룰렛·악어이빨을 열 때만 동적으로 불러온다.
   JSX 대신 htm(태그드 템플릿)을 쓰므로 트랜스파일러가 필요 없다.
 -->
 <script type="importmap">
@@ -31,7 +32,8 @@
     "react": "https://cdn.jsdelivr.net/npm/react@18.3.1/+esm",
     "react-dom/client": "https://cdn.jsdelivr.net/npm/react-dom@18.3.1/client/+esm",
     "htm": "https://cdn.jsdelivr.net/npm/htm@3.1.1/+esm",
-    "html2canvas": "https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/+esm"
+    "html2canvas": "https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/+esm",
+    "three": "https://cdn.jsdelivr.net/npm/three@0.186.1/+esm"
   }
 }
 </script>
@@ -56,7 +58,35 @@
   .settle-chip-inactive:hover { border-color: #9AA0B0; color: #5C6178; }
   .settle-chip-active:hover { opacity: 0.85; }
   .settle-footer-link:hover { color: #5C6178; text-decoration: underline; }
+  .settle-step-btn:hover:not(:disabled) { border-color: #1A1D29; }
+  .settle-step-btn:disabled { opacity: 0.35; cursor: not-allowed; }
+  button { touch-action: manipulation; }
+  .game-card:hover { border-color: #1A1D29; }
+  .game-card:active { transform: scale(0.98); }
+  .game-card-locked:hover { border-color: #C7CCD8; }
+  .tab-item:hover { color: #5C6178; }
+  .tab-item[aria-current="page"]:hover { color: #1A1D29; }
+  .tab-item:focus-visible { outline: 2px solid #1A1D29; outline-offset: -4px; }
   @media (prefers-reduced-motion: reduce) { .settle-stamp { animation: none !important; } }
+  /* 게임 연출 */
+  @keyframes ladderDraw { to { stroke-dashoffset: 0; } }
+  @keyframes bombShake {
+    0%, 100% { transform: translate(0, 0) rotate(0deg); }
+    25% { transform: translate(-3px, 1px) rotate(-3deg); }
+    75% { transform: translate(3px, -1px) rotate(3deg); }
+  }
+  @keyframes sparkle { from { opacity: 1; transform: scale(1); } to { opacity: 0.55; transform: scale(1.35); } }
+  @keyframes pirateJump {
+    0% { transform: translateY(0) rotate(0deg); }
+    55% { transform: translateY(-82px) rotate(-14deg); }
+    100% { transform: translateY(-68px) rotate(-10deg); }
+  }
+  @keyframes crocSnap { from { transform: scaleY(0); } to { transform: scaleY(1); } }
+  @keyframes tapPulse { from { transform: scale(1.18); } to { transform: scale(1); } }
+  @keyframes countPop { from { transform: scale(1.6); opacity: 0.2; } to { transform: scale(1); opacity: 1; } }
+  @keyframes bombFlash { 0%, 100% { opacity: 0; } 50% { opacity: 0.55; } }
+  /* 악어가 물 때 화면 가장자리가 빨갛게 번쩍 */
+  @keyframes dangerFlash { 0% { opacity: 0; } 12% { opacity: 1; } 100% { opacity: 0; } }
   @keyframes stampIn {
     0% { opacity: 0; transform: rotate(-8deg) scale(1.6); }
     60% { opacity: 1; transform: rotate(-8deg) scale(0.92); }
@@ -68,6 +98,9 @@
 <div id="root"></div>
 
 <script type="module" src="src/main.js"></script>
+
+<!-- 카카오 애드핏 공통 스크립트 — AD_ENABLED=true 로 바꾸면 자동으로 광고를 채운다 -->
+<script async src="//t1.daumcdn.net/kas/static/ba.min.js"></script>
 
 <script>
   // PWA: 서비스 워커 등록 (오프라인 지원 · 홈 화면 설치)

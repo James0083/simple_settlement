@@ -3,9 +3,13 @@
  * 값, 이벤트 핸들러를 한곳에 모은다. 화면(App)은 이 훅이 돌려주는 값만 그린다.
  *
  * 모든 계산은 participants 와 rounds, 이 두 상태로부터 파생된다.
+ *
+ * participants 는 앱 전체의 공유 명단이기도 하다 — 이름·계좌를 기기(localStorage)에 저장해
+ * 다음 방문 때 다시 채우고, 뭐먹지·미니게임 탭이 같은 명단을 읽는다.
  */
-import { useState, useMemo, useRef } from "react";
+import { useState, useMemo, useRef, useEffect } from "react";
 import { uid, makeParticipant, isMobileDevice } from "../lib/util.js";
+import { load, save } from "../lib/storage.js";
 import {
   isRoundValid,
   computeStats,
@@ -23,11 +27,23 @@ const makeRound = (participantIds) => ({
   participantIds,
 });
 
+// 입력을 하나도 안 건드린 회차 — 다른 탭에서 회차를 넘길 때 이런 빈 회차 하나는 대체한다.
+const isBlankRound = (r) => !r.title.trim() && !r.payerId && !r.amount;
+
+// 저장된 명단 → 참가자. 없으면 빈 입력칸 3개 (처음 방문과 같음).
+function loadParticipants() {
+  const saved = load("roster", []);
+  const list = (Array.isArray(saved) ? saved : [])
+    .filter((p) => p && typeof p.name === "string" && p.name.trim())
+    .map((p) => ({
+      ...makeParticipant(p.name),
+      account: typeof p.account === "string" ? p.account : "",
+    }));
+  return list.length > 0 ? list : [makeParticipant(), makeParticipant(), makeParticipant()];
+}
+
 export function useSettlement() {
-  const initialParticipants = useMemo(
-    () => [makeParticipant(), makeParticipant(), makeParticipant()],
-    []
-  );
+  const initialParticipants = useMemo(loadParticipants, []);
   const [participants, setParticipants] = useState(initialParticipants);
   const [rounds, setRounds] = useState(() => [makeRound(initialParticipants.map((p) => p.id))]);
   const [calculated, setCalculated] = useState(false);
@@ -41,6 +57,16 @@ export function useSettlement() {
 
   // 입력이 바뀌면 이전 계산 결과는 무효화한다.
   const invalidate = () => setCalculated(false);
+
+  // 이름이 있는 참가자만 이름·계좌를 저장한다. (showAccount 는 UI 상태라 저장하지 않음)
+  useEffect(() => {
+    save(
+      "roster",
+      participants
+        .filter((p) => p.name.trim())
+        .map(({ name, account }) => ({ name: name.trim(), account }))
+    );
+  }, [participants]);
 
   // ── 참가자 ────────────────────────────────────────────────
   const updateParticipantName = (id, name) => {
@@ -58,9 +84,16 @@ export function useSettlement() {
       prev.map((p) => (p.id === id ? { ...p, showAccount: !p.showAccount } : p))
     );
   };
-  const addParticipant = () => {
+  // 버튼 onClick 에 그대로 물리면 이벤트 객체가 들어오므로 문자열일 때만 이름으로 쓴다.
+  // 이름을 붙여 추가하면(미니게임 탭) 비어 있는 입력칸을 먼저 채우고, 없을 때만 새 칸을 만든다.
+  const addParticipant = (name) => {
     invalidate();
-    setParticipants((prev) => [...prev, makeParticipant()]);
+    const trimmed = typeof name === "string" ? name.trim() : "";
+    setParticipants((prev) => {
+      const blank = trimmed ? prev.findIndex((p) => !p.name.trim()) : -1;
+      if (blank !== -1) return prev.map((p, i) => (i === blank ? { ...p, name: trimmed } : p));
+      return [...prev, makeParticipant(trimmed)];
+    });
   };
   const removeParticipant = (id) => {
     invalidate();
@@ -87,6 +120,16 @@ export function useSettlement() {
   const updateRoundAmount = (id, raw) => {
     const digits = String(raw).replace(/[^0-9]/g, "").replace(/^0+/, "");
     updateRound(id, "amount", digits);
+  };
+  // 다른 탭(뭐먹지·미니게임)에서 회차를 넘겨받는다. participantIds 를 안 주면 이름 있는 참가자 전원.
+  // 아직 아무것도 입력하지 않은 회차 하나만 있으면 그것을 대체한다.
+  const addRoundFrom = ({ title = "", payerId = "", amount = "", participantIds } = {}) => {
+    invalidate();
+    const ids = participantIds ?? participants.filter((p) => p.name.trim()).map((p) => p.id);
+    setRounds((prev) => {
+      const kept = prev.length === 1 && isBlankRound(prev[0]) ? [] : prev;
+      return [...kept, { ...makeRound(ids), title, payerId, amount: String(amount) }];
+    });
   };
   const removeRound = (id) => {
     invalidate();
@@ -210,6 +253,9 @@ export function useSettlement() {
     removeRound,
     toggleRoundParticipant,
     toggleAllRoundParticipants,
+    addRoundFrom,
+    // 다음 회차 번호 — 다른 탭이 "2차 마라탕" 같은 회차 이름을 만들 때 쓴다.
+    nextRoundNo: rounds.filter((r) => !isBlankRound(r)).length + 1,
     // 파생
     validParticipants,
     isAllSelected,

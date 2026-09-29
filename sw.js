@@ -1,6 +1,6 @@
 /* 딱정산 서비스 워커 — 오프라인 지원 + 앱 설치 */
 // 자원(HTML·JS·아이콘)을 바꾸면 이 값을 올려야 사용자 기기에서 새로 받는다.
-const CACHE = "ddakjeongsan-v1.6.2";
+const CACHE = "ddakjeongsan-v20";
 
 // 앱 셸 (같은 출처)
 const CORE = [
@@ -25,6 +25,16 @@ const CORE = [
   "./src/lib/util.js",
   "./src/lib/settlement.js",
   "./src/lib/exportImage.js",
+  "./src/lib/storage.js",
+  "./src/lib/router.js",
+  "./src/lib/food.js",
+  "./src/lib/foodData.js",
+  "./src/lib/coupang.js",
+  "./src/lib/random.js",
+  "./src/lib/sfx.js",
+  "./src/lib/josa.js",
+  "./src/lib/wheel.js",
+  "./src/lib/entitlements.js",
   "./src/ui/styles.js",
   "./src/components/BrandLogo.js",
   "./src/components/ParticipantsSection.js",
@@ -33,6 +43,31 @@ const CORE = [
   "./src/components/ResultReceipt.js",
   "./src/components/ImagePreviewOverlay.js",
   "./src/components/SiteFooter.js",
+  "./src/components/icons.js",
+  "./src/components/ReceiptCard.js",
+  "./src/components/TabBar.js",
+  "./src/components/ChipGroup.js",
+  "./src/components/food/FoodForm.js",
+  "./src/components/food/FoodResult.js",
+  "./src/components/AdSlot.js",
+  "./src/components/games/registry.js",
+  "./src/components/games/palette.js",
+  "./src/components/games/common.js",
+  "./src/components/games/GameResult.js",
+  "./src/components/games/RouletteGame.js",
+  "./src/components/games/LadderGame.js",
+  "./src/components/games/BombGame.js",
+  "./src/components/games/PirateGame.js",
+  "./src/components/games/CrocodileGame.js",
+  "./src/components/games/TapBattleGame.js",
+  "./src/components/games/TurnOrder.js",
+  "./src/components/games/three/stage.js",
+  "./src/components/games/three/ThreeView.js",
+  "./src/components/games/three/pirateScene.js",
+  "./src/components/games/three/crocScene.js",
+  "./src/screens/SettleScreen.js",
+  "./src/screens/FoodScreen.js",
+  "./src/screens/GamesScreen.js",
   "./src/hooks/useSettlement.js",
 ];
 
@@ -47,6 +82,7 @@ const VENDOR = [
   "https://cdn.jsdelivr.net/npm/scheduler@0.23.2/+esm",
   "https://cdn.jsdelivr.net/npm/htm@3.1.1/+esm",
   "https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/+esm",
+  "https://cdn.jsdelivr.net/npm/three@0.186.1/+esm",
 ];
 
 self.addEventListener("install", (event) => {
@@ -70,16 +106,31 @@ self.addEventListener("activate", (event) => {
   );
 });
 
+// 광고·제휴 도메인 — 캐시하면 광고가 안 나오거나 트래킹이 깨짐
+const AD_HOSTS = [
+  "link.coupang.com",
+  "partners.coupangcdn.com",
+  "image6.coupangcdn.com",
+  "t1.daumcdn.net",
+  "adfit.kakao.com",
+  "googleads.g.doubleclick.net",
+  "pagead2.googlesyndication.com",
+  "tpc.googlesyndication.com",
+];
+
 self.addEventListener("fetch", (event) => {
   const req = event.request;
   if (req.method !== "GET") return;
+
+  // 광고·제휴 도메인은 서비스워커를 통하지 않고 직접 네트워크로
+  if (AD_HOSTS.some((h) => new URL(req.url).hostname.endsWith(h))) return;
 
   // 페이지 이동: 네트워크 우선 → 실패 시 캐시(오프라인)
   if (req.mode === "navigate") {
     event.respondWith(
       (async () => {
         try {
-          const fresh = await fetch(req);
+          const fresh = await fetch(req, { cache: "no-cache" }); // 브라우저 HTTP 캐시를 믿지 않고 서버에 늘 확인(바뀌지 않았으면 304 로 가볍게)
           const cache = await caches.open(CACHE);
           cache.put(req, fresh.clone());
           return fresh;
@@ -96,7 +147,27 @@ self.addEventListener("fetch", (event) => {
     return;
   }
 
-  // 그 외 자원: 캐시 우선 + 백그라운드 갱신 (stale-while-revalidate)
+  // 우리 앱 파일(같은 주소의 JS·CSS·아이콘): 네트워크 우선 → 실패 시 캐시(오프라인).
+  // 서버가 Cache-Control 을 안 보내면(예: 로컬 python 서버) 브라우저가 옛 파일을 "아직 신선하다"고 추정해
+  // 재사용할 수 있으므로, cache: "no-cache" 로 매번 서버에 바뀌었는지 확인한다.
+  // 캐시를 먼저 주면 파일을 고친 뒤 첫 실행이 늘 옛 코드라, 새 파일과 옛 파일이 섞여 모듈이 깨질 수 있다.
+  if (new URL(req.url).origin === self.location.origin) {
+    event.respondWith(
+      (async () => {
+        const cache = await caches.open(CACHE);
+        try {
+          const fresh = await fetch(req, { cache: "no-cache" }); // 브라우저 HTTP 캐시를 믿지 않고 서버에 늘 확인(바뀌지 않았으면 304 로 가볍게)
+          if (fresh.ok) cache.put(req, fresh.clone());
+          return fresh;
+        } catch (e) {
+          return (await cache.match(req)) || Response.error();
+        }
+      })()
+    );
+    return;
+  }
+
+  // 외부 CDN(버전이 URL 에 박혀 있어 바뀌지 않음): 캐시 우선 + 백그라운드 갱신 (stale-while-revalidate)
   event.respondWith(
     (async () => {
       const cache = await caches.open(CACHE);
