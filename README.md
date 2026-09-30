@@ -224,10 +224,10 @@ await navigator.share({ files: [file] });
 정적 파일(매니페스트 · 서비스 워커 · 아이콘 · 스크린샷)을 추가해 PWA로 동작합니다.
 
 - **`manifest.webmanifest`** — `id`, `name`/`short_name`, `description`, `start_url`·`scope`(상대 경로 `./` — 하위 경로 배포도 동작), `display: standalone` + `display_override`, 테마/배경색(`#EEF1F4`), `categories`, `prefer_related_applications: false`, 아이콘 4종(any 192·512 + maskable 192·512), `screenshots`(`screenshots/home.png`, narrow). `id`·`screenshots`·maskable 아이콘은 Android WebAPK 품질 분류를 높이고, 지문(fingerprint)이 바뀌면 Chrome 이 WebAPK 를 최신 target SDK 로 다시 발급한다 — Play Protect 의 "이전 버전 앱" 경고 대응(아래 참고).
-- **`sw.js`** — 서비스 워커. 캐시 이름 `ddakjeongsan-v2.5.0`(앱 버전과 맞춤).
+- **`sw.js`** — 서비스 워커. 캐시 이름 `ddakjeongsan-v2.6.0`(앱 버전과 맞춤).
   - 설치 시: 같은 출처 파일(HTML + 매니페스트 + 아이콘·스크린샷 + `audio/scream.mp3` + `src/`의 앱 소스 전부)과 CDN(React·ReactDOM·scheduler·htm·html2canvas·three의 ESM + Pretendard·Space Grotesk CSS)을 캐시. CDN은 하나쯤 실패해도 설치가 진행됩니다.
   - 요청 처리: 페이지 이동과 우리 앱 파일(같은 주소의 `src/` JS·아이콘 등)은 네트워크 우선(실패 시 캐시 — 오프라인), 외부 CDN(버전이 URL에 고정)은 캐시 우선 + 백그라운드 갱신(stale-while-revalidate). 앱 파일을 캐시 우선으로 주면 고친 뒤 첫 실행에서 옛 파일과 새 파일이 섞여 모듈이 깨질 수 있어서 네트워크 우선으로 둔다.
-  - **자원(HTML·`src/` JS·아이콘·매니페스트)을 바꾸면** `sw.js`의 `CACHE` 값을 `ddakjeongsan-v2.5.1`처럼 올려야 사용자 기기에서 새로 받습니다. `src/`·아이콘·스크린샷을 추가·삭제하면 `sw.js`의 `CORE` 목록도 함께 맞추고, vendor 버전을 바꾸면 `index.html`의 import map과 `sw.js`의 `VENDOR`를 함께 고쳐야 합니다.
+  - **자원(HTML·`src/` JS·아이콘·매니페스트)을 바꾸면** `sw.js`의 `CACHE` 값을 `ddakjeongsan-v2.6.1`처럼 올려야 사용자 기기에서 새로 받습니다. `src/`·아이콘·스크린샷을 추가·삭제하면 `sw.js`의 `CORE` 목록도 함께 맞추고, vendor 버전을 바꾸면 `index.html`의 import map과 `sw.js`의 `VENDOR`를 함께 고쳐야 합니다.
 - **아이콘** — `favicon.svg`(브라우저 탭), `apple-touch-icon.png`(iOS 홈 화면 180px), `icons/icon-192.png`·`icons/icon-512.png`(any), `icons/icon-maskable-192.png`·`icons/icon-maskable-512.png`(Android 어댑티브). 모두 `favicon.svg`의 영수증·체크 도형을 `#1A1D29` 배경 + 흰색 선으로 렌더한 것으로, 로고를 바꾸면 `favicon.svg` 수정 후 아이콘 PNG를 다시 만들면 됩니다. maskable 192 는 512 를 `sips -z 192 192` 로 축소.
 
 ### Google Play Protect "안전하지 않은 앱 / 이전 버전" 경고
@@ -253,6 +253,8 @@ if ("serviceWorker" in navigator) {
 ## 정적 페이지 · 법적 페이지 & 문의하기
 
 앱(`index.html`)은 자바스크립트로 그려지므로, 검색엔진·애드센스 심사가 읽을 수 있게 **정적 글 페이지** `guide.html`(사용 가이드) · `how-it-works.html`(정산 계산 예시)를 두고, `index.html`에는 `<noscript>` 소개문과 링크를 넣었습니다. 새 정적 페이지를 만들면 `sitemap.xml`, `sw.js`의 `CORE`, 앱 푸터(`SiteFooter.js`)에 함께 추가합니다.
+
+**검색 노출 규칙**: Cloudflare Pages 는 `/guide.html` 을 `/guide` 로 308 리디렉션하므로 `sitemap.xml` 의 `<loc>` 와 각 페이지 `canonical` 은 **`.html` 없는 최종 주소**로 적습니다(내부 링크는 로컬 서버·오프라인 캐시 때문에 `.html` 유지). 새 페이지에는 `title` · `description` · `canonical` · OG 태그(`screenshots/og.png`, 1200×630)를 넣습니다. 없는 주소는 `404.html`(noindex)이 404 상태로 응답합니다. 홈에는 JSON-LD(`WebSite` · `WebApplication`)가 있습니다. 옛 GitHub Pages 안내 페이지(`docs/index.html`)는 옛 PWA 사용자 안내용으로 남기되 `noindex` 입니다.
 
 
 푸터에 개인정보처리방침(`privacy.html`), 이용약관(`terms.html`), 문의하기(`contact.html`) 링크를 두었습니다. 문의하기는 Google 설문지로 연결됩니다. 다른 설문지로 바꾸고 싶다면 `contact.html` 안의 버튼 `href` 값만 교체하면 됩니다.
@@ -296,6 +298,7 @@ src/
     tokens.css              #   CSS 변수 (정적 페이지와 공유)
 audio/scream.mp3            # 해적룰렛 비명
 release-notes.html          # 버전정보 (사용자용)
+404.html                    # 없는 주소 안내 (Cloudflare Pages 가 404 상태로 응답, noindex)
 guide.html · how-it-works.html  # 사용 가이드 · 정산 계산 방식 (JS 없이 읽히는 정적 글 — 검색·애드센스 심사용)
 ads.txt                     # 애드센스 판매자 인증 (pub-3948983509562369)
 privacy.html · terms.html · contact.html

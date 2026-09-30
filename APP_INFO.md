@@ -1,6 +1,6 @@
 # 딱정산 — 앱 정보
 
-> 기준: v2.5.0 (2026-09-30). 개발·구조 설명은 [README.md](README.md), 업데이트 내역은 [release-notes.html](release-notes.html)을 보세요.
+> 기준: v2.6.0 (2026-09-30). 개발·구조 설명은 [README.md](README.md), 업데이트 내역은 [release-notes.html](release-notes.html)을 보세요.
 
 ## 한눈에 보기
 
@@ -85,5 +85,6 @@
 - **문의**: 앱 하단 "문의하기"는 Google 설문지로 연결됩니다(`contact.html`).
 - **법적 페이지**: 개인정보처리방침(`privacy.html`), 이용약관(`terms.html`)
 - **안내 글**: 사용 가이드(`guide.html`), 정산 계산 방식(`how-it-works.html`) — 앱 하단 링크와 검색 결과로 들어옴
+- **검색 노출**: sitemap(`/sitemap.xml`)·canonical 은 `.html` 없는 주소, 홈에 구조화 데이터, 공유 이미지 `screenshots/og.png`. Search Console·네이버 서치어드바이저 등록은 운영자가 직접.
 - **애드센스**: 2026-09-30 심사 신청. 판매자 인증 파일 `ads.txt` 배포됨. 승인 후 켜는 순서는 README "수익화 · 공개 설정"
 - **기기 확인이 더 필요한 것**: 아이폰 safe-area, 안드로이드 진동, 지도 앱 연결, 손가락 룰렛 멀티터치
