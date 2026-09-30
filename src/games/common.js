@@ -7,6 +7,13 @@ import { colorOf } from "./palette.js";
 // 결과 연출이 끝난 뒤 onFinish 까지 잠깐 쉬는 시간
 export const GAME_FINISH_MS = 500;
 
+// 차례대로 하나씩 고르는 게임(해적 구멍·악어 이빨)의 칸 수 — 인원의 배수로 맞춰 모두 같은 횟수를 고르게 한다.
+// 함정은 몇 번째 고르기에서 나올 확률이 모두 같으므로, 고르는 횟수가 같아야 순서와 상관없이 당첨 확률이 1/인원이 된다.
+// base 에 가장 가까운 배수를 쓰되 cap 을 넘지 않게(칸이 너무 촘촘해지지 않게 — 해적 30, 악어 20: 이빨은 20개를 넘으면
+// 서로 붙어 누르기 어렵다), 적어도 한 바퀴.
+export const equalTurnCount = (players, base, cap) =>
+  players * Math.max(1, Math.min(Math.round(base / players), Math.floor(cap / players)));
+
 // "지금 차례: 민수" — 폰을 넘겨받은 사람이 바로 알아보도록 크게
 export function TurnBanner({ label = "지금 차례", player, index }) {
   const [bg, fg] = colorOf(index);

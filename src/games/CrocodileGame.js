@@ -1,6 +1,6 @@
 /*
- * 악어이빨 (3D) — 아래턱 이빨 중 하나가 아픈 이빨. 아픈 이빨은 처음에 정한다.
- * 인원이 많으면 이빨도 늘린다 (한 판이 너무 빨리 끝나지 않게).
+ * 악어이빨 (3D) — 아래턱 이빨 중 하나가 아픈 이빨. 아픈 이빨만 처음에 정하고, 누가 걸릴지는 누르는 이빨에 달려 있다.
+ * 이빨 수는 인원의 배수(최대 20개) — 모두 같은 횟수를 누르므로 순서와 상관없이 당첨 확률이 같다.
  * 먼저 순서를 정하고(바꿀 수 있음), 차례대로 이빨을 누른다. 아픈 이빨을 누르면 입이 닫히며 그 사람이 당첨.
  * 플레이 중엔 심장박동과 낮은 울림이 깔리고(이빨이 줄수록 빨라짐), 물 때는 "딱!" 하며 화면 가장자리가 빨갛게 번쩍인다.
  */
@@ -9,13 +9,13 @@ import { html } from "../shared/html.js";
 import { styles } from "../shared/styles.js";
 import { randInt, shuffle } from "./random.js";
 import { chomp as chompSound, toothClick, tensionLoop, vibrate, unlockAudio } from "./sfx.js";
-import { TurnBanner, useScrollToStage, GAME_FINISH_MS } from "./common.js";
+import { TurnBanner, useScrollToStage, GAME_FINISH_MS, equalTurnCount } from "./common.js";
 import { TurnOrderSetup, TurnStrip } from "./TurnOrder.js";
 import { ThreeView } from "./three/ThreeView.js";
 import { loadThree } from "./three/stage.js";
 import { buildCrocScene } from "./three/crocScene.js";
 
-export const teethFor = (players) => (players <= 4 ? 13 : players <= 7 ? 16 : 18);
+export const teethFor = (players) => equalTurnCount(players, players <= 4 ? 13 : players <= 7 ? 16 : 18, 20);
 
 export function CrocodileGame({ players: initialPlayers, onFinish }) {
   const [players] = useState(initialPlayers);

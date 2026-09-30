@@ -9,9 +9,12 @@ import { SWORD_SOUND_MS } from "../sfx.js";
 const H = 2; // 통 높이
 const radiusAt = (y) => 0.9 + 0.13 * Math.sin((Math.PI * y) / H); // 가운데가 볼록
 
+// 구멍을 줄마다 고르게 나눈다 (20개 이하는 2줄, 넘으면 3줄). 16·20·24개는 예전처럼 8+8 · 10+10 · 8+8+8.
 function holeLayout(holes) {
-  if (holes === 24) return { per: 8, rows: [0.55, 1.0, 1.45] };
-  return { per: holes / 2, rows: [0.68, 1.34] };
+  const ys = holes > 20 ? [0.55, 1.0, 1.45] : [0.68, 1.34];
+  const base = Math.floor(holes / ys.length);
+  const extra = holes % ys.length;
+  return ys.map((y, r) => ({ y, count: base + (r < extra ? 1 : 0) }));
 }
 
 function drawWood(g, w, h) {
@@ -137,7 +140,7 @@ export function buildPirateScene(THREE, container, { holes, onHole }) {
   };
   band(0.16);
   band(H - 0.2);
-  const { per, rows } = holeLayout(holes);
+  const rows = holeLayout(holes);
   if (rows.length === 2) band(1.01);
 
   // ── 칼 구멍 ────────────────────────────────────
@@ -147,11 +150,11 @@ export function buildPirateScene(THREE, container, { holes, onHole }) {
   const holeGroups = [];
   const rimMats = [];
   const hitMeshes = [];
+  const spots = rows.flatMap(({ y, count }, row) =>
+    Array.from({ length: count }, (_, k) => ({ y, theta: ((k + (row % 2) * 0.5) / count) * Math.PI * 2 }))
+  );
   for (let i = 0; i < holes; i++) {
-    const row = Math.floor(i / per);
-    const k = i % per;
-    const y = rows[row];
-    const theta = ((k + (row % 2) * 0.5) / per) * Math.PI * 2;
+    const { y, theta } = spots[i];
     const r = radiusAt(y);
     const g = new THREE.Group();
     g.position.set(r * Math.sin(theta), y, r * Math.cos(theta));

@@ -1,5 +1,6 @@
 /*
- * 해적룰렛 (3D) — 통에 구멍 16~24개(인원에 맞춰), 그중 하나가 함정. 함정 위치는 처음에 정한다.
+ * 해적룰렛 (3D) — 통에 구멍(인원의 배수, 최대 30개), 그중 하나가 함정. 함정 위치는 처음에 정하고,
+ * 누가 걸릴지는 누르는 구멍에 달려 있다. 모두 같은 횟수를 누르므로 순서와 상관없이 당첨 확률은 같다.
  * 먼저 순서를 정하고(바꿀 수 있음), 차례대로 구멍에 칼을 꽂는다. 함정에 꽂으면 해적이 튀어나오고
  * 그 사람이 당첨. 통은 좌우로 밀어서 돌릴 수 있다.
  */
@@ -9,13 +10,13 @@ import { styles } from "../shared/styles.js";
 import { randInt, shuffle } from "./random.js";
 import { swordIn, popUp, scream, vibrate, unlockAudio } from "./sfx.js";
 import { colorOf } from "./palette.js";
-import { TurnBanner, useScrollToStage, GAME_FINISH_MS } from "./common.js";
+import { TurnBanner, useScrollToStage, GAME_FINISH_MS, equalTurnCount } from "./common.js";
 import { TurnOrderSetup, TurnStrip } from "./TurnOrder.js";
 import { ThreeView } from "./three/ThreeView.js";
 import { loadThree } from "./three/stage.js";
 import { buildPirateScene } from "./three/pirateScene.js";
 
-export const holeCount = (players) => (players <= 4 ? 16 : players <= 7 ? 20 : 24);
+export const holeCount = (players) => equalTurnCount(players, players <= 4 ? 16 : players <= 7 ? 20 : 24, 30);
 
 export function PirateGame({ players: initialPlayers, onFinish }) {
   const [players] = useState(initialPlayers);
