@@ -112,7 +112,7 @@ export function pairFor(main, input, foods, pairs, rng = Math.random) {
 }
 
 export function recommend(input, foods, { rng = Math.random, history = [], seen = [], pairs = null } = {}) {
-  // 4명당 메뉴 1개 (1-4명→1, 5-8명→2, ..., 17-20명→5)
+  // 4명당 메뉴 1개 (1-4명→1, 5-8명→2, 9-12명→3, 13-15명→4)
   const menuCount = Math.min(Math.ceil(input.people / 4), 5);
   const count = menuCount + 3; // 주 추천 N개 + 대안 3개
 

@@ -12,6 +12,12 @@ export const PLAYER_COLORS = [
   ["#2BB5A8", C_DARK],
   ["#C2185B", C_WHITE],
   [C_MUTED, C_DARK],
+  // 11~15번째 참가자 (최대 15명)
+  ["#795548", C_WHITE],
+  ["#9CCC65", C_DARK],
+  ["#F48FB1", C_DARK],
+  ["#283593", C_WHITE],
+  ["#4FC3F7", C_DARK],
 ];
 
 export const colorOf = (index) => PLAYER_COLORS[index % PLAYER_COLORS.length];

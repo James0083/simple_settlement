@@ -46,6 +46,7 @@ export function RouletteGame({ players: initialPlayers, onFinish }) {
 
   const n = players.length;
   const seg = 360 / n;
+  const radial = n > 8; // 조각이 좁으면 이름을 반지름 방향으로 세워 겹치지 않게
 
   const spin = () => {
     if (phase !== "ready") return;
@@ -89,11 +90,13 @@ export function RouletteGame({ players: initialPlayers, onFinish }) {
                   <text
                     x=${C}
                     y=${C - R * 0.62}
-                    transform=${`rotate(${mid} ${C} ${C})`}
+                    transform=${radial
+                      ? `rotate(${mid} ${C} ${C}) rotate(${mid < 180 ? -90 : 90} ${C} ${C - R * 0.62})`
+                      : `rotate(${mid} ${C} ${C})`}
                     textAnchor="middle"
                     dominantBaseline="middle"
                     fill=${fg}
-                    style=${styles.rouletteLabel}
+                    style=${radial ? { ...styles.rouletteLabel, fontSize: 13 } : styles.rouletteLabel}
                   >
                     ${shortName(p.name)}
                   </text>

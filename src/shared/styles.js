@@ -167,6 +167,7 @@ export const styles = {
     ladderSetupList: { display: "flex", flexDirection: "column", gap: 6 },
     ladderSetupRow: { display: "flex", alignItems: "center", gap: 10 },
     ladderSetupTag: { width: 26, flexShrink: 0, textAlign: "center", fontFamily: "'Space Grotesk', 'Pretendard', sans-serif", fontSize: 13, fontWeight: 700, color: "#8A8FA3" },
+    ladderScroll: { overflowX: "auto", overflowY: "hidden", WebkitOverflowScrolling: "touch", overscrollBehaviorX: "contain", paddingBottom: 4 },
     ladderNames: { display: "grid", gap: 3, margin: "6px 0" },
     ladderName: { minWidth: 0, minHeight: 40, padding: "0 2px", border: "2px solid", borderRadius: 4, fontFamily: "inherit", fontSize: 12, fontWeight: 800, overflow: "hidden", whiteSpace: "nowrap", cursor: "pointer", transition: "background 0.15s, color 0.15s" },
     ladderResult: { minWidth: 0, minHeight: 44, display: "flex", flexDirection: "column", gap: 2, alignItems: "center", justifyContent: "center", borderRadius: 4, background: "#F6F8FB", border: "1px solid #E3E6EC", fontSize: 11.5, fontWeight: 700, color: C_DARK, overflow: "hidden", whiteSpace: "nowrap", textAlign: "center", padding: "0 2px" },

@@ -9,7 +9,7 @@ import { useState, useEffect } from "react";
 import { html } from "../shared/html.js";
 import { styles, C_RED, C_MUTED } from "../shared/styles.js";
 import { navigate, routeHref } from "../shared/router.js";
-import { canPlay } from "../shared/entitlements.js";
+import { canPlay, releaseLabel } from "../shared/entitlements.js";
 import { josa } from "./josa.js";
 import { isSoundOn, setSoundOn, onSoundChange } from "./sfx.js";
 import { ReceiptCard, ScreenHeader } from "../shared/ReceiptCard.js";
@@ -46,19 +46,49 @@ function SoundHint() {
   `;
 }
 
-function GamePlay({ game, players, s }) {
+// 동점 — 동점자끼리 같은 게임을 다시 하거나, 동점자만 골라 둔 채 게임 목록으로 간다
+function TieResult({ tied, onRematch, onPickGame }) {
+  const names = tied.map((p) => p.name);
+  return html`
+    <div>
+      <div style=${styles.dashedDivider} aria-hidden="true"></div>
+      <div style=${styles.loserBlock}>
+        <div style=${styles.loserEmoji} aria-hidden="true">🤝</div>
+        <div style=${{ ...styles.loserName, ...styles.loserNameMany }}>${names.join(" · ")}</div>
+        <div style=${styles.loserText}>동점이에요! ${tied.length}명이 한 번 더 겨뤄요</div>
+      </div>
+      <div style=${styles.actionRow}>
+        <button className="settle-copy-btn" style=${styles.copyBtn} onClick=${onRematch}>동점자끼리 다시 하기</button>
+      </div>
+      <div style=${styles.actionRow}>
+        <button className="settle-add-btn" style=${styles.rerollBtn} onClick=${onPickGame}>동점자끼리 다른 게임</button>
+      </div>
+    </div>
+  `;
+}
+
+function GamePlay({ game, players, s, onPickTied }) {
   const [round, setRound] = useState(0); // 바뀌면 게임을 새로 마운트(한 판 더)
   const [loserIds, setLoserIds] = useState(null); // 당첨자 id 목록 (사다리는 여러 명일 수 있다)
+  const [tieIds, setTieIds] = useState(null); // 동점자 id 목록 (onTie 를 부르는 게임만)
+  const [roundPlayers, setRoundPlayers] = useState(null); // 동점자 재대결이면 그 인원만
   const Game = game.component;
-  const losers = loserIds ? loserIds.map((id) => players.find((p) => p.id === id)).filter(Boolean) : [];
+  const playing = roundPlayers ?? players;
+  const byId = (id) => players.find((p) => p.id === id);
+  const losers = loserIds ? loserIds.map(byId).filter(Boolean) : [];
+  const tied = tieIds ? tieIds.map(byId).filter(Boolean) : [];
   // 게임은 당첨자 id 하나 또는 id 배열로 끝을 알린다
   const finish = (result) => setLoserIds([].concat(result));
 
-  const again = () => {
+  const restart = (nextPlayers) => {
     setLoserIds(null);
+    setTieIds(null);
+    setRoundPlayers(nextPlayers);
     setRound(round + 1);
     window.scrollTo(0, 0);
   };
+  const again = () => restart(null); // 한 판 더는 처음 인원 전체로
+  const rematch = () => restart(tied);
 
   // 당첨자가 한 명일 때만: 게임 참가자 전원이 참여자, 당첨자가 결제자
   const addToSettle = () => {
@@ -77,14 +107,22 @@ function GamePlay({ game, players, s }) {
         <${SoundToggle} />
       </div>
       <header style=${styles.gameHeader}>
-        <div style=${styles.gameHeaderEmoji} aria-hidden="true">${game.emoji}</div>
+        <div style=${styles.gameHeaderEmoji} aria-hidden="true">
+          ${game.icon ? html`<${game.icon} size=${44} />` : game.emoji}
+        </div>
         <h1 style=${styles.gameTitle}>${game.name}</h1>
         <p style=${styles.subtitle}>${game.desc}</p>
       </header>
       <${SoundHint} />
       <${AdSlot} placement="game-start" />
 
-      <${Game} key=${`game-${round}`} players=${players} onFinish=${finish} />
+      ${roundPlayers && html`
+        <p style=${{ ...styles.hint, marginTop: 0 }}>동점자 재대결 · ${roundPlayers.map((p) => p.name).join(", ")}</p>
+      `}
+      <${Game} key=${`game-${round}`} players=${playing} onFinish=${finish} onTie=${setTieIds} />
+
+      ${tied.length > 1 &&
+      html`<${TieResult} key=${`tie-${round}`} tied=${tied} onRematch=${rematch} onPickGame=${() => onPickTied(tieIds)} />`}
 
       ${losers.length > 0 &&
       html`
@@ -112,10 +150,18 @@ export function GamesScreen({ s, sub }) {
     .map((p) => ({ id: p.id, name: p.name.trim() }));
   const countOk = players.length >= MIN_PLAYERS && players.length <= MAX_PLAYERS;
 
+  // 동점자만 참가자로 남기고 게임 목록으로 — 다른 게임으로 결판
+  const pickTied = (ids) => {
+    setExcluded(roster.filter((p) => !ids.includes(p.id)).map((p) => p.id));
+    setNotice(`동점자 ${ids.length}명만 골라 뒀어요. 결판낼 게임을 고르세요`);
+    navigate("games");
+    window.scrollTo(0, 0);
+  };
+
   const game = GAMES.find((g) => g.id === sub);
   if (game && canPlay(game) && game.component && countOk) {
     // 게임마다 key 를 달리해, 다른 게임으로 옮겨가면 이전 결과·판 수가 남지 않게 한다.
-    return html`<${GamePlay} key=${game.id} game=${game} players=${players} s=${s} />`;
+    return html`<${GamePlay} key=${game.id} game=${game} players=${players} s=${s} onPickTied=${pickTied} />`;
   }
 
   const addPlayer = (e) => {
@@ -128,7 +174,7 @@ export function GamesScreen({ s, sub }) {
 
   const openGame = (g) => {
     if (!canPlay(g) || !g.component) {
-      setNotice(`${g.name}${josa(g.name, "은/는")} 곧 열려요!`);
+      setNotice(`${g.name}${josa(g.name, "은/는")} ${g.releaseAt ? releaseLabel(g) + "돼요!" : "곧 열려요!"}`);
       return;
     }
     if (!countOk) {
@@ -175,8 +221,20 @@ export function GamesScreen({ s, sub }) {
           />
           <button type="submit" className="settle-download-btn" style=${styles.addPlayerBtn}>추가</button>
         </form>
-        <p style=${{ ...styles.hint, textAlign: "left", color: countOk ? C_MUTED : C_RED }}>
-          ${players.length}명 참가 · ${MIN_PLAYERS}~${MAX_PLAYERS}명까지 할 수 있어요. 여기서 추가한 이름은 정산 명단에도 들어가요.
+        ${players.length >= MAX_PLAYERS && html`
+          <p style=${{
+            fontSize: 12.5, fontWeight: 700, color: C_RED,
+            margin: "6px 0 4px", textAlign: "left",
+            padding: "7px 11px",
+            background: "#FDF0EC",
+            borderRadius: 6,
+            border: "1px solid #F4C4B7",
+          }}>
+            최대 ${MAX_PLAYERS}명까지 참가할 수 있어요 (현재 ${players.length}명)
+          </p>
+        `}
+        <p style=${{ ...styles.hint, textAlign: "left", color: C_MUTED }}>
+          ${players.length}명 참가 · 여기서 추가한 이름은 정산 명단에도 들어가요.
         </p>
       </section>
 
@@ -196,9 +254,11 @@ export function GamesScreen({ s, sub }) {
               style=${{ ...styles.gameCard, ...(open ? null : styles.gameCardLocked) }}
               onClick=${() => openGame(g)}
             >
-              <span style=${styles.gameCardEmoji} aria-hidden="true">${g.emoji}</span>
+              <span style=${styles.gameCardEmoji} aria-hidden="true">
+                ${g.icon ? html`<${g.icon} size=${28} />` : g.emoji}
+              </span>
               <span style=${styles.gameCardName}>${g.name}</span>
-              <span style=${styles.gameCardDesc}>${open ? g.desc : "🔒 곧 출시"}</span>
+              <span style=${styles.gameCardDesc}>${open ? g.desc : `🔒 ${releaseLabel(g)}`}</span>
             </button>
           `;
         })}

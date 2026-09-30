@@ -9,7 +9,7 @@ import { recommend, mealForHour, searchQuery } from "./food.js";
 import { TOAST_MS } from "../shared/util.js";
 import { ReceiptCard, ScreenHeader } from "../shared/ReceiptCard.js";
 import { FoodIcon } from "../shared/icons.js";
-import { FoodForm } from "./FoodForm.js";
+import { FoodForm, MAX_PEOPLE } from "./FoodForm.js";
 import { FoodResult } from "./FoodResult.js";
 import { FoodListScreen } from "./FoodListScreen.js";
 import { AdSlot } from "../shared/AdSlot.js";
@@ -26,7 +26,7 @@ function remember(food) {
 
 export function FoodScreen({ s }) {
   const [input, setInput] = useState(() => ({
-    people: s.validParticipantsCount > 0 ? s.validParticipantsCount : 2,
+    people: s.validParticipantsCount > 0 ? Math.min(s.validParticipantsCount, MAX_PEOPLE) : 2,
     mode: "dineIn",
     genres: [],
     price: "any",

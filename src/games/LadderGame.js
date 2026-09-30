@@ -17,14 +17,17 @@ import { vibrate, ladderRun, ladderPass, fanfare, prefersReducedMotion } from ".
 import { colorOf, shortName } from "./palette.js";
 import { BigButton, useScrollToStage } from "./common.js";
 
-const COL_W = 60;
 const LEVELS = 10;
-// 사다리는 칸 너비에 맞춰 늘어나므로, 인원과 상관없이 화면에서 비슷한 크기(가로:세로 = 1:0.85)로 보이게
-// 높이를 폭에 비례시킨다. 선 굵기·여백도 같은 비율(unit)로 맞춰 2명이든 10명이든 같은 굵기로 보인다.
-const unit = (n) => (COL_W * n) / 330;
-const heightFor = (n) => COL_W * n * 0.85;
-const levelY = (l, h, n) => 18 * unit(n) + ((l + 0.5) * (h - 36 * unit(n))) / LEVELS;
-const colX = (c) => COL_W * (c + 0.5);
+const MIN_COL_PX = 58; // 이름 4글자가 잘리지 않는 칸 최소 너비 — 화면에 다 안 들어가면 좌우 스크롤
+const NAME_CHARS = 4;
+// 모든 좌표는 화면 px. 칸 너비 = max(최소 너비, 화면 폭 / 인원), 높이·선 굵기는 화면 폭에 비례(인원과 무관).
+export function ladderGeometry(n, boxW) {
+  const colW = Math.max(MIN_COL_PX, boxW / n);
+  const k = boxW / 330;
+  return { colW, width: colW * n, H: boxW * 0.85, k };
+}
+const levelY = (l, g) => 18 * g.k + ((l + 0.5) * (g.H - 36 * g.k)) / LEVELS;
+const colX = (c, g) => g.colW * (c + 0.5);
 
 export function makeRungs(n, levels = LEVELS, rand = randomFloat) {
   const rungs = Array.from({ length: levels }, () => Array(Math.max(0, n - 1)).fill(false));
@@ -51,22 +54,21 @@ export function makeRungs(n, levels = LEVELS, rand = randomFloat) {
   return rungs;
 }
 
-export function tracePath(rungs, start) {
+export function tracePath(rungs, start, g = ladderGeometry((rungs[0]?.length ?? 0) + 1, 330)) {
   const n = (rungs[0]?.length ?? 0) + 1;
-  const H = heightFor(n);
   let c = start;
-  const pts = [[colX(c), 0]];
+  const pts = [[colX(c, g), 0]];
   rungs.forEach((row, l) => {
-    const y = levelY(l, H, n);
+    const y = levelY(l, g);
     if (c < n - 1 && row[c]) {
-      pts.push([colX(c), y], [colX(c + 1), y]);
+      pts.push([colX(c, g), y], [colX(c + 1, g), y]);
       c += 1;
     } else if (c > 0 && row[c - 1]) {
-      pts.push([colX(c), y], [colX(c - 1), y]);
+      pts.push([colX(c, g), y], [colX(c - 1, g), y]);
       c -= 1;
     }
   });
-  pts.push([colX(c), H]);
+  pts.push([colX(c, g), g.H]);
   const length = pts.slice(1).reduce((s, [x, y], i) => s + Math.hypot(x - pts[i][0], y - pts[i][1]), 0);
   return { end: c, pts, length };
 }
@@ -76,18 +78,33 @@ export function LadderGame({ players: initialPlayers, onFinish }) {
   const n = players.length;
   const [winCount, setWinCount] = useState(1); // 당첨 칸 개수 (1 ~ n-1)
   const [game, setGame] = useState(null); // { rungs, win: 아래 칸마다 당첨 여부 }
-  const [traced, setTraced] = useState({}); // playerIndex -> { end, pts, length, done }
+  const [traced, setTraced] = useState({}); // playerIndex -> { end, done } — 경로 좌표는 화면 폭에 맞춰 그릴 때 계산
   const winners = useRef(new Set()); // 당첨 칸에 도착한 플레이어
   const finished = useRef(false);
   const timers = useRef([]);
   const resultsRef = useRef(null);
   const stageRef = useScrollToStage(game !== null);
+  const scrollRef = useRef(null);
+  const [boxW, setBoxW] = useState(330); // 사다리 영역의 보이는 폭(px)
   useEffect(
     () => () => {
       timers.current.forEach(clearTimeout);
     },
     []
   );
+  useEffect(() => {
+    const el = scrollRef.current;
+    if (!el) return;
+    const measure = () => el.clientWidth > 0 && setBoxW(el.clientWidth);
+    measure();
+    if (typeof ResizeObserver === "undefined") {
+      window.addEventListener("resize", measure);
+      return () => window.removeEventListener("resize", measure);
+    }
+    const ro = new ResizeObserver(measure);
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, [game !== null]);
 
   const start = () => {
     // 당첨 칸 위치를 가로줄과 따로 균등하게 섞는다 → 누구든 당첨 확률 winCount/n
@@ -100,7 +117,7 @@ export function LadderGame({ players: initialPlayers, onFinish }) {
   const trace = (i) => {
     if (!game || traced[i]) return;
     const t = tracePath(game.rungs, i);
-    setTraced((prev) => ({ ...prev, [i]: { ...t, done: false } }));
+    setTraced((prev) => ({ ...prev, [i]: { end: t.end, done: false } }));
     ladderRun((drawMs || 400) / 1000);
     // 도착 칸이 화면 밖이면 보이게 내린다 (탭바에 가리지 않게 scrollMarginBottom)
     resultsRef.current?.scrollIntoView({ behavior: "smooth", block: "nearest" });
@@ -160,17 +177,20 @@ export function LadderGame({ players: initialPlayers, onFinish }) {
     `;
   }
 
-  const width = COL_W * n;
-  const H = heightFor(n);
-  const k = unit(n);
+  const geo = ladderGeometry(n, boxW);
+  const { width, H, k } = geo;
+  const scrolls = width > boxW + 1;
   const endOwner = {}; // 아래 칸 → 도착한 플레이어 (그리기가 끝난 것만)
   Object.entries(traced).forEach(([i, t]) => {
     if (t.done) endOwner[t.end] = Number(i);
   });
+  const cols = { gridTemplateColumns: `repeat(${n}, minmax(0, 1fr))` };
 
   return html`
     <div ref=${stageRef} style=${styles.gameStage}>
-      <div style=${{ ...styles.ladderNames, gridTemplateColumns: `repeat(${n}, 1fr)` }}>
+      <div ref=${scrollRef} style=${styles.ladderScroll}>
+      <div style=${{ width }}>
+      <div style=${{ ...styles.ladderNames, ...cols }}>
         ${players.map((p, i) => {
           const [bg, fg] = colorOf(i);
           return html`
@@ -181,21 +201,23 @@ export function LadderGame({ players: initialPlayers, onFinish }) {
               onClick=${() => trace(i)}
               aria-label=${`${p.name} 사다리 타기`}
             >
-              ${shortName(p.name, 3)}
+              ${shortName(p.name, NAME_CHARS)}
             </button>
           `;
         })}
       </div>
       <svg viewBox="0 0 ${width} ${H}" style=${styles.gameSvg} role="img" aria-label="사다리">
-        ${players.map((_, c) => html`<line key=${c} x1=${colX(c)} y1="0" x2=${colX(c)} y2=${H} stroke="#C7CCD8" strokeWidth=${3 * k} strokeLinecap="round" />`)}
+        ${players.map((_, c) => html`<line key=${c} x1=${colX(c, geo)} y1="0" x2=${colX(c, geo)} y2=${H} stroke="#C7CCD8" strokeWidth=${3 * k} strokeLinecap="round" />`)}
         ${game.rungs.map((row, l) =>
           row.map((on, c) =>
             on
-              ? html`<line key=${`${l}-${c}`} x1=${colX(c)} y1=${levelY(l, H, n)} x2=${colX(c + 1)} y2=${levelY(l, H, n)} stroke="#C7CCD8" strokeWidth=${3 * k} strokeLinecap="round" />`
+              ? html`<line key=${`${l}-${c}`} x1=${colX(c, geo)} y1=${levelY(l, geo)} x2=${colX(c + 1, geo)} y2=${levelY(l, geo)} stroke="#C7CCD8" strokeWidth=${3 * k} strokeLinecap="round" />`
               : null
           )
         )}
-        ${Object.entries(traced).map(([i, t]) => html`
+        ${Object.keys(traced).map((i) => {
+          const t = tracePath(game.rungs, Number(i), geo);
+          return html`
           <polyline
             key=${i}
             points=${t.pts.map((p) => p.join(",")).join(" ")}
@@ -210,9 +232,10 @@ export function LadderGame({ players: initialPlayers, onFinish }) {
               animation: drawMs ? `ladderDraw ${drawMs}ms ease-in-out forwards` : "none",
             }}
           />
-        `)}
+        `;
+        })}
       </svg>
-      <div ref=${resultsRef} style=${{ ...styles.ladderNames, gridTemplateColumns: `repeat(${n}, 1fr)`, scrollMarginBottom: 96 }}>
+      <div ref=${resultsRef} style=${{ ...styles.ladderNames, ...cols, scrollMarginBottom: 96 }}>
         ${game.win.map((isTarget, pos) => {
           const owner = endOwner[pos];
           const shown = owner !== undefined;
@@ -226,16 +249,18 @@ export function LadderGame({ players: initialPlayers, onFinish }) {
               }}
             >
               ${shown
-                ? html`<span style=${styles.ladderResultLabel}>${isTarget ? (n >= 8 ? "💸" : "💸 당첨") : "통과"}</span>
+                ? html`<span style=${styles.ladderResultLabel}>${isTarget ? (geo.colW < 64 ? "💸" : "💸 당첨") : "통과"}</span>
                     <span style=${{ ...styles.ladderResultName, background: colorOf(owner)[0], color: colorOf(owner)[1] }}>
-                      ${shortName(players[owner].name, 3)}
+                      ${shortName(players[owner].name, NAME_CHARS)}
                     </span>`
                 : "?"}
             </div>
           `;
         })}
       </div>
-      <p style=${styles.hint}>이름을 눌러 사다리를 타세요</p>
+      </div>
+      </div>
+      <p style=${styles.hint}>이름을 눌러 사다리를 타세요${scrolls ? " · 좌우로 밀어 모두 볼 수 있어요" : ""}</p>
       <${BigButton} onClick=${traceAll} disabled=${Object.keys(traced).length === n}>전체 공개<//>
     </div>
   `;

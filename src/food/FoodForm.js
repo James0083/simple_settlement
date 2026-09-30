@@ -6,7 +6,7 @@ import { GENRES } from "./foodData.js";
 import { PRICE_BANDS, MODES, MEALS, EXCLUDES } from "./food.js";
 
 const MIN_PEOPLE = 1;
-const MAX_PEOPLE = 20;
+export const MAX_PEOPLE = 15; // 미니게임 인원 상한(MAX_PLAYERS)과 같게 유지
 
 function Field({ label, hint, children }) {
   return html`
