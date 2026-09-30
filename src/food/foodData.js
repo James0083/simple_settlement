@@ -412,6 +412,8 @@ export const FOODS = [
   m("honghap-jjim", "홍합찜", "🦪", "korean", [12000, 18000], [2, 6], DL, ["soup", "share", "drink"]),
   m("haemul-jeongol", "해물전골", "🍲", "korean", [16000, 24000], [2, 6], DL, ["spicy", "soup", "share"]),
   m("pat-juk", "팥죽", "🍮", "korean", [8000, 11000], [1, 6], LD, ["light", "soup"]),
+  m("hwangtae-gui", "황태구이", "🐟", "korean", [11000, 16000], [1, 6], LD, []),
+  m("kaljebi", "칼제비", "🍜", "korean", [8000, 11000], [1, 6], LD, ["soup"]),
 
   // 중식 추가
   m("jjamppong-bap", "짬뽕밥", "🍚", "chinese", [9000, 13000], [1, 6], LD, ["spicy"]),
@@ -430,11 +432,8 @@ export const FOODS = [
   m("bokkeum-jjamppong", "볶음짬뽕", "🍜", "chinese", [10000, 15000], [1, 6], LD, ["spicy"]),
   m("yu-san-seul", "유산슬", "🥘", "chinese", [16000, 24000], [2, 6], DL, ["share"], DINE_ONLY),
   m("tangsuyuk-bap", "탕수육 덮밥", "🍚", "chinese", [11000, 16000], [1, 6], LD, ["meat"]),
-  m("gan-jjajang", "간짜장", "🍜", "chinese", [9000, 13000], [1, 6], LD, []),
-  m("jaengban-jjajang", "쟁반짜장", "🍜", "chinese", [10000, 15000], [2, 6], LD, ["share"]),
-  m("samseon-jjamppong", "삼선짬뽕", "🍜", "chinese", [11000, 16000], [1, 6], LD, ["spicy"]),
-  m("guobaorou", "꿔바로우", "🍖", "chinese", [14000, 20000], [2, 6], LD, ["meat", "share"]),
-  m("ulmen", "울면", "🍜", "chinese", [10000, 14000], [1, 6], LD, ["soup"]),
+  m("yuxiang-eggplant", "어향가지", "🍆", "chinese", [13000, 18000], [2, 6], LD, ["share"]),
+  m("wonton-noodle", "완탕면", "🍜", "chinese", [8000, 11000], [1, 4], LD, ["soup", "light"]),
 
   // 일식 추가
   m("yubu-udon", "유부우동", "🍜", "japanese", [9000, 13000], [1, 6], LD, ["light", "soup"]),
@@ -453,8 +452,9 @@ export const FOODS = [
   m("saeu-tuigim-udon", "새우튀김우동", "🍜", "japanese", [12000, 17000], [1, 6], LD, ["soup"]),
   m("tantan-udon", "탄탄우동", "🍜", "japanese", [12000, 17000], [1, 6], LD, ["spicy", "soup"]),
   m("nabe", "나베", "🍲", "japanese", [14000, 22000], [2, 6], ["dinner"], ["soup", "share"], DINE_ONLY),
-  m("gyutan", "규탄구이", "🥩", "japanese", [18000, 28000], [2, 6], DL, ["meat", "share", "drink"]),
   m("chamchi-hoe", "참치회", "🐟", "japanese", [18000, 30000], [2, 6], DL, ["raw", "share", "drink"]),
+  m("katsu-sando", "카츠산도", "🥪", "japanese", [9000, 13000], [1, 4], ["lunch"], []),
+  m("ochazuke", "오차즈케", "🍵", "japanese", [8000, 12000], [1, 4], ["lunch", "late"], ["light"]),
 
   // 양식 추가
   m("egg-benedict", "에그베네딕트", "🥚", "western", [13000, 19000], [1, 4], ["lunch"], []),
@@ -468,16 +468,14 @@ export const FOODS = [
   m("meatball-pasta", "미트볼 파스타", "🍝", "western", [13000, 19000], [1, 4], LD, ["meat"]),
   m("seafood-pasta", "해산물 파스타", "🍝", "western", [14000, 21000], [1, 4], LD, []),
   m("mac-n-cheese", "맥앤치즈", "🧀", "western", [12000, 18000], [1, 4], LD, []),
-  m("gnocchi", "뇨끼", "🍝", "western", [13000, 19000], [1, 4], LD, []),
-  m("risotto", "리조또", "🍚", "western", [15000, 22000], [1, 4], LD, []),
   m("coq-au-vin", "닭고기 와인찜", "🍗", "western", [16000, 24000], [2, 6], ["dinner"], ["meat", "share"]),
   m("rack-of-lamb", "양갈비 구이", "🥩", "western", [22000, 35000], [2, 4], ["dinner"], ["meat"]),
   m("monte-cristo", "몬테크리스토 샌드위치", "🥪", "western", [11000, 16000], [1, 4], ["lunch"], []),
-  m("club-sandwich", "클럽샌드위치", "🥪", "western", [12000, 17000], [1, 4], ["lunch"], []),
   m("mushroom-cream-pasta", "크림 버섯 파스타", "🍝", "western", [13000, 19000], [1, 4], LD, []),
   m("fish-n-chips", "피쉬앤칩스", "🐟", "western", [14000, 20000], [1, 4], LD, []),
   m("lamb-kebab-rice", "양고기 케밥 라이스", "🍚", "western", [14000, 20000], [2, 6], LD, ["meat"]),
   m("waffle-icecream", "와플 아이스크림", "🧇", "western", [10000, 15000], [1, 6], LD, []),
+  m("schnitzel", "슈니첼", "🍖", "western", [16000, 23000], [1, 4], LD, ["meat"]),
 
   // 분식 추가
   m("cheese-tteokbokki", "치즈떡볶이", "🧀", "snack", [9000, 13000], [1, 6], ALL, ["spicy"]),
@@ -500,6 +498,7 @@ export const FOODS = [
   m("ddukbbokki-set", "떡볶이 세트", "🍢", "snack", [10000, 15000], [2, 6], ALL, ["spicy", "share"]),
   m("trianglegimbap", "삼각김밥 세트", "🍙", "snack", [5000, 8000], [1, 4], ALL, ["light"]),
   m("cup-noodle-set", "컵라면 세트", "🍜", "snack", [3500, 7000], [1, 4], ALL, ["soup"]),
+  m("bibim-dangmyeon", "비빔당면", "🍜", "snack", [6000, 8000], [1, 4], LD, ["spicy"]),
 
   // 아시안 추가
   m("goi-cuon", "월남쌈(고이꾼)", "🥗", "asian", [12000, 18000], [2, 6], LD, ["light", "share"], { q: "베트남 월남쌈" }),
@@ -522,6 +521,7 @@ export const FOODS = [
   m("thai-iced-tea", "타이 밀크티+음식", "🧋", "asian", [12000, 18000], [1, 6], LD, []),
   m("burmese-curry", "미얀마 카레", "🍛", "asian", [13000, 19000], [1, 6], LD, ["meat", "spicy"]),
   m("adobo-rice", "아도보 라이스", "🍚", "asian", [12000, 17000], [1, 6], LD, ["meat"]),
+  m("nasi-lemak", "나시르막", "🍛", "asian", [11000, 15000], [1, 4], LD, []),
 
   // 고기·구이 추가
   m("jebi-churi", "제비추리", "🥩", "meat", [16000, 25000], [2, 6], DL, ["meat", "share", "drink"], DINE_ONLY),
@@ -535,7 +535,6 @@ export const FOODS = [
   m("yeomtong", "염통구이", "🫀", "meat", [14000, 20000], [2, 6], DL, ["meat", "share", "drink"], DINE_ONLY),
   m("dry-aging", "드라이에이징 스테이크", "🥩", "meat", [30000, 60000], [2, 4], ["dinner"], ["meat"], DINE_ONLY),
   m("osam-bulgogi", "오삼불고기", "🍖", "meat", [12000, 18000], [2, 6], DL, ["spicy", "meat", "share"]),
-  m("lamb-ribs", "양갈비", "🍖", "meat", [20000, 35000], [2, 6], DL, ["meat", "share", "drink"]),
   m("deodeok-gui", "더덕구이", "🌿", "meat", [14000, 20000], [2, 6], DL, ["share", "drink"], DINE_ONLY),
   m("pyeonyuk", "편육", "🍖", "meat", [15000, 22000], [2, 8], DL, ["meat", "share", "drink"]),
   m("chicken-grill-bbq", "통닭 구이", "🍗", "meat", [16000, 25000], [2, 6], DL, ["meat", "share"]),
@@ -577,6 +576,7 @@ export const FOODS = [
   m("beef-tartare-pub", "육회", "🥩", "pub", [16000, 26000], [2, 6], DL, ["raw", "share", "drink"], DINE_ONLY),
   m("kimchi-jeon-pub", "묵은지김치전", "🥞", "pub", [11000, 16000], [2, 6], DL, ["spicy", "share", "drink"]),
   m("dakgori-pub", "닭껍질구이", "🍗", "pub", [10000, 15000], [2, 6], DL, ["meat", "share", "drink"]),
+  m("jwipo-gui", "쥐포구이", "🐟", "pub", [8000, 12000], [2, 6], DL, ["share", "drink"]),
 ];
 
 // 4명 이상일 때 함께 시키면 어울리는 곁들임 — 메인 id → 곁들임 id (앞에 있을수록 흔한 조합)
@@ -680,6 +680,9 @@ export const PAIRS = {
   "green-curry": ["khao-pad"],
   "bun-bo-nam-bo": ["cha-gio"],
   // 신규 항목 페어링
+  "wonton-noodle": ["gun-mandu"],
+  "yuxiang-eggplant": ["bokkeumbap"],
+  "kaljebi": ["gimbap"],
   suyuk: ["makguksu", "kimchi-jjigae"],
   samhap: ["makguksu"],
   "nakji-jeongol": ["jumeokbap", "gyeranjjim"],
@@ -704,9 +707,6 @@ export const PAIRS = {
   jjamppong: ["tangsuyuk", "gun-mandu"],
   "jjamppong-bap": ["tangsuyuk", "gun-mandu"],
   "bokkeum-jjamppong": ["tangsuyuk", "gun-mandu"],
-  "samseon-jjamppong": ["tangsuyuk", "gun-mandu"],
-  "gan-jjajang": ["tangsuyuk", "gun-mandu"],
-  "jaengban-jjajang": ["tangsuyuk", "gun-mandu"],
   guobaorou: ["jjajangmyeon", "jjamppong"],
   pho: ["wolnamssam", "bun-cha", "goi-cuon"],
   "masaman-curry": ["roti-canai"],

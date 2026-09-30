@@ -31,6 +31,7 @@ export function FoodScreen({ s }) {
     genres: [],
     price: "any",
     exclude: [],
+    blocked: [], // 직접 적은 못 먹는 메뉴 [{ word, allow }]
     meal: mealForHour(new Date().getHours()),
   }));
   const [result, setResult] = useState(null);

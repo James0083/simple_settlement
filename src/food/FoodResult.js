@@ -35,7 +35,7 @@ export function FoodResult({ result, mode, copied, onPromote, onReroll, onChoose
   if (result.picks.length === 0) {
     return html`
       <div style=${styles.foodEmpty}>
-        조건에 맞는 메뉴가 없어요. 빼고 싶은 것이나 방식을 바꿔 보세요.
+        조건에 맞는 메뉴가 없어요. 빼고 싶은 것·못 먹는 메뉴나 방식을 바꿔 보세요.
       </div>
     `;
   }

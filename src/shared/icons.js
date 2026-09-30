@@ -43,3 +43,12 @@ export function DiceIcon({ style }) {
     <//>
   `;
 }
+
+// 펼치기 화살표 (up 이면 접기) — 글자 ▾ 는 기기에 따라 이모지로 그려져서 SVG 로
+export function ChevronIcon({ up = false, style }) {
+  return html`
+    <${Svg} style=${style}>
+      <path d=${up ? "M6 15l6-6 6 6" : "M6 9l6 6 6-6"} strokeWidth="2.4" />
+    <//>
+  `;
+}

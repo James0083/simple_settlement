@@ -1,7 +1,7 @@
 /*
  * 오늘 뭐먹지 — 추천 알고리즘 (순수 함수, React 의존 없음).
  *
- *   1. 걸러내기  배달/매장 · 제외 태그(매운 것·날것)는 항상 지킨다. 가격대 · 장르도 거른다.
+ *   1. 걸러내기  배달/매장 · 제외 태그(매운 것·날것) · 직접 적은 못 먹는 메뉴는 항상 지킨다. 가격대 · 장르도 거른다.
  *   2. 완화      걸러낸 결과가 0개면 가격대 → 장르 순으로 조건을 풀고, 무엇을 풀었는지 돌려준다.
  *   3. 점수      인원이 어울리는지 · 나눠먹기(4명 이상) · 식사 시간 · 최근에 고른 메뉴(감점).
  *   4. 가중 랜덤 점수 상위 절반(최소 8개) 안에서 점수² 에 비례해 뽑는다 — 매번 같은 답이 나오지 않게.
@@ -43,6 +43,16 @@ export function mealForHour(hour) {
   return "late";
 }
 
+// 못 먹는 메뉴 — 사용자가 적은 말(공백 무시)이 메뉴 이름이나 지도 검색어에 들어 있으면 뺀다.
+// blocked: [{ word, allow: [되살린 메뉴 id] }] — allow 에 든 메뉴는 그 말에 걸려도 빼지 않는다.
+const normalize = (s) => (s ?? "").replace(/\s+/g, "");
+export const wordMatches = (food, word) => {
+  const w = normalize(word);
+  return w !== "" && (normalize(food.name).includes(w) || normalize(food.q).includes(w));
+};
+export const matchesBlocked = (food, blocked = []) =>
+  blocked.some((b) => wordMatches(food, b.word) && !b.allow.includes(food.id));
+
 // 가격 범위가 가격대와 겹치는지. 경계값(예: 딱 10,000원)은 아래 구간에만 속한다.
 const overlaps = ([min, max], band) => min < band.max && max > band.min;
 
@@ -60,6 +70,7 @@ export function filterFoods(foods, input, relax = new Set()) {
     (f) =>
       (input.mode === "delivery" ? f.delivery : f.dineIn) &&
       !input.exclude.some((t) => f.tags.includes(t)) &&
+      !matchesBlocked(f, input.blocked) &&
       (relax.has("genre") || input.genres.length === 0 || input.genres.includes(f.genre)) &&
       (relax.has("price") || overlaps(f.price, band))
   );
@@ -105,7 +116,8 @@ export function pairFor(main, input, foods, pairs, rng = Math.random) {
         f &&
         f.id !== main.id &&
         (input.mode === "delivery" ? f.delivery : f.dineIn) &&
-        !input.exclude.some((t) => f.tags.includes(t))
+        !input.exclude.some((t) => f.tags.includes(t)) &&
+        !matchesBlocked(f, input.blocked)
     );
   if (ok.length === 0) return null;
   return ok[weightedIndex(ok.map((_, i) => 1 / (i + 1)), rng)];
