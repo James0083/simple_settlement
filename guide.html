@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>사용 가이드 - 딱정산</title>
+<meta name="description" content="딱정산 사용법 — 모임 비용 회차별 정산, 오늘 뭐먹지 메뉴 추천, 낼 사람을 정하는 미니게임까지 한 번에 알아보기" />
+<link rel="canonical" href="https://ddakjeongsan.com/guide.html" />
+<link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin="anonymous" />
+<link rel="stylesheet" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
+<link rel="stylesheet" href="./src/shared/tokens.css" />
+<link rel="manifest" href="manifest.webmanifest" />
+<meta name="theme-color" content="#EEF1F4" />
+<link rel="icon" type="image/svg+xml" href="favicon.svg" />
+<link rel="apple-touch-icon" href="apple-touch-icon.png" />
+<meta name="mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-title" content="딱정산" />
+<style>
+  *, *::before, *::after { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body { background: var(--c-bg); font-family: 'Pretendard', -apple-system, sans-serif; color: #1A1D29; display: flex; justify-content: center; padding: 40px 16px; }
+  .card { width: 100%; min-width: 0; max-width: 560px; background: #FFFFFF; box-shadow: 0 18px 40px rgba(26,29,41,0.12), 0 2px 0 rgba(26,29,41,0.04); padding: 36px 32px 44px; }
+  .back { display: inline-block; font-size: 13px; color: #9AA0B0; text-decoration: none; margin-bottom: 20px; }
+  .back:hover { color: #5C6178; }
+  h1 { font-size: 24px; font-weight: 800; letter-spacing: -0.5px; margin: 0 0 6px; }
+  .lead { font-size: 14px; color: var(--c-dim); line-height: 1.7; margin: 0 0 8px; }
+  h2 { font-size: 17px; font-weight: 800; margin: 34px 0 10px; }
+  h3 { font-size: 14.5px; font-weight: 700; margin: 20px 0 6px; }
+  p, li { font-size: 14px; line-height: 1.75; color: var(--c-dim); }
+  ol, ul { margin: 0; padding-left: 20px; }
+  li { margin-bottom: 4px; }
+  .table-wrap { overflow-x: auto; margin: 10px 0; }
+  .table-wrap table { margin: 0; }
+  table { width: 100%; border-collapse: collapse; margin: 8px 0; font-size: 13px; }
+  th, td { text-align: left; padding: 7px 8px; border-bottom: 1px solid #E3E6EC; vertical-align: top; color: var(--c-dim); line-height: 1.5; }
+  th, td { white-space: nowrap; }
+  td:last-child { white-space: normal; }
+  th { color: #1A1D29; font-weight: 700; background: #F6F8FB; }
+  a.inline { color: #E8503A; text-decoration: none; }
+  a.inline:hover { text-decoration: underline; }
+  .cta { display: block; margin-top: 32px; padding: 14px 0; text-align: center; background: #E8503A; color: #FFFFFF; font-weight: 700; font-size: 15px; text-decoration: none; border-radius: 4px; }
+  @media (max-width: 480px) { .card { padding: 28px 20px 36px; } }
+</style>
+</head>
+<body>
+  <main class="card">
+    <a class="back" href="index.html">← 딱정산으로 돌아가기</a>
+    <h1>딱정산 사용 가이드</h1>
+    <p class="lead">
+      딱정산은 친구·동료 모임에서 <strong>무엇을 먹을지 정하고, 누가 낼지 정하고, 마지막에 돈을 나누는 일</strong>까지
+      폰 하나로 끝내는 무료 웹앱입니다. 회원가입이 없고, 입력한 내용은 서버로 보내지 않고 내 기기 안에서만 계산합니다.
+    </p>
+    <p class="lead">
+      화면 아래 탭 세 개(정산 · 뭐먹지 · 미니게임)로 이동하며, 참가자 명단은 세 탭이 함께 씁니다.
+      한 탭에서 이름을 추가하면 다른 탭에서도 바로 보입니다.
+    </p>
+
+    <h2>1. 정산하기</h2>
+    <p>모임이 1차, 2차, 3차로 이어지고 차마다 결제한 사람과 참여한 사람이 달라도 정확히 나눌 수 있게 만들었습니다.</p>
+    <ol>
+      <li><strong>참가자 입력</strong> — 모임에 온 사람의 이름을 모두 적습니다. 돈을 돌려받을 사람은 "+ 계좌"를 눌러 계좌를 적어 두면 결과에 함께 표시됩니다.</li>
+      <li><strong>회차 입력</strong> — 회차마다 이름(예: "1차 삼겹살집"), 결제한 사람, 금액을 넣고, 그 회차에 참여한 사람만 고릅니다. 2차에 먼저 간 사람이 있다면 2차 참여자에서 빼면 됩니다.</li>
+      <li><strong>정산 계산하기</strong> — 사람별로 낸 돈, 부담할 돈, 차액이 표로 나오고, 누가 누구에게 얼마를 보내면 되는지 보내는 사람별로 묶어서 보여줍니다.</li>
+      <li><strong>공유하기</strong> — "결과 복사하기"로 단톡방에 바로 붙여 넣거나, "이미지로 저장"으로 결과를 이미지로 보낼 수 있습니다. 휴대폰에서는 이미지를 크게 띄워 주니 길게 눌러 사진첩에 저장하세요.</li>
+    </ol>
+    <p>
+      어떻게 나누는지 궁금하다면 <a class="inline" href="how-it-works.html">정산 계산 방식</a>에서 예시와 함께 자세히 볼 수 있습니다.
+    </p>
+
+    <h3>정산을 잘 쓰는 요령</h3>
+    <ul>
+      <li>카드 한 장으로 여러 차를 긁었더라도, 참여 인원이 다르면 회차를 나눠 적어야 공평하게 나뉩니다.</li>
+      <li>누군가 현금으로 일부를 먼저 냈다면, 그 금액을 별도 회차로 적고 결제자를 그 사람으로 두면 됩니다.</li>
+      <li>참가자 이름과 계좌는 기기에 저장되어 다음 모임 때 다시 채워집니다. 회차와 금액은 저장하지 않습니다.</li>
+    </ul>
+
+    <h2>2. 오늘 뭐먹지</h2>
+    <p>메뉴를 정하지 못해 시간을 보내는 일이 없도록, 조건만 고르면 메뉴를 골라 줍니다. 메뉴는 510개가 넘습니다.</p>
+    <ul>
+      <li><strong>고르는 조건</strong> — 인원, 매장/배달, 장르(한식·중식·일식·양식·분식·아시안·고기·패스트푸드·술안주 중 여러 개), 1인 가격대, 빼고 싶은 것(매운 것·날것). 식사 시간은 지금 시각으로 자동으로 정해집니다.</li>
+      <li><strong>추천 개수</strong> — 인원 4명당 메뉴 1개씩 추천하고, 대안 3개를 함께 보여줍니다. 4명 이상이면 치킨에 떡볶이처럼 어울리는 곁들임 메뉴도 함께 추천합니다.</li>
+      <li><strong>다시 뽑기</strong> — 이미 본 메뉴는 빼고 새로 뽑습니다. 최근에 실제로 고른 메뉴는 점수를 낮춰 매번 같은 메뉴가 나오지 않게 합니다.</li>
+      <li><strong>가게 찾기</strong> — 매장 식사라면 네이버지도·카카오맵에서 내 주변 가게를 바로 검색하고, 배달이라면 메뉴 이름을 복사해 배달 앱에 붙여 넣으세요.</li>
+      <li><strong>정산으로 이어가기</strong> — "정산에 회차로 추가"를 누르면 정산 탭에 "2차 마라탕" 같은 회차가 만들어집니다.</li>
+    </ul>
+
+    <h2>3. 미니게임으로 낼 사람 정하기</h2>
+    <p>
+      2명에서 15명까지, 폰 한 대를 돌려가며 하는 게임입니다. 결과는 게임을 시작하는 순간 공정한 난수로 정해지고,
+      화면 연출은 그 결과를 보여주기만 합니다. 게임이 끝나면 "정산에 추가"로 당첨자가 결제한 회차를 바로 만들 수 있습니다.
+    </p>
+    <div class="table-wrap"><table>
+      <thead><tr><th>게임</th><th>하는 방법</th></tr></thead>
+      <tbody>
+        <tr><td>룰렛</td><td>이름 수만큼 나뉜 원판을 돌려 바늘이 멈춘 사람이 당첨</td></tr>
+        <tr><td>사다리 타기</td><td>당첨 칸 개수를 정하고 이름을 눌러 사다리를 탐. 여러 명을 한 번에 뽑을 수 있음</td></tr>
+        <tr><td>폭탄 돌리기</td><td>언제 터질지 모르는 폭탄을 차례로 넘기다가 터질 때 들고 있던 사람이 당첨</td></tr>
+        <tr><td>해적룰렛</td><td>통에 번갈아 칼을 꽂다가 해적을 튀어나오게 한 사람이 당첨 (3D)</td></tr>
+        <tr><td>악어이빨</td><td>악어 이빨을 하나씩 누르다가 아픈 이빨을 누른 사람이 당첨 (3D)</td></tr>
+        <tr><td>터치 대결</td><td>2명은 화면 땅따먹기, 3명 이상은 5초 연타. 진 사람이 당첨</td></tr>
+        <tr><td>손가락 룰렛</td><td>모두 화면에 손가락을 올리면 3초 뒤 한 손가락이 선택됨</td></tr>
+        <tr><td>숫자 맞추기</td><td>1~100 사이 숨은 숫자를 각자 맞힘. 가장 많이 시도한 사람이 당첨</td></tr>
+        <tr><td>10초 맞추기</td><td>마음속으로 10초를 세고 멈춤. 10초에서 가장 멀리 벗어난 사람이 당첨</td></tr>
+        <tr><td>동물 레이스</td><td>동물을 하나씩 배정받아 15초 동안 달리고, 꼴찌가 당첨</td></tr>
+      </tbody>
+    </table></div>
+    <p>효과음은 기본으로 꺼져 있습니다. 게임 화면의 🔊 버튼으로 켜면 훨씬 재미있습니다.</p>
+
+    <h2>자주 묻는 질문</h2>
+    <h3>입력한 정보는 어디에 저장되나요?</h3>
+    <p>
+      서버로 보내지 않습니다. 계산은 모두 브라우저 안에서 이뤄지고, 참가자 이름·계좌와 최근 고른 메뉴, 소리 설정만
+      이 기기의 브라우저 저장소에 남습니다. 자세한 내용은 <a class="inline" href="privacy.html">개인정보처리방침</a>을 참고하세요.
+    </p>
+    <h3>앱처럼 설치할 수 있나요?</h3>
+    <p>
+      네. 아이폰은 Safari의 공유 버튼 → "홈 화면에 추가", 안드로이드는 Chrome 메뉴 → "앱 설치(홈 화면에 추가)"를 누르세요.
+      한 번 열어 두면 인터넷이 없어도 정산과 메뉴 추천을 쓸 수 있습니다.
+    </p>
+    <h3>원하는 메뉴가 없어요.</h3>
+    <p><a class="inline" href="contact.html">문의하기</a>에서 "메뉴추가"로 알려주시면 반영하겠습니다.</p>
+
+    <a class="cta" href="index.html">딱정산 시작하기</a>
+  </main>
+<script>
+  if ("serviceWorker" in navigator) {
+    window.addEventListener("load", function () {
+      navigator.serviceWorker.register("sw.js").catch(function () {});
+    });
+  }
+</script>
+</body>
+</html>

@@ -2,11 +2,11 @@
  * 숫자 맞추기 — 모두 같은 비밀 숫자를 각자 자기 범위로 좁혀가며 맞힌다. 맞히면 탈출.
  * 전원이 탈출하면 시도 횟수가 가장 많은 사람이 당첨. 최다 횟수가 여러 명이면 onTie(동점자 id 목록).
  */
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { html } from "../shared/html.js";
-import { styles, C_DARK, C_MUTED, C_GREEN } from "../shared/styles.js";
+import { styles, C_RED, C_GREEN } from "../shared/styles.js";
 import { colorOf } from "./palette.js";
-import { shuffle } from "./random.js";
+import { shuffle, randInt } from "./random.js";
 import { unlockAudio, beep, chime, fanfare } from "./sfx.js";
 import { GAME_FINISH_MS, TurnBanner, BigButton, useScrollToStage } from "./common.js";
 import { TurnOrderSetup } from "./TurnOrder.js";
@@ -29,11 +29,12 @@ export function UpDownGame({ players, onFinish, onTie }) {
   const [tries, setTries] = useState({}); // playerIdx → 시도 횟수
   const [losers, setLosers] = useState([]); // 결과: 최다 시도자 인덱스 (여러 명이면 동점)
   const stageRef = useScrollToStage(phase !== "order");
+  const finishTimer = useRef(null);
+  useEffect(() => () => clearTimeout(finishTimer.current), []);
 
   const startGame = () => {
     unlockAudio();
-    const s = Math.floor(Math.random() * 100) + 1;
-    setSecret(s);
+    setSecret(FULL_RANGE[0] + randInt(FULL_RANGE[1] - FULL_RANGE[0] + 1));
     setRanges(Object.fromEntries(order.map((i) => [i, FULL_RANGE])));
     setSurvivors([...order]);
     setEscapedNames([]);
@@ -90,7 +91,7 @@ export function UpDownGame({ players, onFinish, onTie }) {
       setLosers(worst);
       setSurvivors(newSurvivors);
       setPhase("done");
-      setTimeout(() => {
+      finishTimer.current = setTimeout(() => {
         if (ids.length === 1) onFinish(ids[0]);
         else if (onTie) onTie(ids);
         else onFinish(ids);
@@ -101,7 +102,7 @@ export function UpDownGame({ players, onFinish, onTie }) {
     setPhase("prepare");
   };
 
-  // 생존자 현황 표시 텍스트
+  // 남은 사람 · 탈출한 사람 수
   const statusLine = survivors
     ? `남은 ${survivors.length}명 · 탈출 ${players.length - survivors.length}명`
     : null;
@@ -125,24 +126,16 @@ export function UpDownGame({ players, onFinish, onTie }) {
     const tie = losers.length > 1;
     const ranked = [...order].sort((a, b) => (tries[b] ?? 0) - (tries[a] ?? 0));
     return html`
-      <div ref=${stageRef} style=${{ ...styles.gameStage, gap: 0 }}>
-        <p style=${{ textAlign: "center", fontSize: 13, fontWeight: 700, color: "#8A8FA3", margin: "0 0 10px" }}>
-          시도 횟수 (많을수록 당첨)
-        </p>
-        <div style=${{ display: "flex", flexDirection: "column", gap: 6, marginBottom: 12 }}>
+      <div ref=${stageRef} style=${styles.gameStage}>
+        <p style=${styles.gameCaption}>시도 횟수 (많을수록 당첨)</p>
+        <div style=${styles.rankList}>
           ${ranked.map((i) => {
             const [bg, fg] = colorOf(i);
             const hit = losers.includes(i);
             return html`
-              <div key=${i} style=${{
-                display: "flex", alignItems: "center", gap: 10, padding: "8px 12px",
-                background: hit ? "#FDF0EC" : "#F6F8FB",
-                border: `1px solid ${hit ? "#F4C4B7" : "#E3E6EC"}`, borderRadius: 6,
-              }}>
-                <span style=${{ fontSize: 12, fontWeight: 700, padding: "2px 8px", borderRadius: 10, background: bg, color: fg }}>
-                  ${players[i].name}
-                </span>
-                <span style=${{ marginLeft: "auto", fontSize: 15, fontWeight: 800, color: hit ? "#E83B3B" : C_DARK, fontVariantNumeric: "tabular-nums" }}>
+              <div key=${i} style=${{ ...styles.rankRow, ...(hit ? styles.rankRowHit : null) }}>
+                <span style=${{ ...styles.nameTag, background: bg, color: fg }}>${players[i].name}</span>
+                <span style=${{ ...styles.rankValue, marginLeft: "auto", ...(hit ? { color: C_RED } : null) }}>
                   ${tries[i] ?? 0}번
                 </span>
               </div>
@@ -158,28 +151,13 @@ export function UpDownGame({ players, onFinish, onTie }) {
     `;
   }
 
-  // ── 준비 화면 (프라이버시 안내) ─────────────────────────────
+  // ── 준비 화면 (다른 사람은 보지 않게) ───────────────────────
   if (phase === "prepare" && currentPlayer) {
     return html`
-      <div ref=${stageRef} style=${{ ...styles.gameStage, gap: 0 }}>
+      <div ref=${stageRef} style=${styles.gameStage}>
         <${TurnBanner} player=${currentPlayer} index=${currentIdx} />
-        <p style=${{ textAlign: "center", fontSize: 13, color: C_MUTED, margin: "0 0 14px" }}>
-          ${statusLine}
-        </p>
-        <p style=${{
-          textAlign: "center",
-          fontSize: 14,
-          fontWeight: 700,
-          color: "#7B5800",
-          margin: "14px 0 20px",
-          padding: "11px 16px",
-          background: "#FFF8E1",
-          borderRadius: 8,
-          border: "1px solid #FFE082",
-          lineHeight: 1.5,
-        }}>
-          다른 분들은 화면을 보지 않도록 해주세요! 👋
-        </p>
+        <p style=${styles.gameMeta}>${statusLine}</p>
+        <p style=${styles.privacyNote}>다른 분들은 화면을 보지 않도록 해주세요! 👋</p>
         <${BigButton} onClick=${handleReady}>준비됐어요<//>
       </div>
     `;
@@ -190,37 +168,14 @@ export function UpDownGame({ players, onFinish, onTie }) {
     const g = parseInt(guess, 10);
     const valid = !isNaN(g) && g >= lo && g <= hi;
     return html`
-      <div ref=${stageRef} style=${{ ...styles.gameStage, gap: 0 }}>
+      <div ref=${stageRef} style=${styles.gameStage}>
         <${TurnBanner} player=${currentPlayer} index=${currentIdx} />
-        <p style=${{ textAlign: "center", fontSize: 12, color: C_MUTED, margin: "0 0 16px" }}>
-          ${statusLine}
-        </p>
-
-        <div style=${{ textAlign: "center", marginBottom: 20 }}>
-          <div style=${{
-            display: "inline-block",
-            fontSize: 40,
-            fontWeight: 900,
-            color: C_DARK,
-            letterSpacing: "-1px",
-            fontVariantNumeric: "tabular-nums",
-          }}>
-            ${lo === hi ? lo : `${lo} ~ ${hi}`}
-          </div>
-          <p style=${{ margin: "2px 0 0", fontSize: 11.5, color: C_MUTED }}>${currentPlayer.name}님이 지금까지 좁힌 범위예요</p>
-        </div>
-
+        <p style=${styles.gameMeta}>${statusLine}</p>
+        <div style=${styles.updownRange}>${lo === hi ? lo : `${lo} ~ ${hi}`}</div>
+        <p style=${styles.updownRangeHint}>${currentPlayer.name}님이 지금까지 좁힌 범위예요</p>
         <input
           className="settle-name-input"
-          style=${{
-            ...styles.nameInputFull,
-            textAlign: "center",
-            fontSize: 32,
-            fontWeight: 800,
-            letterSpacing: "4px",
-            marginBottom: 4,
-            fontVariantNumeric: "tabular-nums",
-          }}
+          style=${{ ...styles.nameInputFull, ...styles.updownInput }}
           type="text"
           inputMode="numeric"
           pattern="[0-9]*"
@@ -229,9 +184,7 @@ export function UpDownGame({ players, onFinish, onTie }) {
           onInput=${(e) => setGuess(e.target.value)}
           autoFocus
         />
-        <p style=${{ ...styles.hint, marginBottom: 0 }}>
-          ${lo}~${hi} 사이 숫자
-        </p>
+        <p style=${{ ...styles.hint, marginBottom: 0 }}>${lo}~${hi} 사이 숫자</p>
         <${BigButton} onClick=${handleGuess} disabled=${!valid}>확인<//>
       </div>
     `;
@@ -243,40 +196,17 @@ export function UpDownGame({ players, onFinish, onTie }) {
     const isLow = feedback === "low";
     const [newLo, newHi] = ranges[currentIdx] || FULL_RANGE;
     return html`
-      <div ref=${stageRef} style=${{ ...styles.gameStage, alignItems: "center", paddingTop: 24, gap: 0 }}>
-        <div style=${{ fontSize: 72, lineHeight: 1, marginBottom: 12 }}>
-          ${isEscaped ? "🎉" : isLow ? "⬆️" : "⬇️"}
-        </div>
-        <p style=${{
-          fontSize: 24,
-          fontWeight: 900,
-          color: isEscaped ? C_GREEN : C_DARK,
-          margin: "0 0 8px",
-          letterSpacing: "-0.5px",
-        }}>
+      <div ref=${stageRef} style=${styles.gameStageCenter}>
+        <div style=${styles.feedbackEmoji} aria-hidden="true">${isEscaped ? "🎉" : isLow ? "⬆️" : "⬇️"}</div>
+        <p style=${{ ...styles.feedbackTitle, ...(isEscaped ? { color: C_GREEN } : null) }}>
           ${isEscaped
             ? `${currentPlayer.name}님 ${tries[currentIdx]}번 만에 탈출!`
             : isLow ? "더 높아요!" : "더 낮아요!"}
         </p>
-        ${isEscaped && escapedNames.length > 0 && html`
-          <p style=${{ fontSize: 13, color: C_MUTED, margin: "0 0 20px" }}>
-            탈출: ${escapedNames.join(", ")}
-          </p>
-        `}
-        ${!isEscaped && html`
-          <p style=${{
-            fontSize: 18,
-            color: C_DARK,
-            fontWeight: 800,
-            margin: "0 0 24px",
-            fontVariantNumeric: "tabular-nums",
-          }}>
-            내 새 범위: <span style=${{ color: "#E83B3B" }}>${newLo} ~ ${newHi}</span>
-          </p>
-        `}
-        <${BigButton} onClick=${advance}>
-          ${isEscaped ? "다음 차례로" : "다음 차례로"}
-        <//>
+        ${isEscaped
+          ? html`<p style=${styles.gameMeta}>탈출: ${escapedNames.join(", ")}</p>`
+          : html`<p style=${styles.feedbackRange}>내 새 범위: <span style=${{ color: C_RED }}>${newLo} ~ ${newHi}</span></p>`}
+        <${BigButton} onClick=${advance}>다음 차례로<//>
       </div>
     `;
   }

@@ -79,8 +79,8 @@ export function AdSlot({ placement }) {
   if (isAdFree()) return null;
   return html`
     <div data-ad-slot=${placement} style=${box}>
-      <ins class="adsbygoogle"
-        style="display:block;"
+      <ins className="adsbygoogle"
+        style=${{ display: "block" }}
         data-ad-client=${ADSENSE_PUB_ID}
         data-ad-slot=${UNIT_IDS[placement]}
         data-ad-format="auto"

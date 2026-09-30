@@ -5,7 +5,7 @@
  *
  * JSX 대신 태그드 템플릿 리터럴을 쓴다 — 번들러 없이 브라우저 네이티브 ES 모듈로 동작:
  *
- *   html`<div className=${styles.box}>${child}</div>`
+ *   html`<div style=${styles.box}>${child}</div>`
  *   html`<${Child} prop=${value} />`
  */
 import htm from "htm";

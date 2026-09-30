@@ -1,4 +1,4 @@
-/* SVG 게임 아이콘 + 동물 레이스 동물 아이콘 (viewBox 0 0 40 40 for animals, 0 0 64 64 for game icons) */
+/* SVG 게임 아이콘(viewBox 64×64) + 동물 레이스 동물 아이콘(viewBox 40×40, 오른쪽을 보는 옆모습) */
 import { html } from "../shared/html.js";
 
 // ── 게임 카드 아이콘 (viewBox 0 0 64 64) ─────────────────────
@@ -736,16 +736,3 @@ export function AnimalIcon({ id, size = 28 }) {
   if (!Comp) return html`<span style=${{ fontSize: size * 0.7 }}>🐾</span>`;
   return html`<${Comp} size=${size} />`;
 }
-
-export const GAME_ICON_MAP = {
-  roulette: RouletteIcon,
-  ladder: LadderIcon,
-  bomb: BombIcon,
-  pirate: PirateIcon,
-  crocodile: CrocodileIcon,
-  tap: TapBattleIcon,
-  finger: FingerIcon,
-  updown: UpDownIcon,
-  tensec: TenSecIcon,
-  race: RaceIcon,
-};

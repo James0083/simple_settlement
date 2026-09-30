@@ -1,7 +1,7 @@
 /* 동물 레이스 — 15초 자동 진행, 꼴찌가 당첨 */
 import { useState, useEffect, useRef } from "react";
 import { html } from "../shared/html.js";
-import { styles, C_DARK, C_MUTED } from "../shared/styles.js";
+import { styles, C_RED } from "../shared/styles.js";
 import { colorOf } from "./palette.js";
 import { shuffle, randInt } from "./random.js";
 import { unlockAudio, beep, chime, fanfare } from "./sfx.js";
@@ -54,6 +54,8 @@ export function RaceGame({ players, onFinish }) {
   const dispRef = useRef({});
   const velRef = useRef({});
   const animalEls = useRef({});
+  const endTimers = useRef([]);
+  useEffect(() => () => endTimers.current.forEach(clearTimeout), []);
 
   const startRace = () => {
     unlockAudio();
@@ -97,12 +99,11 @@ export function RaceGame({ players, onFinish }) {
       const newlyFinished = [];
       const isUrgent = tl <= 4;
 
+      // 평소 분포: 0칸 40% · 1칸 35% · 2칸 20% · 3칸 5% (평균 0.9칸/틱 → 20칸을 약 8초에 완주)
+      // 평균보다 3칸 넘게 앞선 선두는 느려지고(긴장감), 남은 4초부터는 모두 빨라진다.
+      const avgPos = Object.values(prev).reduce((a, b) => a + b, 0) / players.length;
       assignments.forEach(({ playerIdx }) => {
         if (finishedRef.current.includes(playerIdx)) return;
-        // 분포: 40% 0칸, 35% 1칸, 15% 2칸, 10% 3칸 → 평균 ≈ 0.95
-        // RACE_MS/TICK_MS ≈ 43 틱, 43×0.95 ≈ 41 → TOTAL_STEPS=20에서 약 21틱에 완주
-        // 균형있게 유지하기 위해 선두가 너무 앞서면 약간 느려짐 (rubber band)
-        const avgPos = Object.values(prev).reduce((a, b) => a + b, 0) / players.length;
         const isLeader = prev[playerIdx] > avgPos + 3;
         const r = randInt(20);
         let advance;
@@ -156,10 +157,12 @@ export function RaceGame({ players, onFinish }) {
 
         fanfare();
         setLoserIdx(loser);
-        setTimeout(() => {
-          setPhase("done");
-          setTimeout(() => onFinish(players[loser].id), GAME_FINISH_MS);
-        }, 800);
+        endTimers.current.push(
+          setTimeout(() => {
+            setPhase("done");
+            endTimers.current.push(setTimeout(() => onFinish(players[loser].id), GAME_FINISH_MS));
+          }, 800)
+        );
       }
     }, TICK_MS);
 
@@ -198,43 +201,24 @@ export function RaceGame({ players, onFinish }) {
     return () => cancelAnimationFrame(raf);
   }, [phase]);
 
-  // ── 준비 화면 ───────────────────────────────────────────────
+  // ── 준비 화면: 동물 배정 ────────────────────────────────────
   if (phase === "ready") {
     return html`
-      <div style=${{ ...styles.gameStage, gap: 0 }}>
-        <p style=${{
-          textAlign: "center", fontSize: 13, fontWeight: 700,
-          color: "#8A8FA3", letterSpacing: "1px", margin: "0 0 14px",
-        }}>동물 배정</p>
-        <div style=${{ display: "flex", flexDirection: "column", gap: 8, marginBottom: 20 }}>
+      <div style=${styles.gameStage}>
+        <p style=${styles.gameCaption}>동물 배정</p>
+        <div style=${styles.rankList}>
           ${assignments.map(({ playerIdx, animal }) => {
             const [bg, fg] = colorOf(playerIdx);
             return html`
-              <div key=${playerIdx} style=${{
-                display: "flex", alignItems: "center", gap: 10,
-                padding: "8px 12px",
-                background: bg + "22",
-                border: `1px solid ${bg}66`,
-                borderRadius: 6,
-              }}>
+              <div key=${playerIdx} style=${{ ...styles.rankRow, background: bg + "22", borderColor: bg + "66" }}>
                 <${AnimalIcon} id=${animal} size=${32} />
-                <span style=${{ flex: 1, fontSize: 14, fontWeight: 700, color: C_DARK }}>
-                  ${players[playerIdx].name}
-                </span>
-                <span style=${{
-                  fontSize: 12, fontWeight: 700,
-                  padding: "2px 8px", borderRadius: 10,
-                  background: bg, color: fg,
-                }}>
-                  ${ANIMAL_NAMES[animal]}
-                </span>
+                <span style=${styles.rankName}>${players[playerIdx].name}</span>
+                <span style=${{ ...styles.nameTag, background: bg, color: fg }}>${ANIMAL_NAMES[animal]}</span>
               </div>
             `;
           })}
         </div>
-        <p style=${{ ...styles.hint, marginBottom: 4 }}>
-          꼴찌로 결승선을 통과하면 당첨이에요 · 15초 자동 진행
-        </p>
+        <p style=${{ ...styles.hint, marginBottom: 4 }}>꼴찌로 결승선을 통과하면 당첨이에요 · 15초 자동 진행</p>
         <${BigButton} onClick=${startRace}>레이스 시작!<//>
       </div>
     `;
@@ -245,104 +229,32 @@ export function RaceGame({ players, onFinish }) {
 
   // ── 레이스 트랙 ─────────────────────────────────────────────
   return html`
-    <div style=${{ ...styles.gameStage, gap: 0, paddingBottom: 20 }}>
-      <!-- 헤더: 상태 + 남은 시간 -->
-      <div style=${{
-        display: "flex", justifyContent: "space-between", alignItems: "center",
-        marginBottom: 10,
-      }}>
-        <p style=${{ fontSize: 13, fontWeight: 700, color: "#8A8FA3", margin: 0 }}>
-          ${phase === "done" ? "레이스 종료!" : "레이스 중"}
-        </p>
+    <div style=${{ ...styles.gameStage, paddingBottom: 20 }}>
+      <div style=${styles.raceHead}>
+        <p style=${styles.raceStatus}>${phase === "done" ? "레이스 종료!" : "레이스 중"}</p>
         ${isRacing && html`
-          <p style=${{
-            fontSize: 14, fontWeight: 800, margin: 0,
-            color: timeLeft <= 4 ? "#E83B3B" : C_MUTED,
-            fontVariantNumeric: "tabular-nums",
-          }}>
-            ${timeLeft}초
-          </p>
+          <p style=${{ ...styles.raceTimer, ...(timeLeft <= 4 ? { color: C_RED } : null) }}>${timeLeft}초</p>
         `}
       </div>
 
-      <!-- 트랙 -->
-      <div style=${{
-        background: "#F0FFF4",
-        border: "1.5px solid #C8E6C9",
-        borderRadius: 8,
-        padding: "10px 8px 10px 4px",
-        marginBottom: 12,
-        position: "relative",
-        minHeight: TRACK_MIN_H,
-        boxSizing: "border-box",
-        display: "flex",
-        flexDirection: "column",
-        gap: LANE_GAP,
-      }}>
-        <!-- 결승선 수직 라인 -->
-        <div style=${{
-          position: "absolute", right: 8, top: 6, bottom: 6,
-          width: 3,
-          background: "repeating-linear-gradient(180deg,#212121 0 5px,#fff 5px 10px)",
-          opacity: 0.3, borderRadius: 1,
-        }}/>
-
+      <div style=${{ ...styles.raceTrack, minHeight: TRACK_MIN_H, gap: LANE_GAP }}>
+        <div style=${styles.raceFinishLine} aria-hidden="true" />
         ${assignments.map(({ playerIdx, animal }) => {
-          const p = pct(playerIdx);
           const isFinish = finished.includes(playerIdx);
-          const rankNum = isFinish ? finished.indexOf(playerIdx) + 1 : null;
           const [bg, fg] = colorOf(playerIdx);
           return html`
-            <div key=${playerIdx} style=${{
-              display: "flex", alignItems: "stretch", gap: 4,
-              flex: "1 1 0", minHeight: LANE_MIN_H,
-            }}>
-              <!-- 이름 -->
-              <span style=${{
-                minWidth: 34, fontSize: 10, fontWeight: 700, color: C_DARK,
-                overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
-                textAlign: "right", alignSelf: "center",
-              }}>
-                ${players[playerIdx].name}
-              </span>
-
-              <!-- 레인 (고정 폭, 오른쪽 여백 = 결승선) -->
-              <div style=${{
-                flex: 1,
-                background: "#E8F5E9",
-                borderRadius: 4,
-                position: "relative",
-                overflow: "hidden",
-                border: "1px solid #C8E6C9",
-                marginRight: 12,
-              }}>
-                <!-- 잔디 줄무늬 -->
-                <div style=${{
-                  position: "absolute", inset: 0,
-                  backgroundImage: "repeating-linear-gradient(90deg,transparent 0 20px,rgba(0,0,0,0.04) 20px 21px)",
-                }}/>
-                <!-- 동물 (rAF 루프가 left를 매 프레임 갱신) -->
-                <div ref=${(el) => { animalEls.current[playerIdx] = el; }} style=${{
-                  position: "absolute",
-                  left: `calc(${p}% - 17px)`,
-                  top: "50%",
-                  transform: "translateY(-50%)",
-                  zIndex: 1,
-                  lineHeight: 0,
-                }}>
+            <div key=${playerIdx} style=${{ ...styles.raceLane, minHeight: LANE_MIN_H }}>
+              <span style=${styles.raceLaneName}>${players[playerIdx].name}</span>
+              <div style=${styles.raceLaneTrack}>
+                <!-- 동물: rAF 루프가 left 를 매 프레임 갱신 -->
+                <div
+                  ref=${(el) => { animalEls.current[playerIdx] = el; }}
+                  style=${{ ...styles.raceRunner, left: `calc(${pct(playerIdx)}% - 17px)` }}
+                >
                   <${AnimalIcon} id=${animal} size=${26} />
                 </div>
-                <!-- 완주 순위 배지 -->
                 ${isFinish && html`
-                  <div style=${{
-                    position: "absolute", right: 2, top: "50%",
-                    transform: "translateY(-50%)",
-                    background: bg, color: fg,
-                    borderRadius: 8, padding: "1px 5px",
-                    fontSize: 10, fontWeight: 800, zIndex: 2,
-                  }}>
-                    ${rankNum}위
-                  </div>
+                  <div style=${{ ...styles.raceRankBadge, background: bg, color: fg }}>${finished.indexOf(playerIdx) + 1}위</div>
                 `}
               </div>
             </div>
@@ -350,18 +262,11 @@ export function RaceGame({ players, onFinish }) {
         })}
       </div>
 
-      <!-- 완주 순서 -->
       ${finished.length > 0 && html`
-        <p style=${{ fontSize: 11.5, color: C_MUTED, textAlign: "center", margin: "0 0 8px" }}>
-          완주: ${finished.map((idx) => players[idx].name).join(" → ")}
-        </p>
+        <p style=${styles.raceFinishOrder}>완주: ${finished.map((idx) => players[idx].name).join(" → ")}</p>
       `}
-
-      <!-- 결과 메시지 -->
       ${phase === "done" && loserIdx != null && html`
-        <p style=${{ ...styles.hint, marginBottom: 0 }}>
-          꼴찌 <strong>${players[loserIdx].name}</strong>님이 당첨!
-        </p>
+        <p style=${{ ...styles.hint, marginBottom: 0 }}>꼴찌 <strong>${players[loserIdx].name}</strong>님이 당첨!</p>
       `}
     </div>
   `;

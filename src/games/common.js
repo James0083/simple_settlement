@@ -1,9 +1,11 @@
 /* 게임 공용 조각 — 차례 표시 · 큰 버튼 · 플레이 화면 스크롤 */
-export const GAME_FINISH_MS = 500;
 import { useRef, useEffect } from "react";
 import { html } from "../shared/html.js";
 import { styles } from "../shared/styles.js";
 import { colorOf } from "./palette.js";
+
+// 결과 연출이 끝난 뒤 onFinish 까지 잠깐 쉬는 시간
+export const GAME_FINISH_MS = 500;
 
 // "지금 차례: 민수" — 폰을 넘겨받은 사람이 바로 알아보도록 크게
 export function TurnBanner({ label = "지금 차례", player, index }) {

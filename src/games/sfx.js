@@ -1,5 +1,5 @@
 /*
- * 게임 효과음(WebAudio 합성음 — 음원 파일 없음) · 진동. 소리는 기본 꺼짐 — 사용자가 켜면 기기에 기억한다.
+ * 게임 효과음(WebAudio 합성음, 해적 비명만 audio/scream.mp3 원본) · 진동. 소리는 기본 꺼짐 — 사용자가 켜면 기기에 기억한다.
  * 진동은 지원 기기(주로 Android)에서만 동작하고, 나머지에서는 아무 일도 하지 않는다.
  *
  * 모든 소리는 마스터 볼륨(master) 하나를 거친다. 소리 켬/끔은 이 볼륨만 올리고 내리므로
@@ -59,7 +59,7 @@ function wake(a) {
 let screamBuf = null;
 function loadScreamBuf() {
   if (screamBuf) return screamBuf;
-  screamBuf = fetch("/audio/scream.mp3")
+  screamBuf = fetch(new URL("../../audio/scream.mp3", import.meta.url))
     .then((r) => r.arrayBuffer())
     .then((ab) => ensureCtx().decodeAudioData(ab))
     .catch(() => null);
@@ -422,7 +422,7 @@ export function popUp() {
   });
 }
 
-// "으아악!" — /audio/scream.mp3 원본 재생 (unlockAudio 시점에 미리 디코딩)
+// "으아악!" — audio/scream.mp3 원본 재생 (unlockAudio 시점에 미리 디코딩)
 export function scream(delay = 0) {
   if (!soundOn) return;
   const a = audio();
@@ -447,18 +447,3 @@ export function vibrate(pattern) {
 
 export const prefersReducedMotion = () =>
   typeof window !== "undefined" && window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
-
-// 소리 확인용: 실시간 대신 주어진 AudioContext(예: OfflineAudioContext)에 소리를 그린다.
-// 녹음해서 파형·스펙트로그램을 살펴보거나 테스트 페이지에서 쓸 때만 부른다.
-export function renderWith(context, fn) {
-  const prev = ctx;
-  const prevOn = soundOn;
-  ctx = context;
-  soundOn = true;
-  try {
-    fn();
-  } finally {
-    ctx = prev;
-    soundOn = prevOn;
-  }
-}

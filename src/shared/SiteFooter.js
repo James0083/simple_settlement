@@ -1,4 +1,4 @@
-/* 하단 링크 — 개인정보처리방침 · 이용약관 · 문의하기 (+ 눈에 안 띄는 실험 링크) */
+/* 하단 링크 — 사용 가이드 · 계산 방식 · 개인정보처리방침 · 이용약관 · 버전정보 · 문의하기 (+ 눈에 안 띄는 실험 링크) */
 import { html } from "./html.js";
 import { styles } from "./styles.js";
 
@@ -6,6 +6,14 @@ export function SiteFooter() {
   return html`
     <div style=${styles.footerWrap}>
       <footer style=${styles.footer}>
+        <a className="settle-footer-link" href="guide.html" style=${styles.footerLink}>
+          사용 가이드
+        </a>
+        <span style=${styles.footerDot}>·</span>
+        <a className="settle-footer-link" href="how-it-works.html" style=${styles.footerLink}>
+          계산 방식
+        </a>
+        <span style=${styles.footerDot}>·</span>
         <a className="settle-footer-link" href="privacy.html" style=${styles.footerLink}>
           개인정보처리방침
         </a>

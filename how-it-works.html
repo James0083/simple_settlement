@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>정산 계산 방식 - 딱정산</title>
+<meta name="description" content="1차·2차·3차 참여 인원이 다른 모임 비용을 공평하게 나누는 방법. 딱정산의 회차별 정산과 송금액 계산 과정을 예시로 설명합니다." />
+<link rel="canonical" href="https://ddakjeongsan.com/how-it-works.html" />
+<link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin="anonymous" />
+<link rel="stylesheet" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
+<link rel="stylesheet" href="./src/shared/tokens.css" />
+<link rel="manifest" href="manifest.webmanifest" />
+<meta name="theme-color" content="#EEF1F4" />
+<link rel="icon" type="image/svg+xml" href="favicon.svg" />
+<link rel="apple-touch-icon" href="apple-touch-icon.png" />
+<meta name="mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-title" content="딱정산" />
+<style>
+  *, *::before, *::after { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body { background: var(--c-bg); font-family: 'Pretendard', -apple-system, sans-serif; color: #1A1D29; display: flex; justify-content: center; padding: 40px 16px; }
+  .card { width: 100%; min-width: 0; max-width: 560px; background: #FFFFFF; box-shadow: 0 18px 40px rgba(26,29,41,0.12), 0 2px 0 rgba(26,29,41,0.04); padding: 36px 32px 44px; }
+  .back { display: inline-block; font-size: 13px; color: #9AA0B0; text-decoration: none; margin-bottom: 20px; }
+  .back:hover { color: #5C6178; }
+  h1 { font-size: 24px; font-weight: 800; letter-spacing: -0.5px; margin: 0 0 6px; }
+  .lead { font-size: 14px; color: var(--c-dim); line-height: 1.7; margin: 0 0 8px; }
+  h2 { font-size: 17px; font-weight: 800; margin: 34px 0 10px; }
+  p, li { font-size: 14px; line-height: 1.75; color: var(--c-dim); }
+  ol, ul { margin: 0; padding-left: 20px; }
+  li { margin-bottom: 4px; }
+  .table-wrap { overflow-x: auto; margin: 10px 0; }
+  .table-wrap table { margin: 0; }
+  table { width: 100%; border-collapse: collapse; margin: 10px 0; font-size: 13px; }
+  th, td { padding: 7px 8px; border-bottom: 1px solid #E3E6EC; color: var(--c-dim); line-height: 1.5; text-align: left; }
+  th, td { white-space: nowrap; }
+  td:last-child { white-space: normal; }
+  th { color: #1A1D29; font-weight: 700; background: #F6F8FB; }
+  td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
+  .plus { color: #0F9D64; font-weight: 700; }
+  .minus { color: #E8503A; font-weight: 700; }
+  .formula { margin: 10px 0; padding: 12px 14px; background: #F6F8FB; border-left: 3px solid #1A1D29; font-size: 13.5px; line-height: 1.7; color: #1A1D29; }
+  a.inline { color: #E8503A; text-decoration: none; }
+  a.inline:hover { text-decoration: underline; }
+  .cta { display: block; margin-top: 32px; padding: 14px 0; text-align: center; background: #E8503A; color: #FFFFFF; font-weight: 700; font-size: 15px; text-decoration: none; border-radius: 4px; }
+  @media (max-width: 480px) { .card { padding: 28px 20px 36px; } th, td { padding: 6px 5px; } }
+</style>
+</head>
+<body>
+  <main class="card">
+    <a class="back" href="index.html">← 딱정산으로 돌아가기</a>
+    <h1>정산 계산 방식</h1>
+    <p class="lead">
+      모임이 여러 차로 이어지면 "누가 어디까지 있었는지"에 따라 부담이 달라집니다. 전체 금액을 인원수로 똑같이 나누면
+      일찍 간 사람이 손해를 보고, 차마다 따로 계산하면 송금이 너무 많아집니다. 딱정산은 회차별로 정확히 나눈 뒤
+      송금을 한 번에 정리합니다. 아래 예시로 계산 과정을 따라가 보세요.
+    </p>
+
+    <h2>예시: 네 명의 모임</h2>
+    <div class="table-wrap"><table>
+      <thead><tr><th>회차</th><th>결제</th><th class="num">금액</th><th>참여</th></tr></thead>
+      <tbody>
+        <tr><td>1차 삼겹살</td><td>민수</td><td class="num">120,000원</td><td>민수 · 지영 · 현우 · 수진</td></tr>
+        <tr><td>2차 노래방</td><td>지영</td><td class="num">90,000원</td><td>민수 · 지영 · 현우</td></tr>
+        <tr><td>3차 카페</td><td>수진</td><td class="num">26,000원</td><td>지영 · 수진</td></tr>
+      </tbody>
+    </table></div>
+    <p>수진은 노래방에 가지 않았고, 민수와 현우는 카페에 가지 않았습니다.</p>
+
+    <h2>1단계 — 회차마다 참여한 사람끼리 나누기</h2>
+    <p>회차 금액을 그 회차에 참여한 사람 수로 나눕니다. 빠진 사람은 그 회차 몫이 없습니다.</p>
+    <ul>
+      <li>1차: 120,000원 ÷ 4명 = 1인 30,000원</li>
+      <li>2차: 90,000원 ÷ 3명 = 1인 30,000원</li>
+      <li>3차: 26,000원 ÷ 2명 = 1인 13,000원</li>
+    </ul>
+
+    <h2>2단계 — 낸 돈과 부담할 돈 비교</h2>
+    <p>사람마다 실제로 결제한 금액(낸 돈)에서 1단계 몫의 합(부담할 돈)을 빼면 차액이 나옵니다.</p>
+    <div class="table-wrap"><table>
+      <thead><tr><th>이름</th><th class="num">낸 돈</th><th class="num">부담할 돈</th><th class="num">차액</th></tr></thead>
+      <tbody>
+        <tr><td>민수</td><td class="num">120,000</td><td class="num">60,000</td><td class="num plus">+60,000</td></tr>
+        <tr><td>지영</td><td class="num">90,000</td><td class="num">73,000</td><td class="num plus">+17,000</td></tr>
+        <tr><td>현우</td><td class="num">0</td><td class="num">60,000</td><td class="num minus">−60,000</td></tr>
+        <tr><td>수진</td><td class="num">26,000</td><td class="num">43,000</td><td class="num minus">−17,000</td></tr>
+      </tbody>
+    </table></div>
+    <p>
+      차액이 <span class="plus">+</span>인 사람(민수·지영)은 돌려받고, <span class="minus">−</span>인 사람(현우·수진)은 보내야 합니다.
+      받을 돈의 합(77,000원)과 보낼 돈의 합(77,000원)은 항상 같습니다.
+    </p>
+
+    <h2>3단계 — 받을 비율대로 나눠 보내기</h2>
+    <p>
+      보내는 사람은 받는 사람들이 받아야 할 금액의 비율대로 나눠 보냅니다. 민수는 77,000원 중 60,000원,
+      지영은 17,000원을 받아야 하므로 비율은 60 : 17입니다.
+    </p>
+    <div class="formula">보낼 금액 = 내가 보낼 총액 × (그 사람이 받을 금액 ÷ 받을 금액 전체)</div>
+    <div class="table-wrap"><table>
+      <thead><tr><th>보내는 사람</th><th>받는 사람</th><th class="num">계산</th><th class="num">보낼 금액</th></tr></thead>
+      <tbody>
+        <tr><td>현우</td><td>민수</td><td class="num">60,000 × 60/77</td><td class="num">46,753원</td></tr>
+        <tr><td>현우</td><td>지영</td><td class="num">60,000 × 17/77</td><td class="num">13,247원</td></tr>
+        <tr><td>수진</td><td>민수</td><td class="num">17,000 × 60/77</td><td class="num">13,247원</td></tr>
+        <tr><td>수진</td><td>지영</td><td class="num">17,000 × 17/77</td><td class="num">3,753원</td></tr>
+      </tbody>
+    </table></div>
+    <p>
+      이렇게 하면 한 사람에게 송금이 몰리지 않고, 보내는 사람 모두가 같은 비율로 부담을 나눕니다.
+      현우는 합계 60,000원, 수진은 17,000원을 보내고, 민수는 60,000원, 지영은 17,000원을 받아 모두 차액이 0이 됩니다.
+    </p>
+
+    <h2>4단계 — 1원 단위 맞추기</h2>
+    <p>
+      비율로 나누면 46,753.2원, 13,246.8원처럼 소수점이 생깁니다. 딱정산은 먼저 모든 금액의 소수점을 버린 뒤,
+      그 때문에 모자라게 된 원(이 예시에서는 2원)을 버려진 소수점이 큰 송금부터 1원씩 더해 채웁니다.
+      이 방법을 <strong>최대 나머지법</strong>이라고 하며, 덕분에 송금액의 합계가 실제 금액과 1원도 어긋나지 않습니다.
+      위 표의 13,247원 두 건이 1원을 더 받은 금액입니다.
+    </p>
+
+    <h2>5단계 — 보내는 사람별로 묶어서 보여주기</h2>
+    <p>
+      결과 화면에서는 "현우 (총 60,000원) → 민수 46,753원, → 지영 13,247원"처럼 보내는 사람 기준으로 묶어서 보여줍니다.
+      받는 사람이 계좌를 적어 두었다면 계좌도 함께 나오므로, 결과를 복사해 단톡방에 올리기만 하면 됩니다.
+    </p>
+
+    <h2>이렇게 나누면 좋은 점</h2>
+    <ul>
+      <li><strong>공평함</strong> — 참여하지 않은 회차의 비용은 한 푼도 내지 않습니다.</li>
+      <li><strong>정확함</strong> — 송금 합계가 결제 총액과 정확히 같아 남거나 모자라는 돈이 없습니다.</li>
+      <li><strong>간단함</strong> — 차마다 따로 주고받지 않고, 모든 회차를 합쳐 한 번에 정리합니다.</li>
+    </ul>
+    <p>
+      화면 사용법은 <a class="inline" href="guide.html">사용 가이드</a>에서 볼 수 있습니다.
+    </p>
+
+    <a class="cta" href="index.html">지금 정산해 보기</a>
+  </main>
+<script>
+  if ("serviceWorker" in navigator) {
+    window.addEventListener("load", function () {
+      navigator.serviceWorker.register("sw.js").catch(function () {});
+    });
+  }
+</script>
+</body>
+</html>
