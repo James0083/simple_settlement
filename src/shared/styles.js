@@ -110,8 +110,8 @@ export const styles = {
     footerWrap: { marginTop: 20, display: "flex", flexDirection: "column", alignItems: "center", gap: 7 },
     footer: { display: "flex", flexWrap: "wrap", justifyContent: "center", alignItems: "center", gap: "4px 8px", maxWidth: 360, fontSize: 12, color: C_MUTED },
     footerLink: { color: C_MUTED, textDecoration: "none" },
-    footerGuides: { display: "flex", gap: 8, justifyContent: "center", flexWrap: "wrap" },
-    footerGuide: { padding: "6px 12px", border: "1px solid #D5D9E2", borderRadius: 4, background: C_WHITE, color: C_SUB, fontSize: 12.5, fontWeight: 600, textDecoration: "none", transition: "border-color 0.15s, color 0.15s" },
+    footerGuides: { display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: 8, width: "100%", maxWidth: 300 },
+    footerGuide: { textAlign: "center", padding: "6px 12px", border: "1px solid #D5D9E2", borderRadius: 4, background: C_WHITE, color: C_SUB, fontSize: 12.5, fontWeight: 600, textDecoration: "none", transition: "border-color 0.15s, color 0.15s" },
     footerDot: { color: "#C7CCD8" },
     footerLab: { fontSize: 10.5, color: "#CDD1DA", textDecoration: "none", letterSpacing: "0.2px" },
 

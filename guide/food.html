@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>오늘 뭐먹지 · 메뉴 추천 - 딱정산</title>
+<meta name="description" content="점심·저녁·회식 메뉴 고민 끝. 인원·장르·가격대만 고르면 510개 메뉴 중에서 추천하고, 못 먹는 메뉴는 빼 드려요." />
+<link rel="canonical" href="https://ddakjeongsan.com/guide/food" />
+<meta property="og:type" content="article" />
+<meta property="og:site_name" content="딱정산" />
+<meta property="og:title" content="오늘 뭐먹지 · 메뉴 추천 - 딱정산" />
+<meta property="og:description" content="점심·저녁·회식 메뉴 고민 끝. 인원·장르·가격대만 고르면 510개 메뉴 중에서 추천하고, 못 먹는 메뉴는 빼 드려요." />
+<meta property="og:url" content="https://ddakjeongsan.com/guide/food" />
+<meta property="og:image" content="https://ddakjeongsan.com/screenshots/og.png" />
+<meta name="twitter:card" content="summary_large_image" />
+<link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin="anonymous" />
+<link rel="stylesheet" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
+<link rel="stylesheet" href="../src/shared/tokens.css" />
+<link rel="manifest" href="../manifest.webmanifest" />
+<meta name="theme-color" content="#EEF1F4" />
+<link rel="icon" type="image/svg+xml" href="../favicon.svg" />
+<link rel="apple-touch-icon" href="../apple-touch-icon.png" />
+<meta name="mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-title" content="딱정산" />
+<style>
+  *, *::before, *::after { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body { background: var(--c-bg); font-family: 'Pretendard', -apple-system, sans-serif; color: #1A1D29; display: flex; justify-content: center; padding: 40px 16px; }
+  .card { width: 100%; min-width: 0; max-width: 560px; background: #FFFFFF; box-shadow: 0 18px 40px rgba(26,29,41,0.12), 0 2px 0 rgba(26,29,41,0.04); padding: 36px 32px 44px; }
+  .back { display: inline-block; font-size: 13px; color: #9AA0B0; text-decoration: none; margin-bottom: 20px; }
+  .back:hover { color: #5C6178; }
+  h1 { font-size: 24px; font-weight: 800; letter-spacing: -0.5px; margin: 0 0 6px; }
+  .lead { font-size: 14px; color: var(--c-dim); line-height: 1.7; margin: 0 0 8px; }
+  h2 { font-size: 17px; font-weight: 800; margin: 34px 0 10px; }
+  h3 { font-size: 14.5px; font-weight: 700; margin: 20px 0 6px; }
+  p, li { font-size: 14px; line-height: 1.75; color: var(--c-dim); }
+  ol, ul { margin: 0; padding-left: 20px; }
+  li { margin-bottom: 4px; }
+  .table-wrap { overflow-x: auto; margin: 10px 0; }
+  .table-wrap table { margin: 0; }
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  th, td { padding: 7px 8px; border-bottom: 1px solid #E3E6EC; color: var(--c-dim); line-height: 1.5; text-align: left; vertical-align: top; }
+  th, td { white-space: nowrap; }
+  td:last-child { white-space: normal; }
+  th { color: #1A1D29; font-weight: 700; background: #F6F8FB; }
+  td.num { text-align: right; font-variant-numeric: tabular-nums; }
+  a.inline { color: #E8503A; text-decoration: none; }
+  a.inline:hover { text-decoration: underline; }
+  .cta { display: block; margin-top: 32px; padding: 14px 0; text-align: center; background: #E8503A; color: #FFFFFF; font-weight: 700; font-size: 15px; text-decoration: none; border-radius: 4px; }
+  .cta-inline { display: inline-block; margin-top: 4px; padding: 9px 16px; border: 1px solid #D5D9E2; border-radius: 4px; color: #1A1D29; font-size: 13.5px; font-weight: 700; text-decoration: none; }
+  .cta-inline:hover { border-color: #9AA0B0; }
+  @media (max-width: 480px) { .card { padding: 28px 20px 36px; } th, td { padding: 6px 5px; } }
+</style>
+</head>
+<body>
+  <main class="card">
+    <a class="back" href="../">← 딱정산으로 돌아가기</a>
+    <h1>오늘 뭐먹지 — 메뉴 추천</h1>
+    <p class="lead">
+      "아무거나"가 제일 어려운 메뉴입니다. 딱정산의 <strong>오늘 뭐먹지</strong>는 인원과 상황만 고르면
+      510개 메뉴 중에서 지금 먹기 좋은 메뉴를 골라 줍니다. 점심 한 끼부터 10명이 넘는 회식, 늦은 밤 배달 야식까지 쓸 수 있습니다.
+    </p>
+    <a class="cta-inline" href="../#/food">메뉴 바로 정하기 →</a>
+
+    <h2>이렇게 골라 줘요</h2>
+    <ol>
+      <li><strong>조건 고르기</strong> — 인원(1~15명), 매장에서 먹을지 배달할지, 장르(여러 개 선택 가능), 1인 가격대, 빼고 싶은 것(매운 것·날것)을 고릅니다. 점심·저녁·야식은 지금 시각으로 자동으로 정해집니다.</li>
+      <li><strong>메뉴 추천</strong> — 인원 4명당 메뉴 하나씩 추천합니다(1~4명 1개, 5~8명 2개, 9~12명 3개, 13~15명 4개). 마음에 안 들면 함께 보여주는 대안 3개 중 하나를 누르면 바로 바뀝니다.</li>
+      <li><strong>곁들임</strong> — 4명 이상이면 "치킨에는 떡볶이"처럼 같이 시키면 좋은 메뉴도 함께 추천합니다.</li>
+      <li><strong>다시 뽑기</strong> — 이미 본 메뉴는 빼고 새로 뽑습니다. 최근에 실제로 고른 메뉴는 덜 나오게 해서 매번 같은 메뉴만 나오지 않습니다.</li>
+    </ol>
+    <p>조건이 너무 좁아 맞는 메뉴가 없으면 가격대, 그다음 장르 순서로 조건을 넓혀서 찾고, 무엇을 넓혔는지 알려 줍니다.</p>
+
+    <h2>장르별 메뉴</h2>
+    <p>메뉴는 가게가 아니라 음식 단위로 정리되어 있습니다. 메뉴마다 1인 가격대, 배달 가능 여부, 어울리는 인원과 식사 시간이 들어 있습니다.</p>
+    <div class="table-wrap"><table>
+      <thead><tr><th>장르</th><th class="num">메뉴 수</th><th>예시</th></tr></thead>
+      <tbody>
+        <tr><td>한식</td><td class="num">131개</td><td>김치찌개, 된장찌개, 돼지국밥, 비빔밥, 불고기 백반, 제육볶음</td></tr>
+        <tr><td>중식</td><td class="num">52개</td><td>짜장면, 짬뽕, 탕수육, 마라탕, 마라샹궈, 양꼬치</td></tr>
+        <tr><td>일식</td><td class="num">54개</td><td>초밥, 오마카세, 라멘, 돈카츠, 우동, 메밀소바</td></tr>
+        <tr><td>양식</td><td class="num">48개</td><td>파스타, 피자, 스테이크, 수제버거, 샐러드, 브런치</td></tr>
+        <tr><td>분식</td><td class="num">48개</td><td>떡볶이, 김밥, 라면·분식 세트, 떡튀순, 순대, 모둠튀김</td></tr>
+        <tr><td>아시안</td><td class="num">50개</td><td>쌀국수, 팟타이, 인도 커리, 카레, 분짜, 똠얌꿍</td></tr>
+        <tr><td>고기·구이</td><td class="num">44개</td><td>삼겹살, 돼지갈비, 한우 구이, 곱창, 오리주물럭, 양갈비</td></tr>
+        <tr><td>패스트푸드</td><td class="num">38개</td><td>치킨, 햄버거, 샌드위치, 도시락, 닭강정, 윙·봉</td></tr>
+        <tr><td>술안주</td><td class="num">45개</td><td>포차 안주, 닭발, 골뱅이무침, 치킨·맥주 호프, 어묵탕, 두부김치</td></tr>
+      </tbody>
+    </table></div>
+
+    <h2>같이 먹으면 좋은 조합</h2>
+    <ul>
+      <li>치킨 + 피자 또는 떡볶이</li>
+      <li>삼겹살 + 냉면, 된장찌개, 계란찜</li>
+      <li>짜장면 + 탕수육, 군만두</li>
+      <li>족발 + 막국수</li>
+      <li>떡볶이 + 모둠튀김, 순대, 김밥</li>
+    </ul>
+    <p>곁들임도 매장/배달 조건과 빼고 싶은 것을 지켜서 고릅니다.</p>
+
+    <h2>못 먹는 메뉴는 빼고</h2>
+    <p>
+      "중식은 좋은데 짜장면은 싫다"처럼 장르 전체가 아니라 특정 메뉴만 빼고 싶을 때는 장르 아래 칸에 메뉴 이름을 적으세요.
+      "짜장면"이라고 적으면 짜장면만, "짜장"이라고 적으면 간짜장·쟁반짜장·짜장떡볶이까지 모두 빠집니다.
+      칩의 화살표를 누르면 빠지는 메뉴 목록이 보이고, 먹어도 되는 메뉴는 − 버튼으로 다시 넣을 수 있습니다.
+    </p>
+
+    <h2>상황별로 이렇게 써 보세요</h2>
+    <h3>혼자 점심</h3>
+    <p>인원 1명, 가격대 "~1만"으로 고르면 혼자 먹기 좋은 메뉴에 점수를 더 줘서 국밥·덮밥·면 요리가 자주 나옵니다. 여럿이 나눠 먹는 메뉴는 덜 나옵니다.</p>
+    <h3>10명 넘는 회식</h3>
+    <p>인원을 늘리면 메뉴가 여러 개 추천되고, 나눠 먹기 좋은 메뉴(보쌈·족발·고기 구이 등)에 점수를 더 줍니다. 매운 걸 못 먹는 사람이 있으면 "매운 것"을 빼 두세요.</p>
+    <h3>늦은 밤 배달</h3>
+    <p>"배달로"를 고르면 배달이 흔한 메뉴만 나오고, 밤 시간에는 야식으로 어울리는 메뉴에 점수를 더 줘서 자주 나옵니다. 정한 메뉴 이름은 복사해서 배달 앱에 붙여 넣으면 됩니다.</p>
+
+    <h2>가게 찾기부터 정산까지</h2>
+    <p>
+      매장에서 먹는다면 추천 결과의 네이버지도·카카오맵 버튼으로 내 주변 가게를 바로 검색할 수 있습니다(위치 권한 없이 지도 앱이 주변을 찾아 줍니다).
+      다 먹고 나면 "정산에 회차로 추가"를 눌러 "2차 마라탕" 같은 회차를 만들고, 금액만 넣으면
+      <a class="inline" href="settle.html">최소 송금으로 정산</a>할 수 있습니다. 누가 낼지는 <a class="inline" href="games.html">미니게임</a>으로 정해도 좋습니다.
+    </p>
+
+    <a class="cta" href="../#/food">오늘 뭐먹지 시작하기</a>
+  </main>
+<script>
+  if ("serviceWorker" in navigator) {
+    window.addEventListener("load", function () {
+      navigator.serviceWorker.register("../sw.js").catch(function () {});
+    });
+  }
+</script>
+</body>
+</html>

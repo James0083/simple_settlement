@@ -29,7 +29,7 @@ export function App() {
       ${route === "food" && html`<${FoodScreen} s=${s} />`}
       ${route === "games" && html`<${GamesScreen} s=${s} sub=${sub} />`}
 
-      <${SiteFooter} />
+      <${SiteFooter} route=${route} />
 
       <${TabBar} route=${route} />
 

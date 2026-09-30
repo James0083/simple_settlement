@@ -252,7 +252,7 @@ if ("serviceWorker" in navigator) {
 
 ## 정적 페이지 · 법적 페이지 & 문의하기
 
-앱(`index.html`)은 자바스크립트로 그려지므로, 검색엔진·애드센스 심사가 읽을 수 있게 **정적 글 페이지** `guide.html`(사용 가이드) · `how-it-works.html`(정산 계산 예시)를 두고, `index.html`에는 `<noscript>` 소개문과 링크를 넣었습니다. 새 정적 페이지를 만들면 `sitemap.xml`, `sw.js`의 `CORE`, 앱 푸터(`SiteFooter.js`)에 함께 추가합니다.
+앱(`index.html`)은 자바스크립트로 그려지므로, 검색엔진·애드센스 심사가 읽을 수 있게 **정적 글 페이지** — 허브 `guide.html`(`/guide`)과 탭별 가이드 `guide/settle.html` · `guide/food.html` · `guide/games.html`(`/guide/settle` 등)를 두고, `index.html`에는 `<noscript>` 소개문과 링크를 넣었습니다. 새 정적 페이지를 만들면 `sitemap.xml`, `sw.js`의 `CORE`, 앱 푸터(`SiteFooter.js`), `guide.html` 허브에 함께 추가합니다. 주소 규칙: **`#` 없는 주소는 설명 글, `#` 있는 주소는 앱**(`/guide/food` 설명 ↔ `/#/food` 앱). `guide/` 안 페이지는 자원·링크를 `../` 로 참조하고, 주소를 옮기면 `_redirects` 에 301 을 남깁니다.
 
 **검색 노출 규칙**: Cloudflare Pages 는 `/guide.html` 을 `/guide` 로 308 리디렉션하므로 `sitemap.xml` 의 `<loc>` 와 각 페이지 `canonical` 은 **`.html` 없는 최종 주소**로 적습니다(내부 링크는 로컬 서버·오프라인 캐시 때문에 `.html` 유지). 새 페이지에는 `title` · `description` · `canonical` · OG 태그(`screenshots/og.png`, 1200×630)를 넣습니다. 없는 주소는 `404.html`(noindex)이 404 상태로 응답합니다. 홈에는 JSON-LD(`WebSite` · `WebApplication`)가 있습니다. 옛 GitHub Pages 안내 페이지(`docs/index.html`)는 옛 PWA 사용자 안내용으로 남기되 `noindex` 입니다.
 
@@ -299,7 +299,9 @@ src/
 audio/scream.mp3            # 해적룰렛 비명
 release-notes.html          # 버전정보 (사용자용)
 404.html                    # 없는 주소 안내 (Cloudflare Pages 가 404 상태로 응답, noindex)
-guide.html · how-it-works.html  # 사용 가이드 · 정산 계산 방식 (JS 없이 읽히는 정적 글 — 검색·애드센스 심사용)
+guide.html                  # 사용 가이드 (/guide) — 아래 세 가이드로 가는 허브
+guide/settle.html · food.html · games.html  # 정산 계산 방식 · 뭐먹지 가이드 · 미니게임 가이드 (/guide/settle 등, JS 없이 읽히는 정적 글 — 검색·애드센스 심사용)
+_redirects                  # Cloudflare Pages 301 (옛 /how-it-works → /guide/settle)
 ads.txt                     # 애드센스 판매자 인증 (pub-3948983509562369)
 privacy.html · terms.html · contact.html
 manifest.webmanifest · sw.js · favicon.svg · apple-touch-icon.png · icons/ · screenshots/

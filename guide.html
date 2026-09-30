@@ -45,6 +45,12 @@
   td:last-child { white-space: normal; }
   th { color: #1A1D29; font-weight: 700; background: #F6F8FB; }
   a.inline { color: #E8503A; text-decoration: none; }
+  .hub { list-style: none; padding: 0; margin: 16px 0 0; display: grid; gap: 8px; }
+  .hub li { margin: 0; }
+  .hub a { display: block; padding: 11px 14px; border: 1px solid #E3E6EC; border-radius: 4px; background: #F6F8FB; text-decoration: none; }
+  .hub a:hover { border-color: #9AA0B0; }
+  .hub strong { display: block; color: #1A1D29; font-size: 14px; }
+  .hub span { display: block; color: var(--c-dim); font-size: 12.5px; line-height: 1.5; }
   a.inline:hover { text-decoration: underline; }
   .cta { display: block; margin-top: 32px; padding: 14px 0; text-align: center; background: #E8503A; color: #FFFFFF; font-weight: 700; font-size: 15px; text-decoration: none; border-radius: 4px; }
   @media (max-width: 480px) { .card { padding: 28px 20px 36px; } }
@@ -62,6 +68,11 @@
       화면 아래 탭 세 개(정산 · 뭐먹지 · 미니게임)로 이동하며, 참가자 명단은 세 탭이 함께 씁니다.
       한 탭에서 이름을 추가하면 다른 탭에서도 바로 보입니다.
     </p>
+    <ul class="hub">
+      <li><a href="guide/settle.html"><strong>정산 계산 방식</strong><span>1차·2차 모임 비용을 최소 송금으로 나누는 방법</span></a></li>
+      <li><a href="guide/food.html"><strong>뭐먹지 가이드</strong><span>장르별 메뉴, 상황별 메뉴 추천 방법</span></a></li>
+      <li><a href="guide/games.html"><strong>미니게임 가이드</strong><span>사다리 타기·룰렛 등 미니게임 규칙</span></a></li>
+    </ul>
 
     <h2>1. 정산하기</h2>
     <p>모임이 1차, 2차, 3차로 이어지고 차마다 결제한 사람과 참여한 사람이 달라도 정확히 나눌 수 있게 만들었습니다.</p>
@@ -72,7 +83,7 @@
       <li><strong>공유하기</strong> — "결과 복사하기"로 단톡방에 바로 붙여 넣거나, "이미지로 저장"으로 결과를 이미지로 보낼 수 있습니다. 휴대폰에서는 이미지를 크게 띄워 주니 길게 눌러 사진첩에 저장하세요.</li>
     </ol>
     <p>
-      어떻게 나누는지 궁금하다면 <a class="inline" href="how-it-works.html">정산 계산 방식</a>에서 예시와 함께 자세히 볼 수 있습니다.
+      어떻게 나누는지 궁금하다면 <a class="inline" href="guide/settle.html">정산 계산 방식</a>에서 예시와 함께 자세히 볼 수 있습니다.
     </p>
 
     <h3>정산을 잘 쓰는 요령</h3>
@@ -92,6 +103,7 @@
       <li><strong>가게 찾기</strong> — 매장 식사라면 네이버지도·카카오맵에서 내 주변 가게를 바로 검색하고, 배달이라면 메뉴 이름을 복사해 배달 앱에 붙여 넣으세요.</li>
       <li><strong>정산으로 이어가기</strong> — "정산에 회차로 추가"를 누르면 정산 탭에 "2차 마라탕" 같은 회차가 만들어집니다.</li>
     </ul>
+    <p>장르별 메뉴와 상황별 활용법은 <a class="inline" href="guide/food.html">뭐먹지 가이드</a>에 자세히 정리했습니다.</p>
 
     <h2>3. 미니게임으로 낼 사람 정하기</h2>
     <p>
@@ -113,7 +125,7 @@
         <tr><td>동물 레이스</td><td>동물을 하나씩 배정받아 15초 동안 달리고, 꼴찌가 당첨</td></tr>
       </tbody>
     </table></div>
-    <p>효과음은 기본으로 꺼져 있습니다. 게임 화면의 🔊 버튼으로 켜면 훨씬 재미있습니다.</p>
+    <p>효과음은 기본으로 꺼져 있습니다. 게임 화면의 🔊 버튼으로 켜면 훨씬 재미있습니다. 게임별 규칙과 상황별 추천은 <a class="inline" href="guide/games.html">미니게임 가이드</a>에서 볼 수 있습니다.</p>
 
     <h2>자주 묻는 질문</h2>
     <h3>입력한 정보는 어디에 저장되나요?</h3>

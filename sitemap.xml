@@ -13,10 +13,22 @@
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://ddakjeongsan.com/how-it-works</loc>
+    <loc>https://ddakjeongsan.com/guide/settle</loc>
     <lastmod>2026-09-30</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://ddakjeongsan.com/guide/food</loc>
+    <lastmod>2026-09-30</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://ddakjeongsan.com/guide/games</loc>
+    <lastmod>2026-09-30</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
   </url>
   <url>
     <loc>https://ddakjeongsan.com/privacy</loc>
