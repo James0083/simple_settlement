@@ -85,7 +85,7 @@
 { id, title, payerId, amount, participantIds: [id, id, ...] }
 ```
 
-`account`는 계산에는 쓰이지 않고, 정산 결과에서 그 사람이 돈을 받는 쪽(채권자)일 때만 수신자 이름 아래 표시됩니다. `showAccount`는 참가자 입력 목록에서 계좌 입력칸을 펼쳤는지 여부(UI 전용). 이름이 같은 참가자가 여러 명이어도 `computeFairTransactions`가 이름이 아니라 참가자 객체를 그대로 참조해 계좌를 붙이므로 서로 엇갈리지 않습니다.
+`account`는 계산에는 쓰이지 않고, 정산 결과에서 그 사람이 돈을 받는 쪽(채권자)일 때만 수신자 이름 아래 표시됩니다. `showAccount`는 참가자 입력 목록에서 계좌 입력칸을 펼쳤는지 여부(UI 전용). 이름이 같은 참가자가 여러 명이어도 `computeFairTransactions`가 이름이 아니라 id·참가자 객체로 계산해 계좌를 붙이므로 서로 엇갈리지 않습니다.
 
 모든 계산은 참가자 목록과 회차 목록, 이 두 가지 상태로부터 파생됩니다. 상태와 이벤트 핸들러, 파생 값은 `src/settlement/useSettlement.js`에, 아래 정산 알고리즘(순수 함수)은 `src/settlement/settlement.js`에 있습니다.
 
@@ -118,30 +118,34 @@ rounds.forEach((r) => {
 - 잔액이 양수 → **채권자**(돈을 돌려받아야 함)
 - 잔액이 음수 → **채무자**(돈을 보내야 함)
 
-### 3단계 — 비례 배분
+### 3단계 — 잔액을 원 단위로 (최대 나머지법)
 
-한 명의 채무자가 한 명의 채권자에게 몰아서 보내는 대신, **채권자별 받을 금액 비중에 비례**해서 나눠 보내도록 계산합니다.
+회차 몫에 소수점이 생기므로(10,000원 ÷ 3명), 잔액의 소수점을 버린 뒤 모자라는 원을 버려진 소수점이 큰 사람부터 1원씩 더해 **정수 잔액의 합이 정확히 0**이 되게 합니다.
 
-```
-채무자 A가 채권자 B에게 보낼 금액
-  = A가 갚아야 할 총액 × (B가 받아야 할 금액 / 전체 채권 총액)
-```
+### 4단계 — 송금 횟수 최소화 (합이 0인 무리로 나누기)
 
-이렇게 하면 채무자가 여러 명일 때, 특정 한 사람에게만 자투리 송금이 몰리지 않고 모든 채무자가 비슷한 구조로 나눠 보내게 됩니다.
-
-### 4단계 — 반올림 오차 보정 (최대 나머지법)
-
-원화는 소수점 단위가 없기 때문에 비례 계산 결과에는 소수점이 생깁니다. 각 금액을 내림(`Math.floor`) 처리한 뒤, 버려진 나머지(remainder)가 큰 거래부터 순서대로 1원씩 보정해 실제 총액과 정확히 맞아떨어지도록 합니다.
+차액이 있는 사람이 n명일 때, 차액 합이 0인 무리 k개로 나누면 무리마다 (인원 − 1)번이면 되므로 전체 송금은 **n − k번**입니다. 그래서 k를 최대로 만드는 분할을 부분집합 DP로 정확히 구합니다.
 
 ```js
-const sumFloor = entries.reduce((s, e) => s + e.floor, 0);
-const diff = targetTotal - sumFloor; // 보정해야 할 원 단위 차이
-// remainder가 큰 순서대로 diff개만큼 +1원씩 배분
+// dp[mask] = mask 에서 한 명씩 빼 나갈 때 거치는 "합이 0 인 집합"의 최대 개수
+dp[mask] = max(dp[mask ^ bit] for bit in mask) + (sum[mask] === 0 ? 1 : 0);
+// 송금 횟수 = n - dp[full]. 그 경로를 되짚으면 무리가 나온다.
 ```
 
-### 5단계 — 그룹핑
+O(2ⁿ·n)이라 차액 있는 사람이 18명(`EXACT_MAX_PEOPLE`)까지는 정확히 풀고(수 ms), 그보다 많으면 금액이 딱 맞는 짝부터 묶는 욕심쟁이 방식으로 넘어갑니다.
 
-계산된 개별 송금 내역을 "보내는 사람" 기준으로 묶어서, 한 사람이 여러 명에게 보내야 할 경우 한 번에 알아볼 수 있도록 표시합니다.
+### 5단계 — 무리 안에서 누가 누구에게 (공평한 송금 횟수)
+
+무리 안에서는 보내는 사람·받는 사람을 어떤 순서로 세워 앞에서부터 채우느냐(북서 모서리)에 따라 누가 몇 번 보내는지가 달라집니다. 가능한 순서를 모두 따져(`ORDER_SEARCH_LIMIT` 이내) 아래 점수가 가장 작은 것을 고릅니다.
+
+1. 송금 횟수
+2. 한 사람이 가장 많이 보내는 횟수 — 고르게
+3. **결제한 사람**(`paid > 0`)이 더 보내는 횟수 — 더 보내야 하면 결제하지 않은 사람이 먼저
+4. 보내는 횟수의 쏠림(제곱합), 한 사람이 가장 많이 받는 횟수
+
+### 6단계 — 그룹핑
+
+송금 내역을 "보내는 사람" 기준으로 묶어서 보여주고, 결제하지 않은 사람 → 보낼 총액이 큰 사람 순으로 정렬합니다.
 
 ## 오늘 뭐먹지 — 추천 알고리즘
 
@@ -219,10 +223,10 @@ await navigator.share({ files: [file] });
 정적 파일(매니페스트 · 서비스 워커 · 아이콘 · 스크린샷)을 추가해 PWA로 동작합니다.
 
 - **`manifest.webmanifest`** — `id`, `name`/`short_name`, `description`, `start_url`·`scope`(상대 경로 `./` — 하위 경로 배포도 동작), `display: standalone` + `display_override`, 테마/배경색(`#EEF1F4`), `categories`, `prefer_related_applications: false`, 아이콘 4종(any 192·512 + maskable 192·512), `screenshots`(`screenshots/home.png`, narrow). `id`·`screenshots`·maskable 아이콘은 Android WebAPK 품질 분류를 높이고, 지문(fingerprint)이 바뀌면 Chrome 이 WebAPK 를 최신 target SDK 로 다시 발급한다 — Play Protect 의 "이전 버전 앱" 경고 대응(아래 참고).
-- **`sw.js`** — 서비스 워커. 캐시 이름 `ddakjeongsan-v2.3.1`(앱 버전과 맞춤).
+- **`sw.js`** — 서비스 워커. 캐시 이름 `ddakjeongsan-v2.4.0`(앱 버전과 맞춤).
   - 설치 시: 같은 출처 파일(HTML + 매니페스트 + 아이콘·스크린샷 + `audio/scream.mp3` + `src/`의 앱 소스 전부)과 CDN(React·ReactDOM·scheduler·htm·html2canvas·three의 ESM + Pretendard·Space Grotesk CSS)을 캐시. CDN은 하나쯤 실패해도 설치가 진행됩니다.
   - 요청 처리: 페이지 이동과 우리 앱 파일(같은 주소의 `src/` JS·아이콘 등)은 네트워크 우선(실패 시 캐시 — 오프라인), 외부 CDN(버전이 URL에 고정)은 캐시 우선 + 백그라운드 갱신(stale-while-revalidate). 앱 파일을 캐시 우선으로 주면 고친 뒤 첫 실행에서 옛 파일과 새 파일이 섞여 모듈이 깨질 수 있어서 네트워크 우선으로 둔다.
-  - **자원(HTML·`src/` JS·아이콘·매니페스트)을 바꾸면** `sw.js`의 `CACHE` 값을 `ddakjeongsan-v2.3.2`처럼 올려야 사용자 기기에서 새로 받습니다. `src/`·아이콘·스크린샷을 추가·삭제하면 `sw.js`의 `CORE` 목록도 함께 맞추고, vendor 버전을 바꾸면 `index.html`의 import map과 `sw.js`의 `VENDOR`를 함께 고쳐야 합니다.
+  - **자원(HTML·`src/` JS·아이콘·매니페스트)을 바꾸면** `sw.js`의 `CACHE` 값을 `ddakjeongsan-v2.4.1`처럼 올려야 사용자 기기에서 새로 받습니다. `src/`·아이콘·스크린샷을 추가·삭제하면 `sw.js`의 `CORE` 목록도 함께 맞추고, vendor 버전을 바꾸면 `index.html`의 import map과 `sw.js`의 `VENDOR`를 함께 고쳐야 합니다.
 - **아이콘** — `favicon.svg`(브라우저 탭), `apple-touch-icon.png`(iOS 홈 화면 180px), `icons/icon-192.png`·`icons/icon-512.png`(any), `icons/icon-maskable-192.png`·`icons/icon-maskable-512.png`(Android 어댑티브). 모두 `favicon.svg`의 영수증·체크 도형을 `#1A1D29` 배경 + 흰색 선으로 렌더한 것으로, 로고를 바꾸면 `favicon.svg` 수정 후 아이콘 PNG를 다시 만들면 됩니다. maskable 192 는 512 를 `sips -z 192 192` 로 축소.
 
 ### Google Play Protect "안전하지 않은 앱 / 이전 버전" 경고
