@@ -94,7 +94,8 @@ export default defineConfig(async ({ mode }) => {
   // devtools(SDK mock + 패널)는 Node 24+ 필요 — 웹 빌드(Cloudflare, Node 22)에서는 불러오지 않는다
   const aitPlugins = ait ? [stripWebOnly(), (await import("@apps-in-toss/devtools/unplugin")).default.vite()] : [];
   return {
-    base: "./", // 상대 경로 — 하위 경로 배포·앱인토스 번들에서도 그대로 동작
+    // 웹: 상대 경로(하위 경로 배포도 동작). 앱인토스: /food 같은 경로로 들어와도 자원을 찾도록 절대 경로
+    base: ait ? "/" : "./",
     resolve: {
       alias: { "#platform": fileURLToPath(new URL(`./src/platform/${ait ? "ait" : "web"}.js`, import.meta.url)) },
     },

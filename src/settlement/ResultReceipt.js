@@ -5,6 +5,10 @@ import { styles, C_RED, C_GREEN, C_MUTED } from "../shared/styles.js";
 import { won } from "../shared/util.js";
 import { BrandLogo } from "../shared/BrandLogo.js";
 
+// 이름 칸 비율 (금액 칸은 각 1). 금액 칸을 넓게 둬 "128,000원"이 375px 폰에서 두 줄로 꺾이지 않게 한다.
+// 더 좁은 화면 · 7자리 금액은 예전처럼 줄바꿈으로 버틴다.
+const NAME_FLEX = 0.8;
+
 export const ResultReceipt = forwardRef(function ResultReceipt(
   { calcDate, stats, groupedTransactions },
   ref
@@ -23,7 +27,7 @@ export const ResultReceipt = forwardRef(function ResultReceipt(
       <div style=${styles.statsBlock}>
         <div style=${styles.statsSubLabel}>사람별 결제 내역</div>
         <div style=${styles.statsHeadRow}>
-          <span style=${{ ...styles.statsCell, flex: 1.1 }}>이름</span>
+          <span style=${{ ...styles.statsCell, flex: NAME_FLEX }}>이름</span>
           <span style=${{ ...styles.statsCell, flex: 1, textAlign: "right" }}>낸 금액</span>
           <span style=${{ ...styles.statsCell, flex: 1, textAlign: "right" }}>부담액</span>
           <span style=${{ ...styles.statsCell, flex: 1, textAlign: "right" }}>차액</span>
@@ -31,7 +35,7 @@ export const ResultReceipt = forwardRef(function ResultReceipt(
         ${stats.map(
           (s) => html`
             <div key=${s.id} style=${styles.statsRow}>
-              <span style=${{ ...styles.statsName, flex: 1.1 }}>${s.name}</span>
+              <span style=${{ ...styles.statsName, flex: NAME_FLEX }}>${s.name}</span>
               <span style=${{ ...styles.statsNum, flex: 1 }}>${won(s.paid)}원</span>
               <span style=${{ ...styles.statsNum, flex: 1 }}>${won(s.share)}원</span>
               <span

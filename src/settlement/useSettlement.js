@@ -18,7 +18,7 @@ import {
   buildResultText,
 } from "./settlement.js";
 import { captureToPng, downloadBlob } from "./exportImage.js";
-import { copyText, saveImage } from "#platform";
+import { copyText, saveImage, trackEvent } from "#platform";
 
 const makeRound = (participantIds) => ({
   id: uid(),
@@ -199,6 +199,7 @@ export function useSettlement() {
   // ── 액션 ─────────────────────────────────────────────────
   const handleCalculate = () => {
     if (!canCalculate) return;
+    trackEvent("settle_calculate", { participants: validParticipants.length, rounds: validRoundsCount });
     setCalculated(true);
     setCalcDate(new Date().toLocaleDateString("ko-KR"));
     setTimeout(() => {
@@ -209,6 +210,7 @@ export function useSettlement() {
   const handleCopy = async () => {
     try {
       await copyText(buildResultText(stats, groupedTransactions));
+      trackEvent("settle_copy");
       setCopyFailed(false);
       setCopied(true);
       setTimeout(() => setCopied(false), TOAST_MS);
@@ -224,6 +226,7 @@ export function useSettlement() {
     setDownloading(true);
     try {
       const { dataUrl, blob, file } = await captureToPng(captureRef.current);
+      trackEvent("settle_image");
       if (saveImage && (await saveImage(dataUrl, "정산결과.png"))) {
         // 앱인토스: 기기 사진첩에 바로 저장됨
       } else if (isMobileDevice()) {

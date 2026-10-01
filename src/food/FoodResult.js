@@ -9,7 +9,7 @@ import { styles } from "../shared/styles.js";
 import { GENRES } from "./foodData.js";
 import { formatPrice, searchQuery, naverMapUrl, kakaoMapUrl, RELAX_MESSAGES } from "./food.js";
 import { DISCLOSURE, TRACKING_CODE, pickBanner } from "./coupang.js";
-import { IS_AIT, externalLink } from "#platform";
+import { IS_AIT, externalLink, trackEvent } from "#platform";
 
 function CoupangBanner() {
   const [banner] = useState(() => pickBanner());
@@ -33,7 +33,7 @@ function CoupangBanner() {
 const genreLabel = (id) => GENRES.find((g) => g.id === id)?.label ?? "";
 
 // 지도 검색 링크 — 웹은 새 탭, 앱인토스는 기기 브라우저·지도 앱으로 연다 (#platform externalLink)
-function MapLink({ url, onOpen, children }) {
+function MapLink({ url, map, onOpen, children }) {
   const link = externalLink(url);
   return html`
     <a
@@ -42,6 +42,7 @@ function MapLink({ url, onOpen, children }) {
       ...${link}
       onClick=${(e) => {
         link.onClick?.(e);
+        trackEvent("food_map", { map });
         onOpen();
       }}
     >${children}</a>
@@ -99,8 +100,8 @@ export function FoodResult({ result, mode, copied, onPromote, onReroll, onChoose
             ${mode === "dineIn" &&
             html`
               <div style=${styles.actionRow}>
-                <${MapLink} url=${naverMapUrl(searchQuery(main))} onOpen=${() => onChoose(main)}>네이버지도에서 찾기</${MapLink}>
-                <${MapLink} url=${kakaoMapUrl(searchQuery(main))} onOpen=${() => onChoose(main)}>카카오맵에서 찾기</${MapLink}>
+                <${MapLink} url=${naverMapUrl(searchQuery(main))} map="naver" onOpen=${() => onChoose(main)}>네이버지도에서 찾기</${MapLink}>
+                <${MapLink} url=${kakaoMapUrl(searchQuery(main))} map="kakao" onOpen=${() => onChoose(main)}>카카오맵에서 찾기</${MapLink}>
               </div>
             `}
           </div>

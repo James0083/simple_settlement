@@ -13,7 +13,7 @@ import { FoodForm, MAX_PEOPLE } from "./FoodForm.js";
 import { FoodResult } from "./FoodResult.js";
 import { FoodListScreen } from "./FoodListScreen.js";
 import { AdSlot } from "../shared/AdSlot.js";
-import { copyText } from "#platform";
+import { copyText, trackEvent } from "#platform";
 
 const HISTORY_KEY = "foodHistory";
 const HISTORY_SIZE = 10;
@@ -49,6 +49,7 @@ export function FoodScreen({ s }) {
   const run = () => {
     const history = load(HISTORY_KEY, []);
     const r = recommend(input, FOODS, { history: Array.isArray(history) ? history : [], seen, pairs: PAIRS });
+    trackEvent("food_recommend", { mode: input.mode, people: input.people });
     const ids = r.picks.map((f) => f.id);
     setSeen(r.reset ? ids : [...seen, ...ids]);
     setResult({ ...r, mode: input.mode, people: input.people });
@@ -79,6 +80,7 @@ export function FoodScreen({ s }) {
       .join(" + ");
     try {
       await copyText(text);
+      trackEvent("food_copy");
       setCopied(true);
       setTimeout(() => setCopied(false), TOAST_MS);
     } catch (e) {
@@ -87,6 +89,7 @@ export function FoodScreen({ s }) {
   };
 
   const addToSettle = (mains, pairMap) => {
+    trackEvent("food_to_settle");
     mains.forEach(remember);
     const title =
       mains.length > 1

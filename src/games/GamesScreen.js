@@ -18,6 +18,7 @@ import { ChipGroup } from "../shared/ChipGroup.js";
 import { GAMES, MIN_PLAYERS, MAX_PLAYERS } from "./registry.js";
 import { GameResult } from "./GameResult.js";
 import { AdSlot } from "../shared/AdSlot.js";
+import { trackEvent } from "#platform";
 
 function useSoundOn() {
   const [on, setOn] = useState(isSoundOn);
@@ -78,7 +79,10 @@ function GamePlay({ game, players, s, onPickTied }) {
   const losers = loserIds ? loserIds.map(byId).filter(Boolean) : [];
   const tied = tieIds ? tieIds.map(byId).filter(Boolean) : [];
   // 게임은 당첨자 id 하나 또는 id 배열로 끝을 알린다
-  const finish = (result) => setLoserIds([].concat(result));
+  const finish = (result) => {
+    trackEvent("game_finish", { game: game.id, players: playing.length });
+    setLoserIds([].concat(result));
+  };
 
   const restart = (nextPlayers) => {
     setLoserIds(null);
@@ -92,6 +96,7 @@ function GamePlay({ game, players, s, onPickTied }) {
 
   // 당첨자가 한 명일 때만: 게임 참가자 전원이 참여자, 당첨자가 결제자
   const addToSettle = () => {
+    trackEvent("game_to_settle", { game: game.id });
     s.addRoundFrom({
       title: `${s.nextRoundNo}차 ${game.name} 게임`,
       payerId: losers[0].id,

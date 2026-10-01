@@ -1,6 +1,7 @@
 /* 참가자 이름 입력 목록 (금액은 여기서 넣지 않는다). 계좌는 토글로 펼쳐지는 선택 입력. */
 import { html } from "../shared/html.js";
 import { styles } from "../shared/styles.js";
+import { IS_AIT } from "#platform";
 
 // 트림한 이름별 등장 횟수 — 2번 이상이면 동명이인으로 간주해 경고를 보여준다.
 // (송금 대상/결제자 선택 등에서 동명이인이 구분되지 않아 혼동될 수 있음)
@@ -79,6 +80,7 @@ export function ParticipantsSection({
       <button className="settle-add-btn" style=${styles.addBtn} onClick=${onAdd}>
         + 참가자 추가
       </button>
+      ${IS_AIT && html`<p style=${styles.hint}>이름·계좌는 이 기기에만 저장돼요. 토스 앱을 지우면 함께 지워져요.</p>`}
     </section>
   `;
 }
