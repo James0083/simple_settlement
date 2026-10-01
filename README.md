@@ -5,9 +5,9 @@
 
 > 기능·게임 규칙·공개 일정 등 **앱 소개는 [APP_INFO.md](APP_INFO.md)** 에 정리했습니다. 이 문서는 개발자용입니다.
 
-**빌드 과정이 없습니다.** 앱 소스는 `src/` 아래 표준 ES 모듈(`import`/`export`)로 나뉘어 있고, `index.html`은 진입점 `src/main.js` 하나만 `<script type="module">`로 로드합니다. 나머지 파일은 브라우저 네이티브 모듈 로더가 해석하고, vendor(React·htm·html2canvas·Three.js)는 `<script type="importmap">`이 jsdelivr의 ESM 빌드로 매핑합니다. JSX 대신 [htm](https://github.com/developit/htm)(태그드 템플릿 리터럴)을 쓰므로 트랜스파일러(Babel 등)가 필요 없습니다.
+**Vite 로 빌드합니다.** 앱 소스는 `src/` 아래 표준 ES 모듈(`import`/`export`)이고, `index.html`은 진입점 `src/main.js` 하나만 로드합니다. vendor(React·htm·html2canvas·Three.js)는 npm 패키지로 설치해 함께 번들합니다(외부 CDN 은 폰트만). JSX 대신 [htm](https://github.com/developit/htm)(태그드 템플릿 리터럴)을 쓰므로 Babel·JSX 변환은 없습니다.
 
-번들러나 `npm install`은 필요 없지만, 모듈이 `fetch`로 로드되므로 **로컬 정적 서버**를 통해 열어야 합니다(아래 "실행 방법").
+`npm install` 후 `npm run dev`(개발 서버) / `npm run build`(`dist/` 생성)로 씁니다(아래 "실행 방법"). 같은 코드에서 웹(ddakjeongsan.com)과 앱인토스 번들을 빌드 시점 환경 변수로 나눠 만듭니다.
 
 ## 주요 기능
 
@@ -43,29 +43,15 @@
 
 ## 기술 스택
 
-- **React 18** — `import`/`export`로 사용. `<script type="importmap">`이 `react` / `react-dom/client`를 jsdelivr ESM(`https://cdn.jsdelivr.net/npm/react@18.3.1/+esm` 등)으로 매핑합니다.
-- **htm** — JSX를 대체하는 태그드 템플릿 리터럴. `htm.bind(React.createElement)`로 묶어 `src/shared/html.js`에서 내보냅니다. 브라우저에서 바로 실행되므로 트랜스파일러(Babel·Vite 등)와 `npm install`이 필요 없습니다. 문법은 JSX와 거의 같습니다: `` html`<div style=${styles.box}>${child}</div>` ``, 컴포넌트는 `` html`<${Child} prop=${value} />` ``.
-- **html2canvas** — 정산 결과 DOM을 캔버스로 렌더링해 PNG로 저장하는 데 사용 (importmap으로 ESM 로드)
-- **Three.js** — 해적룰렛·악어이빨 3D 장면. importmap 의 `three` 로 jsdelivr `+esm`(의존성 없는 단일 파일)을 가리키고, 두 게임을 열 때만 동적 `import("three")` 로 불러옴. 서비스 워커가 미리 캐시해 오프라인에서도 동작
+- **React 18** — npm 패키지(`react@18.3.1`·`react-dom@18.3.1`). 버전은 `package.json` 에 고정합니다.
+- **htm** — JSX를 대체하는 태그드 템플릿 리터럴. `htm.bind(React.createElement)`로 묶어 `src/shared/html.js`에서 내보냅니다. 문법은 JSX와 거의 같습니다: `` html`<div style=${styles.box}>${child}</div>` ``, 컴포넌트는 `` html`<${Child} prop=${value} />` ``.
+- **html2canvas** — 정산 결과 DOM을 캔버스로 렌더링해 PNG로 저장하는 데 사용. "이미지로 저장"을 누를 때만 동적 `import("html2canvas")` 로 불러와 첫 로딩 번들에서 뺍니다.
+- **Three.js** — 해적룰렛·악어이빨 3D 장면. 두 게임을 열 때만 동적 `import("three")` 로 불러옴(별도 청크). 서비스 워커가 미리 캐시해 오프라인에서도 동작
+- **Vite** — 개발 서버와 프로덕션 번들. 설정은 `vite.config.js` (아래 "실행 방법", "PWA")
 - **Web Share API** (`navigator.share`) — 모바일에서 결과 이미지를 시스템 공유로 저장할 수 있도록 지원. 모바일에서는 기본적으로 결과 이미지를 큰 오버레이로 띄워 "길게 눌러 사진에 추가"로 저장하도록 안내하고, 공유가 가능하면 오버레이 안에 공유 버튼도 함께 제공합니다.
 - **Pretendard** (헤드라인/본문), **Space Grotesk** (금액 숫자 전용) — `index.html`의 `<head>`에서 `<link rel="stylesheet">`로만 로드. 두 서체 모두 `0`에 사선·점이 없어 금액 표기가 깔끔합니다. 숫자에는 `font-variant-numeric: tabular-nums`로 자릿수를 정렬합니다.
 - **PWA** — `manifest.webmanifest` + `sw.js`(서비스 워커)로 홈 화면 설치와 오프라인 실행 지원
 - 순수 인라인 스타일 (별도 CSS 프레임워크 없음) — 스타일 객체는 `src/shared/styles.js` 한 곳에 모음(아래 "코드 컨벤션"). 카드·버튼·입력창 등 사각형 요소는 4px 라운드
-
-```html
-<script type="importmap">
-{
-  "imports": {
-    "react": "https://cdn.jsdelivr.net/npm/react@18.3.1/+esm",
-    "react-dom/client": "https://cdn.jsdelivr.net/npm/react-dom@18.3.1/client/+esm",
-    "htm": "https://cdn.jsdelivr.net/npm/htm@3.1.1/+esm",
-    "html2canvas": "https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/+esm",
-    "three": "https://cdn.jsdelivr.net/npm/three@0.186.1/+esm"
-  }
-}
-</script>
-<script type="module" src="src/main.js"></script>
-```
 
 `index.html`의 `<head>`에는 폰트도 `<link rel="stylesheet">`로 함께 로드합니다. 처음에는 컴포넌트 내부 CSS `@import`로만 폰트를 불러왔는데, 로딩 시점이 늦어 일부 환경에서 폰트가 적용되지 않는 경우가 있어 `<head>` 레벨 `<link>`로 옮겼습니다.
 
@@ -225,10 +211,10 @@ await navigator.share({ files: [file] });
 정적 파일(매니페스트 · 서비스 워커 · 아이콘 · 스크린샷)을 추가해 PWA로 동작합니다.
 
 - **`manifest.webmanifest`** — `id`, `name`/`short_name`, `description`, `start_url`·`scope`(상대 경로 `./` — 하위 경로 배포도 동작), `display: standalone` + `display_override`, 테마/배경색(`#EEF1F4`), `categories`, `prefer_related_applications: false`, 아이콘 4종(any 192·512 + maskable 192·512), `screenshots`(`screenshots/home.png`, narrow). `id`·`screenshots`·maskable 아이콘은 Android WebAPK 품질 분류를 높이고, 지문(fingerprint)이 바뀌면 Chrome 이 WebAPK 를 최신 target SDK 로 다시 발급한다 — Play Protect 의 "이전 버전 앱" 경고 대응(아래 참고).
-- **`sw.js`** — 서비스 워커. 캐시 이름 `ddakjeongsan-v2.6.0`(앱 버전과 맞춤).
-  - 설치 시: 같은 출처 파일(HTML + 매니페스트 + 아이콘·스크린샷 + `audio/scream.mp3` + `src/`의 앱 소스 전부)과 CDN(React·ReactDOM·scheduler·htm·html2canvas·three의 ESM + Pretendard·Space Grotesk CSS)을 캐시. CDN은 하나쯤 실패해도 설치가 진행됩니다.
-  - 요청 처리: 페이지 이동과 우리 앱 파일(같은 주소의 `src/` JS·아이콘 등)은 네트워크 우선(실패 시 캐시 — 오프라인), 외부 CDN(버전이 URL에 고정)은 캐시 우선 + 백그라운드 갱신(stale-while-revalidate). 앱 파일을 캐시 우선으로 주면 고친 뒤 첫 실행에서 옛 파일과 새 파일이 섞여 모듈이 깨질 수 있어서 네트워크 우선으로 둔다.
-  - **자원(HTML·`src/` JS·아이콘·매니페스트)을 바꾸면** `sw.js`의 `CACHE` 값을 `ddakjeongsan-v2.6.1`처럼 올려야 사용자 기기에서 새로 받습니다. `src/`·아이콘·스크린샷을 추가·삭제하면 `sw.js`의 `CORE` 목록도 함께 맞추고, vendor 버전을 바꾸면 `index.html`의 import map과 `sw.js`의 `VENDOR`를 함께 고쳐야 합니다.
+- **`sw.js`** — 서비스 워커 템플릿. `npm run build` 가 `dist/` 결과물 목록(해시 파일명 포함)을 `CORE` 에, 결과물 내용 해시를 `CACHE` 이름에 넣어 `dist/sw.js` 를 만듭니다. **손으로 `CORE` 목록이나 `CACHE` 버전을 고치지 않습니다.** 개발 서버(`npm run dev`)에서는 등록하지 않습니다(`src/main.js`).
+  - 설치 시: 같은 출처 결과물 전부(크롤러·호스팅 설정 파일과 `docs/`·`prototype/` 제외) + 폰트 CSS(CDN, 하나쯤 실패해도 설치 진행)를 캐시.
+  - 요청 처리: `assets/` 아래 해시 파일은 캐시 우선(내용이 바뀌면 이름이 바뀜). 페이지 이동과 나머지 같은 출처 파일은 네트워크 우선(실패 시 캐시 — 오프라인). 외부 폰트는 캐시 우선 + 백그라운드 갱신(stale-while-revalidate).
+- **`_headers`** — Cloudflare Pages 응답 헤더. `assets/*` 는 1년 immutable 캐시, `sw.js` 는 `no-cache`.
 - **아이콘** — `favicon.svg`(브라우저 탭), `apple-touch-icon.png`(iOS 홈 화면 180px), `icons/icon-192.png`·`icons/icon-512.png`(any), `icons/icon-maskable-192.png`·`icons/icon-maskable-512.png`(Android 어댑티브). 모두 `favicon.svg`의 영수증·체크 도형을 `#1A1D29` 배경 + 흰색 선으로 렌더한 것으로, 로고를 바꾸면 `favicon.svg` 수정 후 아이콘 PNG를 다시 만들면 됩니다. maskable 192 는 512 를 `sips -z 192 192` 로 축소.
 
 ### Google Play Protect "안전하지 않은 앱 / 이전 버전" 경고
@@ -265,7 +251,8 @@ if ("serviceWorker" in navigator) {
 기능(탭)별 폴더 + 공용 `shared/`로 나눕니다.
 
 ```
-index.html                  # 앱 셸 — <head> 메타·폰트·전역 CSS(키프레임) + import map + src/main.js
+index.html                  # 앱 셸 — <head> 메타·폰트·전역 CSS(키프레임) + src/main.js
+package.json · vite.config.js  # 의존성 · Vite 설정(정적 파일 복사 + sw.js 생성)
 src/
   main.js                   # 진입점 — createRoot 로 <App/> 마운트
   App.js                    # 해시 라우트로 화면 선택 + 하단 탭바. useSettlement 를 여기서 호출
@@ -303,10 +290,11 @@ release-notes.html          # 버전정보 (사용자용)
 guide.html                  # 사용 가이드 (/guide) — 아래 세 가이드로 가는 허브
 guide/settle.html · food.html · games.html  # 정산 계산 방식 · 뭐먹지 가이드 · 미니게임 가이드 (/guide/settle 등, JS 없이 읽히는 정적 글 — 검색·애드센스 심사용)
 _redirects                  # Cloudflare Pages 301 (옛 /how-it-works → /guide/settle)
+_headers                    # Cloudflare Pages 캐시 헤더
 ads.txt                     # 애드센스 판매자 인증 (pub-3948983509562369)
 privacy.html · terms.html · contact.html
 manifest.webmanifest · sw.js · favicon.svg · apple-touch-icon.png · icons/ · screenshots/
-admin/                      # 내부 문서(ADS_PLAN · PLAN_expansion) · 소리 테스트 페이지
+admin/                      # 내부 문서(ADS_PLAN · PLAN_expansion) · 소리 테스트 페이지 (배포 안 함 — npm run dev 에서 /admin/sound-test.html)
 docs/index.html             # 옛 GitHub Pages 주소 → 새 도메인 안내
 prototype/receipt-ocr.html  # 영수증 OCR 검토용 프로토타입 (앱 본체와 분리)
 ```
@@ -319,27 +307,34 @@ prototype/receipt-ocr.html  # 영수증 OCR 검토용 프로토타입 (앱 본�
 - **저장소**: `localStorage`를 직접 부르지 않고 `shared/storage.js`의 `load`/`save`(키 앞에 `ddak:`)
 - **게임**: 결과(또는 함정 위치)는 시작할 때 `random.js`로 확정, 차례로 고르는 게임은 칸 수를 인원의 배수로, `onFinish`는 한 번만. 타이머는 `useRef`에 모아 언마운트 때 정리
 - **주석**: 코드를 되풀이하지 말고 이유·제약을 한국어로 짧게
-- 자원(`src/`·아이콘·오디오)을 추가·삭제하면 `sw.js`의 `CORE`와 `CACHE` 버전을 함께 고침
+- 루트에 새 정적 파일·페이지를 추가하면 `vite.config.js`의 `STATIC` 목록에도 넣음 (`src/` 모듈·오디오는 번들이 알아서 처리)
 
 ## 실행 방법
 
-- **로컬 실행**: 빌드는 없지만 모듈이 `fetch`로 로드되므로 정적 서버가 필요합니다. 프로젝트 폴더에서:
-  ```sh
-  python3 -m http.server 8000      # 또는:  npx serve
-  ```
-  그 다음 `http://localhost:8000` 접속. (`index.html`을 `file://`로 바로 열면 모듈이 로드되지 않아 화면이 비어 있습니다.)
-- **폰에서 테스트**: 같은 Wi-Fi면 `http://<Mac의 IP>:8000`(IP는 `ipconfig getifaddr en0`). 다른 네트워크에서 보거나 서비스 워커·공유 기능까지 확인하려면 HTTPS 터널을 씁니다: `cloudflared tunnel --url http://localhost:8000`
-- **React 프로젝트에 통합**: `src/`가 이미 표준 ES 모듈이므로 그대로 가져다 쓸 수 있습니다. 번들러 환경에서는 `src/shared/html.js`를 프로젝트의 `htm` + `react`로 바꾸거나, htm 대신 JSX로 다시 쓰면 됩니다. `src/settlement/settlement.js`(순수 함수)는 아무 의존성 없이 재사용 가능합니다.
+Node 22 이상(`.node-version`)이 필요합니다.
+
+```sh
+npm install
+npm run dev        # 개발 서버 — http://localhost:5173 (파일을 고치면 바로 반영)
+npm run build      # 프로덕션 번들 → dist/
+npm run preview    # dist/ 를 로컬에서 확인 (서비스 워커 포함)
+```
+
+- **폰에서 테스트**: `npm run dev -- --host` 로 띄우고 같은 Wi-Fi에서 `http://<Mac의 IP>:5173`(IP는 `ipconfig getifaddr en0`). 서비스 워커·공유 기능까지 확인하려면 `npm run build && npm run preview -- --host` 후 HTTPS 터널을 씁니다: `cloudflared tunnel --url http://localhost:4173`
+- `src/settlement/settlement.js`(순수 함수)는 아무 의존성 없이 재사용 가능합니다.
 
 ## 배포
 
-GitHub Pages, Netlify, Vercel 등 정적 파일 호스팅 서비스 어디에나 폴더 전체(HTML + `src/` + `audio/` + `manifest.webmanifest` + `sw.js` + `favicon.svg` + `apple-touch-icon.png` + `icons/` + `screenshots/`)를 그대로 올리면 바로 배포됩니다. 폴더 구조를 유지해야 상대 경로가 맞습니다. (호스팅은 HTTP로 서빙하므로 로컬과 달리 별도 서버 준비가 필요 없습니다.)
+**Cloudflare Pages** 가 GitHub 저장소를 빌드해 배포합니다 (https://ddakjeongsan.com).
 
-1. GitHub 저장소 생성 후 위 파일들을 폴더 구조 그대로 업로드 (필요하면 `contact.html`의 설문지 `href`를 원하는 링크로 교체)
-2. Settings → Pages → Source를 `main` 브랜치 `/ (root)`로 설정
-3. `https://아이디.github.io/저장소이름`으로 접속
-4. **HTTPS 필수**: 서비스 워커와 Web Share API는 보안 컨텍스트에서만 동작합니다. GitHub Pages·Netlify·Vercel은 HTTPS를 기본 제공하므로 추가 설정이 없습니다.
-5. 확인: 배포 URL을 크롬으로 열고 DevTools → Application 탭에서 Manifest·Service Workers·Cache Storage가 잡히는지, Lighthouse의 PWA 항목이 통과하는지 봅니다. 모바일에서는 브라우저 메뉴의 "홈 화면에 추가"로 설치해 standalone 실행을 확인합니다.
+| 설정 | 값 |
+|---|---|
+| Build command | `npm run build` |
+| Build output directory | `dist` |
+| Node 버전 | `.node-version` (22) |
+
+- `dist/` 에는 번들된 앱 + `vite.config.js` 의 `STATIC` 목록(정적 페이지·아이콘·`_redirects`·`_headers`·`ads.txt`·`sitemap.xml` 등)만 들어갑니다. `admin/`·`*.md` 는 배포되지 않습니다.
+- 확인: 배포 URL을 크롬으로 열고 DevTools → Application 탭에서 Manifest·Service Workers·Cache Storage가 잡히는지, Network 탭에서 외부 요청이 폰트뿐인지 봅니다. 모바일에서는 "홈 화면에 추가"로 설치해 standalone 실행을 확인합니다.
 
 ## 라이선스
 

@@ -1,14 +1,15 @@
 /*
  * 정산 결과 DOM → PNG 캡처 / 공유.
  */
-import html2canvas from "html2canvas";
 import { C_WHITE } from "../shared/styles.js";
 
 const canvasToBlob = (canvas) =>
   new Promise((resolve) => canvas.toBlob((blob) => resolve(blob), "image/png"));
 
 // 캡처 영역을 고해상도 PNG 로 만든다. { dataUrl, blob, file } 반환.
+// html2canvas 는 이미지 저장을 누를 때만 불러온다 (첫 로딩 번들에서 제외).
 export async function captureToPng(element, filename = "정산결과.png") {
+  const { default: html2canvas } = await import("html2canvas");
   const canvas = await html2canvas(element, { backgroundColor: C_WHITE, scale: 2 });
   const dataUrl = canvas.toDataURL("image/png");
   const blob = await canvasToBlob(canvas);

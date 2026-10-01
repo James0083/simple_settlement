@@ -1,104 +1,14 @@
 /* 딱정산 서비스 워커 — 오프라인 지원 + 앱 설치 */
-// 자원(HTML·JS·아이콘)을 바꾸면 이 값을 올려야 사용자 기기에서 새로 받는다.
-const CACHE = "ddakjeongsan-v2.6.2";
+// 빌드(vite.config.js)가 결과물 내용으로 버전을 만들어 넣는다 — 손으로 올리지 않는다.
+const CACHE = "ddakjeongsan-__CACHE_VERSION__";
 
-// 앱 셸 (같은 출처)
-const CORE = [
-  "./",
-  "./index.html",
-  "./contact.html",
-  "./privacy.html",
-  "./terms.html",
-  "./release-notes.html",
-  "./guide.html",
-  "./guide/settle.html",
-  "./guide/food.html",
-  "./guide/games.html",
-  "./manifest.webmanifest",
-  "./favicon.svg",
-  "./apple-touch-icon.png",
-  "./icons/icon-192.png",
-  "./icons/icon-512.png",
-  "./icons/icon-maskable-192.png",
-  "./icons/icon-maskable-512.png",
-  "./screenshots/home.png",
-  // 앱 소스 (src/main.js 를 진입점으로 하는 ES 모듈 그래프)
-  "./src/main.js",
-  "./src/App.js",
-  // shared — 기능 비의존 공용
-  "./src/shared/html.js",
-  "./src/shared/util.js",
-  "./src/shared/storage.js",
-  "./src/shared/router.js",
-  "./src/shared/styles.js",
-  "./src/shared/tokens.css",
-  "./src/shared/entitlements.js",
-  "./src/shared/icons.js",
-  "./src/shared/BrandLogo.js",
-  "./src/shared/ReceiptCard.js",
-  "./src/shared/TabBar.js",
-  "./src/shared/ChipGroup.js",
-  "./src/shared/AdSlot.js",
-  "./src/shared/SiteFooter.js",
-  // settlement — 정산 기능
-  "./src/settlement/settlement.js",
-  "./src/settlement/exportImage.js",
-  "./src/settlement/useSettlement.js",
-  "./src/settlement/SettleScreen.js",
-  "./src/settlement/ParticipantsSection.js",
-  "./src/settlement/RoundsSection.js",
-  "./src/settlement/SummarySection.js",
-  "./src/settlement/ResultReceipt.js",
-  "./src/settlement/ImagePreviewOverlay.js",
-  // food — 뭐먹지 기능
-  "./src/food/food.js",
-  "./src/food/foodData.js",
-  "./src/food/coupang.js",
-  "./src/food/FoodScreen.js",
-  "./src/food/FoodForm.js",
-  "./src/food/FoodResult.js",
-  "./src/food/FoodListScreen.js",
-  // games — 미니게임 기능
-  "./src/games/random.js",
-  "./src/games/sfx.js",
-  "./audio/scream.mp3",
-  "./src/games/wheel.js",
-  "./src/games/josa.js",
-  "./src/games/palette.js",
-  "./src/games/registry.js",
-  "./src/games/common.js",
-  "./src/games/GamesScreen.js",
-  "./src/games/TurnOrder.js",
-  "./src/games/GameResult.js",
-  "./src/games/RouletteGame.js",
-  "./src/games/LadderGame.js",
-  "./src/games/BombGame.js",
-  "./src/games/PirateGame.js",
-  "./src/games/CrocodileGame.js",
-  "./src/games/TapBattleGame.js",
-  "./src/games/FingerGame.js",
-  "./src/games/UpDownGame.js",
-  "./src/games/TenSecGame.js",
-  "./src/games/RaceGame.js",
-  "./src/games/gameIcons.js",
-  "./src/games/three/stage.js",
-  "./src/games/three/ThreeView.js",
-  "./src/games/three/pirateScene.js",
-  "./src/games/three/crocScene.js",
-];
+// 앱 셸 (같은 출처) — 빌드가 dist/ 의 파일 목록(해시 파일명 포함)을 넣는다.
+const CORE = /*__CORE__*/[];
 
-// 외부 CDN — 하나쯤 실패해도 설치는 계속. import map 이 가리키는 vendor ESM 과
-// 그 내부 의존성(react-dom → react·scheduler)까지 포함한다. 폰트 CSS 도 함께.
+// 외부 CDN(폰트 CSS) — 하나쯤 실패해도 설치는 계속.
 const VENDOR = [
   "https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css",
   "https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&display=swap",
-  "https://cdn.jsdelivr.net/npm/react@18.3.1/+esm",
-  "https://cdn.jsdelivr.net/npm/react-dom@18.3.1/+esm",
-  "https://cdn.jsdelivr.net/npm/react-dom@18.3.1/client/+esm",
-  "https://cdn.jsdelivr.net/npm/scheduler@0.23.2/+esm",
-  "https://cdn.jsdelivr.net/npm/htm@3.1.1/+esm",
-  "https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/+esm",
-  "https://cdn.jsdelivr.net/npm/three@0.186.1/+esm",
 ];
 
 self.addEventListener("install", (event) => {
@@ -167,6 +77,22 @@ self.addEventListener("fetch", (event) => {
     return;
   }
 
+  // 빌드 결과물(assets/ 아래 해시 파일명): 내용이 바뀌면 이름도 바뀌므로 캐시 우선
+  const url = new URL(req.url);
+  if (url.origin === self.location.origin && url.pathname.includes("/assets/")) {
+    event.respondWith(
+      (async () => {
+        const cache = await caches.open(CACHE);
+        const cached = await cache.match(req);
+        if (cached) return cached;
+        const fresh = await fetch(req);
+        if (fresh.ok) cache.put(req, fresh.clone());
+        return fresh;
+      })()
+    );
+    return;
+  }
+
   // 우리 앱 파일(같은 주소의 JS·CSS·아이콘): 네트워크 우선 → 실패 시 캐시(오프라인).
   // 서버가 Cache-Control 을 안 보내면(예: 로컬 python 서버) 브라우저가 옛 파일을 "아직 신선하다"고 추정해
   // 재사용할 수 있으므로, cache: "no-cache" 로 매번 서버에 바뀌었는지 확인한다.
@@ -187,7 +113,7 @@ self.addEventListener("fetch", (event) => {
     return;
   }
 
-  // 외부 CDN(버전이 URL 에 박혀 있어 바뀌지 않음): 캐시 우선 + 백그라운드 갱신 (stale-while-revalidate)
+  // 외부 CDN(폰트 — 버전이 URL 에 박혀 있어 바뀌지 않음): 캐시 우선 + 백그라운드 갱신 (stale-while-revalidate)
   event.respondWith(
     (async () => {
       const cache = await caches.open(CACHE);
