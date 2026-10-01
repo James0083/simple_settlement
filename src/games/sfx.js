@@ -437,13 +437,8 @@ export function scream(delay = 0) {
 }
 
 
-export function vibrate(pattern) {
-  try {
-    navigator.vibrate?.(pattern);
-  } catch (e) {
-    // 미지원 — 무시
-  }
-}
+// 진동 — 웹은 navigator.vibrate, 앱인토스는 토스 햅틱 (src/platform)
+export { vibrate } from "#platform";
 
 export const prefersReducedMotion = () =>
   typeof window !== "undefined" && window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;

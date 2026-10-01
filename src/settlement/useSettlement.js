@@ -18,6 +18,7 @@ import {
   buildResultText,
 } from "./settlement.js";
 import { captureToPng, downloadBlob } from "./exportImage.js";
+import { copyText, saveImage } from "#platform";
 
 const makeRound = (participantIds) => ({
   id: uid(),
@@ -207,7 +208,7 @@ export function useSettlement() {
 
   const handleCopy = async () => {
     try {
-      await navigator.clipboard.writeText(buildResultText(stats, groupedTransactions));
+      await copyText(buildResultText(stats, groupedTransactions));
       setCopyFailed(false);
       setCopied(true);
       setTimeout(() => setCopied(false), TOAST_MS);
@@ -223,7 +224,9 @@ export function useSettlement() {
     setDownloading(true);
     try {
       const { dataUrl, blob, file } = await captureToPng(captureRef.current);
-      if (isMobileDevice()) {
+      if (saveImage && (await saveImage(dataUrl, "정산결과.png"))) {
+        // 앱인토스: 기기 사진첩에 바로 저장됨
+      } else if (isMobileDevice()) {
         // 모바일: 브라우저가 이미지 파일 다운로드를 막는 경우가 많아,
         // 이미지를 크게 띄워 "길게 눌러 사진에 추가"로 저장하도록 안내한다.
         setImagePreview({ url: dataUrl, file });

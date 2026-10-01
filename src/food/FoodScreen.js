@@ -13,6 +13,7 @@ import { FoodForm, MAX_PEOPLE } from "./FoodForm.js";
 import { FoodResult } from "./FoodResult.js";
 import { FoodListScreen } from "./FoodListScreen.js";
 import { AdSlot } from "../shared/AdSlot.js";
+import { copyText } from "#platform";
 
 const HISTORY_KEY = "foodHistory";
 const HISTORY_SIZE = 10;
@@ -77,7 +78,7 @@ export function FoodScreen({ s }) {
       })
       .join(" + ");
     try {
-      await navigator.clipboard.writeText(text);
+      await copyText(text);
       setCopied(true);
       setTimeout(() => setCopied(false), TOAST_MS);
     } catch (e) {

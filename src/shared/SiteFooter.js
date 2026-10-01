@@ -1,9 +1,32 @@
 /*
  * 하단 링크 — 안내 글(사용 가이드 + 지금 탭의 가이드)은 테두리 칩으로 조금 더 보이게, 그 아래 법적·기타 링크는 흐린 글자로.
  * (+ 눈에 안 띄는 실험 링크)
+ * 앱인토스: 가이드·버전정보·실험 링크는 빼고, 정책·문의만 ddakjeongsan.com 을 기기 브라우저로 연다
+ * (정적 페이지는 앱인토스 번들에 없고, 외부 링크는 법적 고지 등 필수 용도만 허용).
  */
 import { html } from "./html.js";
 import { styles } from "./styles.js";
+import { IS_AIT, externalLink } from "#platform";
+
+const SITE = "https://ddakjeongsan.com";
+
+function AitFooter() {
+  const links = [
+    ["privacy", "개인정보처리방침"],
+    ["terms", "이용약관"],
+    ["contact", "문의하기"],
+  ];
+  return html`
+    <div style=${styles.footerWrap}>
+      <footer style=${styles.footer}>
+        ${links.flatMap(([path, label], i) => [
+          i > 0 && html`<span key=${`dot-${path}`} style=${styles.footerDot}>·</span>`,
+          html`<a key=${path} className="settle-footer-link" style=${styles.footerLink} ...${externalLink(`${SITE}/${path}`)}>${label}</a>`,
+        ])}
+      </footer>
+    </div>
+  `;
+}
 
 // 탭마다 사용 가이드 옆에 그 탭의 가이드를 둔다
 const TAB_GUIDES = {
@@ -13,6 +36,7 @@ const TAB_GUIDES = {
 };
 
 export function SiteFooter({ route }) {
+  if (IS_AIT) return html`<${AitFooter} />`;
   const tabGuide = TAB_GUIDES[route] ?? TAB_GUIDES.settle;
   return html`
     <div style=${styles.footerWrap}>

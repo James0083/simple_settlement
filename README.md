@@ -252,7 +252,8 @@ if ("serviceWorker" in navigator) {
 
 ```
 index.html                  # 앱 셸 — <head> 메타·폰트·전역 CSS(키프레임) + src/main.js
-package.json · vite.config.js  # 의존성 · Vite 설정(정적 파일 복사 + sw.js 생성)
+package.json · vite.config.js  # 의존성 · Vite 설정(웹/앱인토스 분기, 정적 파일 복사 + sw.js 생성)
+apps-in-toss.config.ts      # 앱인토스 설정 (appName · 권한 · 내비게이션 바 · webBundleDir)
 src/
   main.js                   # 진입점 — createRoot 로 <App/> 마운트
   App.js                    # 해시 라우트로 화면 선택 + 하단 탭바. useSettlement 를 여기서 호출
@@ -278,6 +279,9 @@ src/
     gameIcons.js            #   게임 카드 아이콘 · 레이스 동물 15종 (SVG)
     random.js · wheel.js · josa.js · sfx.js # 공정한 난수 · 룰렛 곡선 · 조사 · 효과음/진동
     three/                  #   Three.js 무대(stage) · 3D 칸(ThreeView) · 해적/악어 장면
+  platform/                 # 웹/앱인토스 차이를 모은 곳 — 앱 코드는 "#platform" 으로 import
+    web.js · ait.js         #   같은 이름을 export (클립보드 · 진동 · 외부 링크 · 이미지 저장 · 분석)
+    fonts.ait.css           #   앱인토스 번들용 로컬 폰트
   shared/                   # 여러 탭이 함께 쓰는 것
     html.js                 #   html = htm.bind(React.createElement)
     styles.js               #   색 상수(C_*) + 모든 인라인 스타일 객체
@@ -304,6 +308,7 @@ prototype/receipt-ocr.html  # 영수증 OCR 검토용 프로토타입 (앱 본�
 - **모듈**: 파일 맨 위에 한두 줄 한국어 머리말(무엇을·왜), 그 다음 `import`. 상수는 `UPPER_SNAKE`, 컴포넌트는 `PascalCase` 함수 컴포넌트 + named export(`export function X`)
 - **마크업**: `` html`...` `` (htm). 속성은 JSX와 같게 `className` · `style=${객체}` · `onClick`
 - **스타일**: 정적 스타일은 `src/shared/styles.js`의 `styles`에 이름을 붙여 두고 `style=${styles.x}`로 씀. 값이 상태에 따라 바뀌는 부분만 `{ ...styles.x, background: bg }`처럼 덮어씀. 브랜드 색은 `C_RED` 등 상수로
+- **플랫폼 차이**: 클립보드 · 진동 · 외부 링크 · 이미지 저장처럼 웹과 토스 앱에서 다르게 동작하는 것은 `#platform`(`src/platform/web.js` · `ait.js`)을 거침. `navigator.*`·`window.open` 을 화면 코드에서 직접 부르지 않음. 앱인토스에서 빼야 하는 UI 는 `IS_AIT` 로 분기
 - **저장소**: `localStorage`를 직접 부르지 않고 `shared/storage.js`의 `load`/`save`(키 앞에 `ddak:`)
 - **게임**: 결과(또는 함정 위치)는 시작할 때 `random.js`로 확정, 차례로 고르는 게임은 칸 수를 인원의 배수로, `onFinish`는 한 번만. 타이머는 `useRef`에 모아 언마운트 때 정리
 - **주석**: 코드를 되풀이하지 말고 이유·제약을 한국어로 짧게
@@ -335,6 +340,21 @@ npm run preview    # dist/ 를 로컬에서 확인 (서비스 워커 포함)
 
 - `dist/` 에는 번들된 앱 + `vite.config.js` 의 `STATIC` 목록(정적 페이지·아이콘·`_redirects`·`_headers`·`ads.txt`·`sitemap.xml` 등)만 들어갑니다. `admin/`·`*.md` 는 배포되지 않습니다.
 - 확인: 배포 URL을 크롬으로 열고 DevTools → Application 탭에서 Manifest·Service Workers·Cache Storage가 잡히는지, Network 탭에서 외부 요청이 폰트뿐인지 봅니다. 모바일에서는 "홈 화면에 추가"로 설치해 standalone 실행을 확인합니다.
+
+## 앱인토스 (토스 미니앱) 빌드
+
+같은 코드에서 빌드 모드로 나눕니다. 별도 브랜치는 쓰지 않습니다.
+
+```sh
+npm run dev:ait     # 앱인토스 모드 개발 서버 — SDK 는 @apps-in-toss/devtools mock, 우하단 AIT 버튼으로 패널
+npm run build:ait   # dist-ait/ 빌드 → ait build → ddakjeongsan.ait (콘솔 업로드용)
+```
+
+- `--mode ait` 이면 `#platform` 이 `src/platform/ait.js`(토스 SDK `@apps-in-toss/web-framework` 3.x)로 연결됩니다. 웹 번들에는 SDK 가 들어가지 않습니다.
+- 앱인토스 번들에서 빠지는 것: `index.html` 의 `<!-- web-only -->` 구간(SEO 메타 · PWA · CDN 폰트 · 애드센스), 서비스 워커, 쿠팡 배너, 애드센스 광고 자리, 푸터의 가이드 · 실험 링크. 폰트는 번들에 포함(`fonts.ait.css`), 외부 요청 0.
+- 토스 앱에서 바뀌는 동작: 복사 → `Clipboard.setText`, 진동 → `Device.triggerHaptic`(iOS 포함), 지도 · 정책 링크 → `Device.openURL`(기기 브라우저), 정산 이미지 → `File.saveBase64`(미지원 버전이면 미리보기 오버레이), 화면 진입 → `Analytics.screen`.
+- devtools 는 Node 24 이상이 필요해 앱인토스 모드에서만 불러옵니다(웹 빌드 · Cloudflare 는 Node 22).
+- `ait init` 은 쓰지 않습니다 — 웹 `build` 스크립트 뒤에 `ait build` 를 붙이기 때문.
 
 ## 라이선스
 

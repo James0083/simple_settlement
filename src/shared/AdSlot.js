@@ -23,6 +23,7 @@ import { useEffect } from "react";
 import { html } from "./html.js";
 import { styles } from "./styles.js";
 import { isAdFree } from "./entitlements.js";
+import { IS_AIT } from "#platform";
 
 // 애드센스 승인 후 true 로 변경
 const AD_ENABLED = false;
@@ -66,12 +67,14 @@ export function AdSlot({ placement }) {
   const box = { ...styles.adSlot, maxWidth: size.width, minHeight: size.height };
 
   useEffect(() => {
-    if (!AD_ENABLED || isAdFree()) return;
+    if (IS_AIT || !AD_ENABLED || isAdFree()) return;
     try {
       (window.adsbygoogle = window.adsbygoogle || []).push({});
     } catch (e) {}
   }, []);
 
+  // 앱인토스: 외부 광고 네트워크 금지 — 토스 인앱 광고 연동 전까지 자리를 비운다
+  if (IS_AIT) return null;
   if (!AD_ENABLED) {
     if (!preview()) return null;
     return html`<div data-ad-slot=${placement} style=${{ ...box, ...styles.adSlotPreview }}>광고 자리 · ${placement} (${size.width}×${size.height})</div>`;

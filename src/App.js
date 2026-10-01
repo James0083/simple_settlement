@@ -14,6 +14,7 @@ import { GamesScreen } from "./games/GamesScreen.js";
 import { TabBar } from "./shared/TabBar.js";
 import { ImagePreviewOverlay } from "./settlement/ImagePreviewOverlay.js";
 import { SiteFooter } from "./shared/SiteFooter.js";
+import { trackScreen } from "#platform";
 
 export function App() {
   const s = useSettlement();
@@ -21,6 +22,7 @@ export function App() {
 
   useEffect(() => {
     window.scrollTo(0, 0);
+    trackScreen(sub ? `${route}/${sub}` : route);
   }, [route, sub]);
 
   return html`

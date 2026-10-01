@@ -9,6 +9,7 @@ import { styles } from "../shared/styles.js";
 import { GENRES } from "./foodData.js";
 import { formatPrice, searchQuery, naverMapUrl, kakaoMapUrl, RELAX_MESSAGES } from "./food.js";
 import { DISCLOSURE, TRACKING_CODE, pickBanner } from "./coupang.js";
+import { IS_AIT, externalLink } from "#platform";
 
 function CoupangBanner() {
   const [banner] = useState(() => pickBanner());
@@ -30,6 +31,22 @@ function CoupangBanner() {
 }
 
 const genreLabel = (id) => GENRES.find((g) => g.id === id)?.label ?? "";
+
+// 지도 검색 링크 — 웹은 새 탭, 앱인토스는 기기 브라우저·지도 앱으로 연다 (#platform externalLink)
+function MapLink({ url, onOpen, children }) {
+  const link = externalLink(url);
+  return html`
+    <a
+      style=${styles.mapBtn}
+      className="settle-download-btn"
+      ...${link}
+      onClick=${(e) => {
+        link.onClick?.(e);
+        onOpen();
+      }}
+    >${children}</a>
+  `;
+}
 
 export function FoodResult({ result, mode, copied, onPromote, onReroll, onChoose, onCopy, onAddToSettle }) {
   if (result.picks.length === 0) {
@@ -82,26 +99,8 @@ export function FoodResult({ result, mode, copied, onPromote, onReroll, onChoose
             ${mode === "dineIn" &&
             html`
               <div style=${styles.actionRow}>
-                <a
-                  style=${styles.mapBtn}
-                  className="settle-download-btn"
-                  href=${naverMapUrl(searchQuery(main))}
-                  target="_blank"
-                  rel="noopener"
-                  onClick=${() => onChoose(main)}
-                >
-                  네이버지도에서 찾기
-                </a>
-                <a
-                  style=${styles.mapBtn}
-                  className="settle-download-btn"
-                  href=${kakaoMapUrl(searchQuery(main))}
-                  target="_blank"
-                  rel="noopener"
-                  onClick=${() => onChoose(main)}
-                >
-                  카카오맵에서 찾기
-                </a>
+                <${MapLink} url=${naverMapUrl(searchQuery(main))} onOpen=${() => onChoose(main)}>네이버지도에서 찾기</${MapLink}>
+                <${MapLink} url=${kakaoMapUrl(searchQuery(main))} onOpen=${() => onChoose(main)}>카카오맵에서 찾기</${MapLink}>
               </div>
             `}
           </div>
@@ -140,7 +139,7 @@ export function FoodResult({ result, mode, copied, onPromote, onReroll, onChoose
         </div>
       `}
 
-      <${CoupangBanner} />
+      ${!IS_AIT && html`<${CoupangBanner} />`}
 
       <div style=${styles.actionRow}>
         <button className="settle-add-btn" style=${styles.rerollBtn} onClick=${onReroll}>다시 뽑기</button>

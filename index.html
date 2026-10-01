@@ -3,8 +3,10 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<meta name="color-scheme" content="light" />
 <title>딱정산 - 모임 비용 자동 정산</title>
 <meta name="description" content="모임 비용을 회차별로 나눠 최소 송금으로 계산해 주는 무료 정산 계산기(N빵·더치페이). 메뉴 추천과 사다리·룰렛 등 미니게임까지." />
+<!-- web-only: 앱인토스 빌드(vite.config.js)에서는 이 구간을 뺀다 — SEO·PWA·애드센스·CDN 폰트 -->
 <link rel="canonical" href="https://ddakjeongsan.com/" />
 <script type="application/ld+json">
 [
@@ -66,6 +68,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous" />
 <link rel="stylesheet" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
 <link rel="stylesheet" crossorigin href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&display=swap" />
+<!-- /web-only -->
 
 <!--
   앱 소스는 src/ 아래 ES 모듈이고 진입점은 src/main.js 하나다. Vite 가 npm 패키지(React·htm·html2canvas·three)와
@@ -132,6 +135,7 @@
 </head>
 <body>
 <div id="root"></div>
+<!-- web-only -->
 <noscript>
   <main style="max-width:560px;margin:40px auto;padding:0 16px;font-family:sans-serif;line-height:1.7;color:#1A1D29">
     <h1>딱정산 — 모임 비용 자동 정산</h1>
@@ -150,11 +154,14 @@
     </ul>
   </main>
 </noscript>
+<!-- /web-only -->
 
 <script type="module" src="src/main.js"></script>
 
+<!-- web-only -->
 <!-- 구글 애드센스 — 승인 후 아래 줄 주석을 해제한다 (src/shared/AdSlot.js 의 AD_ENABLED 도 함께) -->
 <!-- <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3948983509562369" crossorigin="anonymous"></script> -->
+<!-- /web-only -->
 
 </body>
 </html>

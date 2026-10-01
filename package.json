@@ -6,16 +6,22 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "dev:ait": "vite --mode ait",
+    "build:ait": "vite build --mode ait && ait build"
   },
   "dependencies": {
+    "@apps-in-toss/web-framework": "^3.7.0",
+    "@fontsource/space-grotesk": "^5.3.0",
     "htm": "3.1.1",
     "html2canvas": "1.4.1",
+    "pretendard": "^1.3.9",
     "react": "18.3.1",
     "react-dom": "18.3.1",
     "three": "0.186.1"
   },
   "devDependencies": {
+    "@apps-in-toss/devtools": "^3.7.0",
     "vite": "8.3.1"
   }
 }

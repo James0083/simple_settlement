@@ -1,0 +1,44 @@
+/*
+ * 앱인토스 빌드 전용 폰트 — 외부 CDN 대신 번들에 넣는다 (src/platform/ait.js 에서 import).
+ * 웹은 index.html 의 CDN <link> 를 그대로 쓴다. Pretendard 는 앱에서 쓰는 굵기(400~900)만.
+ */
+@import "@fontsource/space-grotesk/400.css";
+@import "@fontsource/space-grotesk/500.css";
+@import "@fontsource/space-grotesk/700.css";
+
+@font-face {
+  font-family: "Pretendard";
+  font-weight: 400;
+  font-display: swap;
+  src: url("pretendard/dist/web/static/woff2/Pretendard-Regular.woff2") format("woff2");
+}
+@font-face {
+  font-family: "Pretendard";
+  font-weight: 500;
+  font-display: swap;
+  src: url("pretendard/dist/web/static/woff2/Pretendard-Medium.woff2") format("woff2");
+}
+@font-face {
+  font-family: "Pretendard";
+  font-weight: 600;
+  font-display: swap;
+  src: url("pretendard/dist/web/static/woff2/Pretendard-SemiBold.woff2") format("woff2");
+}
+@font-face {
+  font-family: "Pretendard";
+  font-weight: 700;
+  font-display: swap;
+  src: url("pretendard/dist/web/static/woff2/Pretendard-Bold.woff2") format("woff2");
+}
+@font-face {
+  font-family: "Pretendard";
+  font-weight: 800;
+  font-display: swap;
+  src: url("pretendard/dist/web/static/woff2/Pretendard-ExtraBold.woff2") format("woff2");
+}
+@font-face {
+  font-family: "Pretendard";
+  font-weight: 900;
+  font-display: swap;
+  src: url("pretendard/dist/web/static/woff2/Pretendard-Black.woff2") format("woff2");
+}
