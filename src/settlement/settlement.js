@@ -3,7 +3,9 @@
  *
  * 데이터 구조
  *   참가자: { id, name, account }   — account 는 정산받을 계좌(선택, 빈 문자열 가능)
- *   회차:   { id, title, payerId, amount, participantIds: [id, ...] }
+ *   회차:   { id, title, payerId, amount, participantIds: [id, ...], customAmounts: { [id]: "13000" } }
+ *           customAmounts 는 사람별로 따로 낼 금액(선택). 총액에서 이를 뺀 나머지(공통 금액)만 1/n 한다.
+ *           "13000+4000" 처럼 + 로 여러 메뉴를 적을 수 있다 — parseAmount 로 합산.
  *
  * 흐름: computeStats → computeFairTransactions → groupTransactions
  */
@@ -12,32 +14,54 @@ import { won } from "../shared/util.js";
 // 잔액이 이 값보다 작으면 부동소수점 오차로 보고 0(정산 불필요)으로 취급한다.
 export const BALANCE_EPS = 0.5;
 
-// 회차가 계산에 포함될 수 있는지 — 금액 > 0, 결제자가 유효, 참여자 1명 이상
+// "13000+4000" → 17000. + 로 이은 숫자를 모두 더한다. (빈 값·숫자 아닌 조각은 0)
+export function parseAmount(value) {
+  return String(value || "")
+    .split("+")
+    .reduce((s, part) => s + (parseFloat(part) || 0), 0);
+}
+
+// 회차 금액을 개별 금액 / 공통 금액으로 나눈다. 참여 중인 사람의 개별 금액만 센다.
+// common = 총액 - 개별 금액 합 (음수면 개별 금액이 총액보다 많다는 뜻)
+export function splitRound(round, validIdSet) {
+  const amount = parseFloat(round.amount) || 0;
+  const custom = round.customAmounts || {};
+  const activeIds = round.participantIds.filter((id) => validIdSet.has(id));
+  const customTotal = activeIds.reduce((s, id) => s + parseAmount(custom[id]), 0);
+  return { activeIds, customTotal, common: amount - customTotal };
+}
+
+// 회차가 계산에 포함될 수 있는지 — 금액 > 0, 결제자가 유효, 참여자 1명 이상, 개별 금액 합 <= 총액
 export function isRoundValid(round, validIdSet) {
   const amount = parseFloat(round.amount) || 0;
   if (amount <= 0) return false;
   if (!validIdSet.has(round.payerId)) return false;
-  return round.participantIds.some((id) => validIdSet.has(id));
+  const { activeIds, common } = splitRound(round, validIdSet);
+  return activeIds.length > 0 && common >= 0;
 }
 
 // 회차별로 결제(paid)/부담(share)을 집계하고 잔액(balance = paid - share)을 낸다.
 // 한 사람이 특정 회차에 빠졌으면 그 회차 share 계산에서 자동 제외된다.
+// 부담 = 개별 금액 + 공통 금액 / 참여 인원. custom 은 부담 중 개별 금액 몫(결과에 내역으로 보여준다).
 export function computeStats(validParticipants, rounds) {
   const validIdSet = new Set(validParticipants.map((p) => p.id));
   const map = new Map();
   validParticipants.forEach((p) =>
-    map.set(p.id, { id: p.id, name: p.name.trim(), account: (p.account || "").trim(), paid: 0, share: 0 })
+    map.set(p.id, { id: p.id, name: p.name.trim(), account: (p.account || "").trim(), paid: 0, share: 0, custom: 0 })
   );
 
   rounds.forEach((r) => {
     if (!isRoundValid(r, validIdSet)) return;
     const amount = parseFloat(r.amount) || 0;
-    const activeIds = r.participantIds.filter((id) => validIdSet.has(id));
+    const { activeIds, common } = splitRound(r, validIdSet);
+    const custom = r.customAmounts || {};
 
     map.get(r.payerId).paid += amount;
-    const share = amount / activeIds.length;
+    const commonShare = common / activeIds.length;
     activeIds.forEach((id) => {
-      map.get(id).share += share;
+      const own = parseAmount(custom[id]);
+      map.get(id).share += own + commonShare;
+      map.get(id).custom += own;
     });
   });
 
@@ -239,8 +263,9 @@ export function buildResultText(stats, groupedTransactions) {
   const lines = ["정산 결과"];
   stats.forEach((s) => {
     const sign = s.balance > BALANCE_EPS ? "+" : "";
+    const breakdown = s.custom > 0 ? ` (개별 ${won(s.custom)} + 공통 ${won(s.share - s.custom)})` : "";
     lines.push(
-      `${s.name}  낸 금액 ${won(s.paid)}원 / 부담 ${won(s.share)}원 / 차액 ${sign}${won(s.balance)}원`
+      `${s.name}  낸 금액 ${won(s.paid)}원 / 부담 ${won(s.share)}원${breakdown} / 차액 ${sign}${won(s.balance)}원`
     );
   });
   lines.push("");

@@ -26,10 +26,33 @@ const makeRound = (participantIds) => ({
   payerId: "",
   amount: "",
   participantIds,
+  customAmounts: {},
 });
 
 // 입력을 하나도 안 건드린 회차 — 다른 탭에서 회차를 넘길 때 이런 빈 회차 하나는 대체한다.
-const isBlankRound = (r) => !r.title.trim() && !r.payerId && !r.amount;
+const isBlankRound = (r) =>
+  !r.title.trim() && !r.payerId && !r.amount && Object.keys(r.customAmounts).length === 0;
+
+// 금액은 숫자만 허용하고 맨 앞 0 은 제거한다. ("0" 단독 입력도 빈 값으로)
+const toDigits = (raw) => String(raw).replace(/[^0-9]/g, "").replace(/^0+/, "");
+
+// 개별 금액은 "13000+4000" 처럼 + 로 여러 메뉴를 이어 적을 수 있다.
+// 숫자와 + 만 남기고, + 연속·맨 앞 + 와 조각마다 맨 앞 0 을 없앤다. (맨 끝 + 는 입력 중이라 둔다)
+const toSumExpr = (raw) =>
+  String(raw)
+    .replace(/[^0-9+]/g, "")
+    .replace(/\++/g, "+")
+    .replace(/^\+/, "")
+    .split("+")
+    .map((part) => part.replace(/^0+/, ""))
+    .join("+");
+
+// 개별 금액에서 특정 사람들을 뺀다 — 참여자에서 빠진 사람의 옛 값이 다시 선택할 때 되살아나지 않게.
+const omitCustom = (customAmounts, ids) => {
+  const next = { ...customAmounts };
+  ids.forEach((id) => delete next[id]);
+  return next;
+};
 
 // 저장된 명단 → 참가자. 없으면 빈 입력칸 3개 (처음 방문과 같음).
 function loadParticipants() {
@@ -104,6 +127,7 @@ export function useSettlement() {
         ...r,
         payerId: r.payerId === id ? "" : r.payerId,
         participantIds: r.participantIds.filter((pid) => pid !== id),
+        customAmounts: omitCustom(r.customAmounts, [id]),
       }))
     );
   };
@@ -117,10 +141,23 @@ export function useSettlement() {
     invalidate();
     setRounds((prev) => prev.map((r) => (r.id === id ? { ...r, [field]: value } : r)));
   };
-  // 금액은 숫자만 허용하고 맨 앞 0 은 제거한다. ("0" 단독 입력도 빈 값으로)
   const updateRoundAmount = (id, raw) => {
-    const digits = String(raw).replace(/[^0-9]/g, "").replace(/^0+/, "");
-    updateRound(id, "amount", digits);
+    updateRound(id, "amount", toDigits(raw));
+  };
+  // 사람별로 따로 낼 금액. 숫자가 하나도 없으면 키를 지워 그 사람은 공통 금액만 부담한다.
+  const updateRoundCustomAmount = (roundId, participantId, raw) => {
+    invalidate();
+    const expr = toSumExpr(raw);
+    const digits = /[0-9]/.test(expr) ? expr : "";
+    setRounds((prev) =>
+      prev.map((r) => {
+        if (r.id !== roundId) return r;
+        const customAmounts = digits
+          ? { ...r.customAmounts, [participantId]: digits }
+          : omitCustom(r.customAmounts, [participantId]);
+        return { ...r, customAmounts };
+      })
+    );
   };
   // 다른 탭(뭐먹지·미니게임)에서 회차를 넘겨받는다. participantIds 를 안 주면 이름 있는 참가자 전원.
   // 아직 아무것도 입력하지 않은 회차 하나만 있으면 그것을 대체한다.
@@ -147,6 +184,7 @@ export function useSettlement() {
           participantIds: has
             ? r.participantIds.filter((id) => id !== participantId)
             : [...r.participantIds, participantId],
+          customAmounts: has ? omitCustom(r.customAmounts, [participantId]) : r.customAmounts,
         };
       })
     );
@@ -158,7 +196,9 @@ export function useSettlement() {
       prev.map((r) => {
         if (r.id !== roundId) return r;
         const allSelected = allIds.length > 0 && allIds.every((id) => r.participantIds.includes(id));
-        return { ...r, participantIds: allSelected ? [] : allIds };
+        return allSelected
+          ? { ...r, participantIds: [], customAmounts: {} }
+          : { ...r, participantIds: allIds };
       })
     );
   };
@@ -256,6 +296,7 @@ export function useSettlement() {
     addRound,
     updateRound,
     updateRoundAmount,
+    updateRoundCustomAmount,
     removeRound,
     toggleRoundParticipant,
     toggleAllRoundParticipants,

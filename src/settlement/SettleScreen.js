@@ -36,6 +36,7 @@ export function SettleScreen({ s }) {
         onAdd=${s.addRound}
         onUpdate=${s.updateRound}
         onUpdateAmount=${s.updateRoundAmount}
+        onUpdateCustomAmount=${s.updateRoundCustomAmount}
         onRemove=${s.removeRound}
         onToggleParticipant=${s.toggleRoundParticipant}
         onToggleAll=${s.toggleAllRoundParticipants}
