@@ -76,6 +76,7 @@ export const styles = {
     customSum: { margin: "-2px 0 4px", fontSize: 11.5, color: C_MUTED, textAlign: "right", fontVariantNumeric: "tabular-nums" },
     customName: { flex: "0 0 30%", minWidth: 0, fontSize: 13, color: C_DARK, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" },
     customWarn: { margin: "8px 0 0", fontSize: 11.5, fontWeight: 500, color: C_RED },
+    customTotalWarn: { margin: "0 0 8px", fontSize: 11.5, fontWeight: 500, color: C_RED },
     chip: { fontFamily: "inherit", fontSize: 12.5, padding: "6px 10px", border: "1px solid", cursor: "pointer", borderRadius: 4, transition: "background 0.12s, color 0.12s, border-color 0.12s" },
     chipActive: { background: "#E6F7EF", borderColor: C_GREEN, color: "#0C6B4E", fontWeight: 700 },
     chipInactive: { background: C_WHITE, borderColor: "#DDE1E8", color: C_MUTED },

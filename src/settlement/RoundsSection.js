@@ -62,6 +62,7 @@ function CustomAmountsPanel({ round, validParticipants, onUpdateCustomAmount }) 
   }
   return html`
     <div style=${styles.customPanel}>
+      ${!hasAmount && html`<p style=${styles.customTotalWarn}>⚠ 위에 총 금액을 먼저 입력해주세요</p>`}
       <div style=${styles.customCommonRow}>
         <span style=${styles.customCommonLabel}>공통 금액 (1/n)</span>
         <span style=${styles.customCommonValue}>${won(Math.max(0, common))}원</span>
