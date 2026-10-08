@@ -2,25 +2,25 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
     <loc>https://ddakjeongsan.com/</loc>
-    <lastmod>2026-09-30</lastmod>
+    <lastmod>2026-10-08</lastmod>
     <changefreq>monthly</changefreq>
     <priority>1.0</priority>
   </url>
   <url>
     <loc>https://ddakjeongsan.com/guide</loc>
-    <lastmod>2026-09-30</lastmod>
+    <lastmod>2026-10-06</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://ddakjeongsan.com/guide/settle</loc>
-    <lastmod>2026-09-30</lastmod>
+    <lastmod>2026-10-08</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://ddakjeongsan.com/guide/food</loc>
-    <lastmod>2026-09-30</lastmod>
+    <lastmod>2026-10-08</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
@@ -50,7 +50,7 @@
   </url>
   <url>
     <loc>https://ddakjeongsan.com/release-notes</loc>
-    <lastmod>2026-09-30</lastmod>
+    <lastmod>2026-10-06</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.4</priority>
   </url>
