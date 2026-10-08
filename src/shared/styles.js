@@ -136,7 +136,6 @@ export const styles = {
     footerGuides: { display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: 8, width: "100%", maxWidth: 300 },
     footerGuide: { textAlign: "center", padding: "6px 12px", border: "1px solid #D5D9E2", borderRadius: 4, background: C_WHITE, color: C_SUB, fontSize: 12.5, fontWeight: 600, textDecoration: "none", transition: "border-color 0.15s, color 0.15s" },
     footerDot: { color: "#C7CCD8" },
-    footerLab: { fontSize: 10.5, color: "#CDD1DA", textDecoration: "none", letterSpacing: "0.2px" },
 
     // 오늘 뭐먹지
     foodField: { marginBottom: 20 },

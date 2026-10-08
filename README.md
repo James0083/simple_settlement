@@ -373,7 +373,7 @@ npm run build:ait   # dist-ait/ 빌드 → ait build → ddakjeongsan.ait (콘�
 ```
 
 - `--mode ait` 이면 `#platform` 이 `src/platform/ait.js`(토스 SDK `@apps-in-toss/web-framework` 3.x)로 연결됩니다. 웹 번들에는 SDK 가 들어가지 않습니다.
-- 앱인토스 번들에서 빠지는 것: `index.html` 의 `<!-- web-only -->` 구간(SEO 메타 · PWA · CDN 폰트 · 애드센스), 서비스 워커, 쿠팡 배너, 애드센스 광고 자리, 푸터의 가이드 · 실험 링크. 폰트는 번들에 포함(`fonts.ait.css`), 외부 요청 0.
+- 앱인토스 번들에서 빠지는 것: `index.html` 의 `<!-- web-only -->` 구간(SEO 메타 · PWA · CDN 폰트 · 애드센스), 서비스 워커, 쿠팡 배너, 애드센스 광고 자리, 푸터의 가이드 · 버전정보 링크. 폰트는 번들에 포함(`fonts.ait.css`), 외부 요청 0.
 - 토스 앱에서 바뀌는 동작: 복사 → `Clipboard.setText`, 진동 → `Device.triggerHaptic`(iOS 포함), 지도 · 정책 링크 → `Device.openURL`(기기 브라우저), 정산 이미지 → `File.saveBase64`(미지원 버전이면 미리보기 오버레이), 화면 진입 → `Analytics.screen`.
 - 주소: 해시(`#/food`)가 없으면 경로(`/food`, `/games/roulette`)로 첫 화면을 고릅니다 — 콘솔 "주요 기능" 주소 `intoss://ddakjeongsan/food` 용. 그래서 앱인토스 빌드는 `base: "/"`(절대 경로)입니다.
 - 분석: `trackEvent`·`trackScreen`(#platform) → `Analytics.click`·`Analytics.screen`. 웹은 아무것도 하지 않습니다. 이벤트 이름은 `settle_calculate`·`food_recommend`·`game_finish` 등(`grep -rn trackEvent src`).
