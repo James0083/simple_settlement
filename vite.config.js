@@ -34,6 +34,7 @@ const STATIC = [
   "src/shared/tokens.css", // 정적 페이지 공용 스타일
   "manifest.webmanifest",
   "favicon.svg",
+  "favicon.ico", // /favicon.ico 를 직접 찾는 브라우저·검색 로봇용
   "apple-touch-icon.png",
   "_redirects",
   "_headers",
@@ -44,13 +45,72 @@ const STATIC = [
 ];
 
 // 오프라인 캐시에서 뺄 파일 (크롤러·호스팅 설정·검증용)
-const NO_PRECACHE = /^(_redirects|_headers|ads\.txt|robots\.txt|sitemap\.xml|naver.*\.html|404\.html|docs\/|prototype\/|screenshots\/og\.png)/;
+const NO_PRECACHE = /^(_redirects|_headers|ads\.txt|robots\.txt|sitemap\.xml|rss\.xml|naver.*\.html|404\.html|docs\/|prototype\/|screenshots\/(og|guide-)[^/]*\.(png|webp))/;
 
 const walk = (dir) =>
   readdirSync(dir).flatMap((name) => {
     const p = join(dir, name);
     return statSync(p).isDirectory() ? walk(p) : [p];
   });
+
+// RSS 피드(rss.xml) — 네이버 서치어드바이저는 제출된 RSS 를 "콘텐츠 피드"로 보고 주기적으로 다시 방문한다.
+// 가이드 · 버전정보 정적 페이지의 본문 전체를 담는다(네이버 권장). 날짜는 sitemap.xml 의 lastmod 를 쓴다.
+const SITE = "https://ddakjeongsan.com";
+const RSS_PAGES = [
+  ["guide/cases.html", "/guide/cases"],
+  ["guide/settle.html", "/guide/settle"],
+  ["guide/food.html", "/guide/food"],
+  ["guide/games.html", "/guide/games"],
+  ["guide.html", "/guide"],
+  ["release-notes.html", "/release-notes"],
+];
+
+const escapeXml = (s) => s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+const rssDate = (ymd) => new Date(`${ymd}T09:00:00+09:00`).toUTCString();
+
+function buildRss() {
+  const sitemap = readFileSync("sitemap.xml", "utf8");
+  const lastmod = (path) => sitemap.match(new RegExp(`<loc>${SITE}${path}</loc>\\s*<lastmod>([^<]+)`))?.[1];
+  const items = RSS_PAGES.map(([file, path]) => {
+    const html = readFileSync(file, "utf8");
+    const url = SITE + path;
+    const title = html.match(/<title>([^<]+)<\/title>/)[1].replace(/ - 딱정산$/, "");
+    const description = html.match(/<meta name="description" content="([^"]+)"/)[1];
+    // 본문: <main class="card"> 또는 <div class="card"> 안쪽. 상대 주소는 그 페이지 기준 절대 주소로 바꾼다.
+    const start = html.search(/<(main|div) class="card">/);
+    const end = html.lastIndexOf(html.includes('<main class="card">') ? "</main>" : "</div>", html.indexOf("<script", start));
+    const body = html
+      .slice(html.indexOf(">", start) + 1, end)
+      .replace(/(href|src)="(?![a-z]+:|#)([^"]*)"/g, (_, attr, rel) => `${attr}="${new URL(rel, url).href}"`);
+    const date = lastmod(path);
+    if (!date) throw new Error(`sitemap.xml 에 ${path} lastmod 가 없다`);
+    return { url, title, description, body, date };
+  }).sort((a, b) => b.date.localeCompare(a.date));
+
+  return `<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0" xmlns:content="http://purl.org/rss/1.0/modules/content/">
+<channel>
+  <title>딱정산</title>
+  <link>${SITE}/</link>
+  <description>더치페이·N빵 모임 정산 계산기 딱정산의 사용 가이드와 업데이트 소식</description>
+  <language>ko</language>
+  <lastBuildDate>${rssDate(items[0].date)}</lastBuildDate>
+${items
+  .map(
+    (i) => `  <item>
+    <title>${escapeXml(i.title)}</title>
+    <link>${i.url}</link>
+    <guid isPermaLink="true">${i.url}</guid>
+    <pubDate>${rssDate(i.date)}</pubDate>
+    <description>${escapeXml(i.description)}</description>
+    <content:encoded><![CDATA[${i.body}]]></content:encoded>
+  </item>`
+  )
+  .join("\n")}
+</channel>
+</rss>
+`;
+}
 
 function staticAndServiceWorker() {
   let outDir;
@@ -62,6 +122,7 @@ function staticAndServiceWorker() {
     },
     closeBundle() {
       for (const p of STATIC) cpSync(p, join(outDir, p), { recursive: true });
+      writeFileSync(join(outDir, "rss.xml"), buildRss());
 
       const files = walk(outDir)
         .map((f) => relative(outDir, f).split(sep).join("/"))

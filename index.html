@@ -8,12 +8,14 @@
 <meta name="description" content="모임 비용을 회차별로 나눠 최소 송금으로 계산해 주는 무료 정산 계산기(N빵·더치페이). 메뉴 추천과 사다리·룰렛 등 미니게임까지." />
 <!-- web-only: 앱인토스 빌드(vite.config.js)에서는 이 구간을 뺀다 — SEO·PWA·애드센스·CDN 폰트 -->
 <link rel="canonical" href="https://ddakjeongsan.com/" />
+<link rel="alternate" type="application/rss+xml" title="딱정산" href="https://ddakjeongsan.com/rss.xml" />
 <script type="application/ld+json">
 [
   {
     "@context": "https://schema.org",
     "@type": "WebSite",
     "name": "딱정산",
+    "alternateName": ["Ddakjeongsan", "ddakjeongsan.com"],
     "url": "https://ddakjeongsan.com/",
     "inLanguage": "ko"
   },
@@ -59,6 +61,7 @@
 <meta name="google-adsense-account" content="ca-pub-3948983509562369" />
 <link vite-ignore rel="manifest" href="manifest.webmanifest" />
 <meta name="theme-color" content="#EEF1F4" />
+<link vite-ignore rel="icon" href="favicon.ico" sizes="48x48" />
 <link vite-ignore rel="icon" type="image/svg+xml" href="favicon.svg" />
 <link vite-ignore rel="apple-touch-icon" href="apple-touch-icon.png" />
 <meta name="mobile-web-app-capable" content="yes" />
@@ -136,26 +139,33 @@
 </style>
 </head>
 <body>
-<div id="root"></div>
-<!-- web-only -->
-<noscript>
-  <main style="max-width:560px;margin:40px auto;padding:0 16px;font-family:sans-serif;line-height:1.7;color:#1A1D29">
-    <h1>딱정산 — 더치페이·N빵 모임 정산 계산기</h1>
-    <p>딱정산은 모임 비용을 1차·2차·3차 회차별로 나눠 기록하면, 사람마다 낸 돈과 부담할 돈을 계산하고
+<!--
+  #root 안의 소개문 — 자바스크립트를 실행하지 않는 검색 로봇(네이버 Yeti 등)도 본문과 링크를 읽게 한다.
+  앱이 뜨면 React(createRoot)가 이 내용을 앱 화면으로 바꾼다. 느린 네트워크에서는 앱이 뜨기 전 잠깐 보인다.
+  앱인토스 빌드에서는 web-only 구간이라 빠진다.
+-->
+<div id="root"><!-- web-only -->
+  <main style="max-width:440px;margin:40px auto;padding:28px 24px;background:#FFFFFF;font-family:'Pretendard',-apple-system,sans-serif;line-height:1.7;color:#1A1D29">
+    <h1 style="font-size:22px;margin:0 0 12px">딱정산 — 더치페이·N빵 모임 정산 계산기</h1>
+    <p style="font-size:14.5px;color:#4B5165">딱정산은 모임 비용을 1차·2차·3차 회차별로 나눠 기록하면, 사람마다 낸 돈과 부담할 돈을 계산하고
       누가 누구에게 얼마를 보내면 되는지 알려주는 무료 웹앱입니다. 회차마다 참여한 사람이 달라도 참여한 사람끼리만 정확히 나눕니다.
       똑같이 나누는 N빵은 물론, 사람마다 먹은 메뉴가 다를 때는 각자 낼 금액을 따로 적고 나머지만 나누는 더치페이도 됩니다.</p>
-    <p>인원·장르·가격대로 메뉴를 추천하는 "오늘 뭐먹지"와, 룰렛·사다리 타기·폭탄 돌리기 등 오늘 낼 사람을 정하는 미니게임도 함께 쓸 수 있습니다.
+    <p style="font-size:14.5px;color:#4B5165">인원·장르·가격대로 메뉴를 추천하는 "오늘 뭐먹지"와, 룰렛·사다리 타기·폭탄 돌리기 등 오늘 낼 사람을 정하는 미니게임도 함께 쓸 수 있습니다.
       회원가입이 없고, 입력한 내용은 서버로 보내지 않고 기기 안에서만 계산합니다.</p>
-    <p>이 앱은 자바스크립트가 켜져 있어야 동작합니다.</p>
-    <ul>
+    <ul style="font-size:14px;padding-left:20px">
       <li><a href="guide">사용 가이드</a></li>
-      <li><a href="guide/settle">정산 계산 방식</a></li>
+      <li><a href="guide/settle">더치페이·N빵 정산 계산 방식</a></li>
+      <li><a href="guide/cases">상황별 모임 정산 방법 — 회식 · 여행 · 생일</a></li>
       <li><a href="guide/food">뭐먹지 가이드 — 오늘 뭐먹지 · 메뉴 추천</a></li>
       <li><a href="guide/games">미니게임 가이드 — 사다리 타기 · 룰렛 · 내기 게임</a></li>
       <li><a href="release-notes">버전정보</a></li>
       <li><a href="privacy">개인정보처리방침</a> · <a href="terms">이용약관</a> · <a href="contact">문의하기</a></li>
     </ul>
   </main>
+<!-- /web-only --></div>
+<!-- web-only -->
+<noscript>
+  <p style="max-width:440px;margin:0 auto 40px;padding:0 24px;font-family:sans-serif;color:#E8503A">이 앱은 자바스크립트가 켜져 있어야 동작합니다.</p>
 </noscript>
 <!-- /web-only -->
 
