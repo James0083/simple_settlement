@@ -15,7 +15,7 @@ export function SettleScreen({ s }) {
       <${ScreenHeader}
         Icon=${BrandLogo}
         title="딱정산"
-        subtitle="회차별로 결제자와 참여자를 나눠 입력하면, 자동으로 정산해드려요"
+        subtitle="N빵도 더치페이도, 회차별로 결제자와 참여자만 넣으면 자동으로 정산해드려요"
       />
 
       <${ParticipantsSection}

@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>상황별 모임 정산 방법 — 회식·여행·생일 더치페이 - 딱정산</title>
+<meta name="description" content="술 안 마신 사람, 생일자 몫 빼기, 여행·MT 경비, 카드와 현금을 섞어 낸 경우까지. 자주 헷갈리는 모임 정산 상황을 예시와 송금 결과로 정리했습니다." />
+<link rel="canonical" href="https://ddakjeongsan.com/guide/cases" />
+<meta property="og:type" content="article" />
+<meta property="og:site_name" content="딱정산" />
+<meta property="og:title" content="상황별 모임 정산 방법 — 회식·여행·생일 더치페이 - 딱정산" />
+<meta property="og:description" content="술 안 마신 사람, 생일자 몫 빼기, 여행·MT 경비, 카드와 현금을 섞어 낸 경우까지. 자주 헷갈리는 모임 정산 상황을 예시와 송금 결과로 정리했습니다." />
+<meta property="og:url" content="https://ddakjeongsan.com/guide/cases" />
+<meta property="og:image" content="https://ddakjeongsan.com/screenshots/og.png" />
+<meta name="twitter:card" content="summary_large_image" />
+<!-- 구조화 데이터: 검색 결과의 경로 표시(BreadcrumbList) + 글 정보(Article). 내용을 고치면 dateModified 와 sitemap.xml lastmod 를 같이 고친다. -->
+<script type="application/ld+json">
+[
+  {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    "itemListElement": [
+      {
+        "@type": "ListItem",
+        "position": 1,
+        "name": "딱정산",
+        "item": "https://ddakjeongsan.com/"
+      },
+      {
+        "@type": "ListItem",
+        "position": 2,
+        "name": "사용 가이드",
+        "item": "https://ddakjeongsan.com/guide"
+      },
+      {
+        "@type": "ListItem",
+        "position": 3,
+        "name": "상황별 모임 정산 방법",
+        "item": "https://ddakjeongsan.com/guide/cases"
+      }
+    ]
+  },
+  {
+    "@context": "https://schema.org",
+    "@type": "Article",
+    "headline": "상황별 모임 정산 방법 — 회식·여행·생일 더치페이",
+    "description": "술 안 마신 사람, 생일자 몫 빼기, 여행·MT 경비, 카드와 현금을 섞어 낸 경우까지. 자주 헷갈리는 모임 정산 상황을 예시와 송금 결과로 정리했습니다.",
+    "url": "https://ddakjeongsan.com/guide/cases",
+    "mainEntityOfPage": "https://ddakjeongsan.com/guide/cases",
+    "image": "https://ddakjeongsan.com/screenshots/og.png",
+    "inLanguage": "ko",
+    "datePublished": "2026-10-08",
+    "dateModified": "2026-10-08",
+    "author": {
+      "@type": "Organization",
+      "name": "딱정산",
+      "url": "https://ddakjeongsan.com/"
+    },
+    "publisher": {
+      "@type": "Organization",
+      "name": "딱정산",
+      "url": "https://ddakjeongsan.com/"
+    }
+  }
+]
+</script>
+<link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin="anonymous" />
+<link rel="stylesheet" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard-dynamic-subset.min.css" />
+<link rel="stylesheet" href="../src/shared/tokens.css" />
+<link rel="manifest" href="../manifest.webmanifest" />
+<meta name="theme-color" content="#EEF1F4" />
+<link rel="icon" type="image/svg+xml" href="../favicon.svg" />
+<link rel="apple-touch-icon" href="../apple-touch-icon.png" />
+<meta name="mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-title" content="딱정산" />
+<style>
+  *, *::before, *::after { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body { background: var(--c-bg); font-family: 'Pretendard', -apple-system, sans-serif; color: #1A1D29; display: flex; justify-content: center; padding: 40px 16px; }
+  .card { width: 100%; min-width: 0; max-width: 560px; background: #FFFFFF; box-shadow: 0 18px 40px rgba(26,29,41,0.12), 0 2px 0 rgba(26,29,41,0.04); padding: 36px 32px 44px; }
+  .back { display: inline-block; font-size: 13px; color: #9AA0B0; text-decoration: none; margin-bottom: 20px; }
+  .back:hover { color: #5C6178; }
+  h1 { font-size: 24px; font-weight: 800; letter-spacing: -0.5px; margin: 0 0 6px; }
+  .lead { font-size: 14px; color: var(--c-dim); line-height: 1.7; margin: 0 0 8px; }
+  h2 { font-size: 17px; font-weight: 800; margin: 34px 0 10px; }
+  p, li { font-size: 14px; line-height: 1.75; color: var(--c-dim); }
+  ol, ul { margin: 0; padding-left: 20px; }
+  li { margin-bottom: 4px; }
+  .table-wrap { overflow-x: auto; margin: 10px 0; }
+  .table-wrap table { margin: 0; }
+  table { width: 100%; border-collapse: collapse; margin: 10px 0; font-size: 13px; }
+  th, td { padding: 7px 8px; border-bottom: 1px solid #E3E6EC; color: var(--c-dim); line-height: 1.5; text-align: left; }
+  th, td { white-space: nowrap; }
+  td:last-child { white-space: normal; }
+  th { color: #1A1D29; font-weight: 700; background: #F6F8FB; }
+  td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
+  .plus { color: #0F9D64; font-weight: 700; }
+  .minus { color: #E8503A; font-weight: 700; }
+    a.inline { color: #E8503A; text-decoration: none; }
+  a.inline:hover { text-decoration: underline; }
+  .cta { display: block; margin-top: 32px; padding: 14px 0; text-align: center; background: #E8503A; color: #FFFFFF; font-weight: 700; font-size: 15px; text-decoration: none; border-radius: 4px; }
+  @media (max-width: 480px) { .card { padding: 28px 20px 36px; } th, td { padding: 6px 5px; } }
+</style>
+</head>
+<body>
+  <main class="card">
+    <a class="back" href="../">← 딱정산으로 돌아가기</a>
+    <h1>상황별 모임 정산 방법</h1>
+    <p class="lead">
+      모임 비용은 "총액 ÷ 인원"으로 끝나지 않을 때가 많습니다. 술을 안 마신 사람, 오늘의 주인공인 생일자, 따로 움직인 사람이 있으면
+      어떻게 나눠야 할지 헷갈립니다. 자주 만나는 상황을 딱정산에 어떻게 입력하면 되는지, 실제로 누가 누구에게 얼마를 보내게 되는지 예시로 정리했습니다.
+    </p>
+    <p>
+      핵심은 하나입니다. <strong>참여한 사람이 다른 비용은 회차를 나눠 적는다.</strong> 영수증이 한 장이어도 괜찮습니다.
+      회차마다 그 회차에 참여한 사람끼리만 나누고, 송금은 모든 회차를 합쳐 가장 적은 횟수로 정리됩니다.
+    </p>
+
+    <h2>회식에서 술 안 마신 사람이 있을 때</h2>
+    <p>
+      네 명이 삼겹살집에서 식사 80,000원, 술 36,000원이 나왔고 민수가 한 번에 결제했습니다. 수진은 술을 마시지 않았습니다.
+      영수증은 한 장이지만 정산에서는 두 회차로 나눠 적습니다.
+    </p>
+    <ul>
+      <li><strong>1차 식사</strong> — 결제 민수, 80,000원, 참여 민수 · 지영 · 현우 · 수진 → 1인 20,000원</li>
+      <li><strong>1차 술</strong> — 결제 민수, 36,000원, 참여 민수 · 지영 · 현우 (수진 해제) → 1인 12,000원</li>
+    </ul>
+    <p>부담할 돈은 민수 · 지영 · 현우 32,000원, 수진 20,000원입니다. 민수는 116,000원을 냈으니 84,000원을 돌려받습니다.</p>
+    <div class="table-wrap"><table>
+      <thead><tr><th>보내는 사람</th><th>받는 사람</th><th class="num">보낼 금액</th></tr></thead>
+      <tbody>
+        <tr><td>지영</td><td>민수</td><td class="num">32,000원</td></tr>
+        <tr><td>현우</td><td>민수</td><td class="num">32,000원</td></tr>
+        <tr><td>수진</td><td>민수</td><td class="num">20,000원</td></tr>
+      </tbody>
+    </table></div>
+    <p>안 마신 사람이 여럿이어도 같은 방법입니다. 술 회차에서 마신 사람만 고르면 됩니다.</p>
+
+    <h2>생일자 몫은 빼고 나눌 때</h2>
+    <p>
+      다섯 명이 저녁을 먹고 100,000원이 나왔는데, 생일인 지영의 몫은 나머지 네 명이 나눠 내기로 했습니다. 결제는 민수가 했습니다.
+      지영도 참가자 명단에는 넣되, 이 회차의 참여자에서만 빼면 됩니다.
+    </p>
+    <ul>
+      <li><strong>생일 저녁</strong> — 결제 민수, 100,000원, 참여 민수 · 현우 · 수진 · 태호 (지영 해제) → 1인 25,000원</li>
+    </ul>
+    <div class="table-wrap"><table>
+      <thead><tr><th>보내는 사람</th><th>받는 사람</th><th class="num">보낼 금액</th></tr></thead>
+      <tbody>
+        <tr><td>현우</td><td>민수</td><td class="num">25,000원</td></tr>
+        <tr><td>수진</td><td>민수</td><td class="num">25,000원</td></tr>
+        <tr><td>태호</td><td>민수</td><td class="num">25,000원</td></tr>
+      </tbody>
+    </table></div>
+    <p>지영은 낼 돈도 받을 돈도 없습니다. 2차는 지영도 같이 낸다면, 2차 회차에서는 지영을 참여자로 두면 됩니다.</p>
+
+    <h2>여행 · MT 경비를 나눌 때</h2>
+    <p>
+      여행은 숙소, 장보기, 교통비를 서로 다른 사람이 결제하는 일이 많습니다. 결제마다 회차를 하나씩 만들고, 결제한 사람과 그 비용을 함께 쓴 사람을 고릅니다.
+      네 명이 1박 2일 MT를 갔고, 수진은 따로 이동해 택시를 타지 않았습니다.
+    </p>
+    <div class="table-wrap"><table>
+      <thead><tr><th>회차</th><th>결제</th><th class="num">금액</th><th>참여</th></tr></thead>
+      <tbody>
+        <tr><td>숙소</td><td>민수</td><td class="num">240,000원</td><td>민수 · 지영 · 현우 · 수진</td></tr>
+        <tr><td>장보기</td><td>지영</td><td class="num">84,000원</td><td>민수 · 지영 · 현우 · 수진</td></tr>
+        <tr><td>택시</td><td>현우</td><td class="num">18,000원</td><td>민수 · 지영 · 현우</td></tr>
+      </tbody>
+    </table></div>
+    <p>
+      부담할 돈은 민수 · 지영 · 현우 87,000원, 수진 81,000원입니다. 결제가 세 군데로 나뉘었지만 송금은 세 번이면 끝나고,
+      모두 가장 많이 낸 민수에게 보내면 됩니다.
+    </p>
+    <div class="table-wrap"><table>
+      <thead><tr><th>보내는 사람</th><th>받는 사람</th><th class="num">보낼 금액</th></tr></thead>
+      <tbody>
+        <tr><td>수진</td><td>민수</td><td class="num">81,000원</td></tr>
+        <tr><td>현우</td><td>민수</td><td class="num">69,000원</td></tr>
+        <tr><td>지영</td><td>민수</td><td class="num">3,000원</td></tr>
+      </tbody>
+    </table></div>
+
+    <h2>카드와 현금을 섞어 냈을 때</h2>
+    <p>
+      네 명이 120,000원을 먹었는데 계산할 때 현우가 현금 30,000원을 먼저 내고, 나머지 90,000원은 민수가 카드로 긁었습니다.
+      한 번의 계산이지만 낸 사람이 둘이므로 회차를 두 개로 적습니다. 참여자는 둘 다 네 명 모두입니다.
+    </p>
+    <ul>
+      <li><strong>저녁 (카드)</strong> — 결제 민수, 90,000원, 네 명 모두</li>
+      <li><strong>저녁 (현금)</strong> — 결제 현우, 30,000원, 네 명 모두</li>
+    </ul>
+    <div class="table-wrap"><table>
+      <thead><tr><th>보내는 사람</th><th>받는 사람</th><th class="num">보낼 금액</th></tr></thead>
+      <tbody>
+        <tr><td>지영</td><td>민수</td><td class="num">30,000원</td></tr>
+        <tr><td>수진</td><td>민수</td><td class="num">30,000원</td></tr>
+      </tbody>
+    </table></div>
+    <p>현우는 이미 자기 몫 30,000원을 현금으로 냈기 때문에 더 보낼 돈이 없습니다.</p>
+
+    <h2>각자 시킨 메뉴가 다를 때</h2>
+    <p>
+      같이 먹은 안주는 똑같이 나누고 각자 시킨 식사는 본인이 내고 싶다면, 회차의 "금액 따로 입력"에 사람별 금액을 적습니다.
+      총액에서 그 합을 뺀 나머지만 1/n 됩니다. 계산 예시는 <a class="inline" href="settle">더치페이·N빵 정산 계산 방식</a>의
+      "사람마다 메뉴가 다를 때"에 있습니다.
+    </p>
+
+    <h2>입력할 때 기억할 것</h2>
+    <ul>
+      <li>참여한 사람이 다르면 회차를 나눈다 — 영수증 한 장이라도.</li>
+      <li>결제한 사람이 다르면 회차를 나눈다 — 한 번의 계산이라도.</li>
+      <li>명단에는 모두 넣고, 회차마다 참여자만 고른다 — 빠진 사람은 그 회차 몫이 0원.</li>
+      <li>결과는 "결과 복사하기"로 단톡방에 붙여 넣거나 이미지로 저장해 공유한다.</li>
+    </ul>
+    <p>
+      송금 횟수를 줄이는 원리는 <a class="inline" href="settle">정산 계산 방식</a>에서, 화면 사용법은 <a class="inline" href="../guide">사용 가이드</a>에서 볼 수 있습니다.
+    </p>
+
+    <a class="cta" href="../">지금 정산해 보기</a>
+  </main>
+<script>
+  if ("serviceWorker" in navigator) {
+    window.addEventListener("load", function () {
+      navigator.serviceWorker.register("../sw.js").catch(function () {});
+    });
+  }
+</script>
+</body>
+</html>

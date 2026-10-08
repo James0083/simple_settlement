@@ -7,7 +7,7 @@ const CORE = /*__CORE__*/[];
 
 // 외부 CDN(폰트 CSS) — 하나쯤 실패해도 설치는 계속.
 const VENDOR = [
-  "https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css",
+  "https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard-dynamic-subset.min.css",
   "https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&display=swap",
 ];
 
@@ -65,9 +65,11 @@ self.addEventListener("fetch", (event) => {
           cache.put(req, fresh.clone());
           return fresh;
         } catch (e) {
+          // 링크는 .html 없는 주소(/guide/settle)인데 설치 때 캐시는 파일 이름(guide/settle.html)으로 들어 있으니 둘 다 찾는다
           const cache = await caches.open(CACHE);
           return (
             (await cache.match(req)) ||
+            (await cache.match(`${new URL(req.url).pathname}.html`)) ||
             (await cache.match("./index.html")) ||
             Response.error()
           );

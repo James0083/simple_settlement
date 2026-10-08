@@ -33,7 +33,7 @@ export const styles = {
     header: { textAlign: "center", paddingTop: 22, paddingBottom: 22 },
     logo: { fontSize: 40, color: C_DARK, display: "block", margin: "0 auto 12px" },
     title: { fontFamily: "'Pretendard', sans-serif", fontWeight: 800, fontSize: 34, letterSpacing: "-1px", color: C_DARK, margin: "0 0 10px" },
-    subtitle: { fontSize: 13.5, lineHeight: 1.6, color: C_SUB, margin: "0 auto", maxWidth: 300 },
+    subtitle: { fontSize: 13.5, lineHeight: 1.6, color: C_SUB, margin: "0 auto", maxWidth: 300, wordBreak: "keep-all" },
     section: { marginTop: 4 },
     sectionLabel: { fontSize: 12, fontWeight: 700, color: "#8A8FA3", letterSpacing: "1px", marginBottom: 12 },
     peopleList: { display: "flex", flexDirection: "column", gap: 10 },

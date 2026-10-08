@@ -58,7 +58,7 @@
 `index.html`의 `<head>`에는 폰트도 `<link rel="stylesheet">`로 함께 로드합니다. 처음에는 컴포넌트 내부 CSS `@import`로만 폰트를 불러왔는데, 로딩 시점이 늦어 일부 환경에서 폰트가 적용되지 않는 경우가 있어 `<head>` 레벨 `<link>`로 옮겼습니다.
 
 ```html
-<link rel="stylesheet" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
+<link rel="stylesheet" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard-dynamic-subset.min.css" />
 <link rel="stylesheet" crossorigin href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&display=swap" />
 ```
 
@@ -263,7 +263,7 @@ if ("serviceWorker" in navigator) {
 
 앱(`index.html`)은 자바스크립트로 그려지므로, 검색엔진·애드센스 심사가 읽을 수 있게 **정적 글 페이지** — 허브 `guide.html`(`/guide`)과 탭별 가이드 `guide/settle.html` · `guide/food.html` · `guide/games.html`(`/guide/settle` 등)를 두고, `index.html`에는 `<noscript>` 소개문과 링크를 넣었습니다. 새 정적 페이지를 만들면 `sitemap.xml`, `sw.js`의 `CORE`, 앱 푸터(`SiteFooter.js`), `guide.html` 허브에 함께 추가합니다. 주소 규칙: **`#` 없는 주소는 설명 글, `#` 있는 주소는 앱**(`/guide/food` 설명 ↔ `/#/food` 앱). `guide/` 안 페이지는 자원·링크를 `../` 로 참조하고, 주소를 옮기면 `_redirects` 에 301 을 남깁니다.
 
-**검색 노출 규칙**: Cloudflare Pages 는 `/guide.html` 을 `/guide` 로 308 리디렉션하므로 `sitemap.xml` 의 `<loc>` 와 각 페이지 `canonical` 은 **`.html` 없는 최종 주소**로 적습니다(내부 링크는 로컬 서버·오프라인 캐시 때문에 `.html` 유지). 새 페이지에는 `title` · `description` · `canonical` · OG 태그(`screenshots/og.png`, 1200×630)를 넣습니다. 없는 주소는 `404.html`(noindex)이 404 상태로 응답합니다. 홈에는 JSON-LD(`WebSite` · `WebApplication`)가 있습니다. 옛 GitHub Pages 안내 페이지(`docs/index.html`)는 옛 PWA 사용자 안내용으로 남기되 `noindex` 입니다.
+**검색 노출 규칙**: Cloudflare Pages 는 `/guide.html` 을 `/guide` 로 308 리디렉션하므로 `sitemap.xml` 의 `<loc>` 와 각 페이지 `canonical` 은 **`.html` 없는 최종 주소**로 적습니다. 내부 링크도 같은 최종 주소로 적어 리디렉션을 거치지 않게 합니다 — 정적 페이지는 `href="guide/settle"` · `href="../"`(홈), Vite 개발·미리보기 서버도 `.html` 없는 주소를 열고, 오프라인에서는 서비스 워커가 `경로.html` 캐시로 찾습니다. 새 페이지에는 `title` · `description` · `canonical` · OG 태그(`screenshots/og.png`, 1200×630)를 넣습니다. 없는 주소는 `404.html`(noindex)이 404 상태로 응답합니다. 홈에는 JSON-LD(`WebSite` · `WebApplication`), 가이드 페이지에는 `BreadcrumbList` · `Article`(`datePublished` · `dateModified`)이 있습니다 — 글을 고치면 `dateModified` 와 `sitemap.xml` 의 `lastmod` 를 같이 고칩니다. 웹 폰트는 Pretendard **dynamic-subset** CSS(쓰인 글자 조각만 받음, 첫 화면 폰트 약 3.8MB → 0.3MB). 옛 GitHub Pages 안내 페이지(`docs/index.html`)는 옛 PWA 사용자 안내용으로 남기되 `noindex` 입니다.
 
 
 푸터에 개인정보처리방침(`privacy.html`), 이용약관(`terms.html`), 문의하기(`contact.html`) 링크를 두었습니다. 문의하기는 Google 설문지로 연결됩니다. 다른 설문지로 바꾸고 싶다면 `contact.html` 안의 버튼 `href` 값만 교체하면 됩니다.
@@ -314,7 +314,7 @@ audio/scream.mp3            # 해적룰렛 비명
 release-notes.html          # 버전정보 (사용자용)
 404.html                    # 없는 주소 안내 (Cloudflare Pages 가 404 상태로 응답, noindex)
 guide.html                  # 사용 가이드 (/guide) — 아래 세 가이드로 가는 허브
-guide/settle.html · food.html · games.html  # 정산 계산 방식 · 뭐먹지 가이드 · 미니게임 가이드 (/guide/settle 등, JS 없이 읽히는 정적 글 — 검색·애드센스 심사용)
+guide/settle.html · cases.html · food.html · games.html  # 정산 계산 방식 · 상황별 정산 방법 · 뭐먹지 가이드 · 미니게임 가이드 (/guide/settle 등, JS 없이 읽히는 정적 글 — 검색·애드센스 심사용)
 _redirects                  # Cloudflare Pages 301 (옛 /how-it-works → /guide/settle)
 _headers                    # Cloudflare Pages 캐시 헤더
 ads.txt                     # 애드센스 판매자 인증 (pub-3948983509562369)

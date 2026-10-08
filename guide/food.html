@@ -13,8 +13,59 @@
 <meta property="og:url" content="https://ddakjeongsan.com/guide/food" />
 <meta property="og:image" content="https://ddakjeongsan.com/screenshots/og.png" />
 <meta name="twitter:card" content="summary_large_image" />
+<!-- 구조화 데이터: 검색 결과의 경로 표시(BreadcrumbList) + 글 정보(Article). 내용을 고치면 dateModified 와 sitemap.xml lastmod 를 같이 고친다. -->
+<script type="application/ld+json">
+[
+  {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    "itemListElement": [
+      {
+        "@type": "ListItem",
+        "position": 1,
+        "name": "딱정산",
+        "item": "https://ddakjeongsan.com/"
+      },
+      {
+        "@type": "ListItem",
+        "position": 2,
+        "name": "사용 가이드",
+        "item": "https://ddakjeongsan.com/guide"
+      },
+      {
+        "@type": "ListItem",
+        "position": 3,
+        "name": "오늘 뭐먹지 · 메뉴 추천",
+        "item": "https://ddakjeongsan.com/guide/food"
+      }
+    ]
+  },
+  {
+    "@context": "https://schema.org",
+    "@type": "Article",
+    "headline": "오늘 뭐먹지 · 메뉴 추천",
+    "description": "점심·저녁·회식 메뉴 고민 끝. 인원·장르·가격대만 고르면 510개 메뉴 중에서 추천하고, 못 먹는 메뉴는 빼 드려요.",
+    "url": "https://ddakjeongsan.com/guide/food",
+    "mainEntityOfPage": "https://ddakjeongsan.com/guide/food",
+    "image": "https://ddakjeongsan.com/screenshots/og.png",
+    "inLanguage": "ko",
+    "datePublished": "2026-09-30",
+    "dateModified": "2026-10-08",
+    "author": {
+      "@type": "Organization",
+      "name": "딱정산",
+      "url": "https://ddakjeongsan.com/"
+    },
+    "publisher": {
+      "@type": "Organization",
+      "name": "딱정산",
+      "url": "https://ddakjeongsan.com/"
+    }
+  }
+]
+</script>
 <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin="anonymous" />
-<link rel="stylesheet" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
+<link rel="stylesheet" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard-dynamic-subset.min.css" />
 <link rel="stylesheet" href="../src/shared/tokens.css" />
 <link rel="manifest" href="../manifest.webmanifest" />
 <meta name="theme-color" content="#EEF1F4" />
@@ -129,7 +180,7 @@
     <p>
       매장에서 먹는다면 추천 결과의 네이버지도·카카오맵 버튼으로 내 주변 가게를 바로 검색할 수 있습니다(위치 권한 없이 지도 앱이 주변을 찾아 줍니다).
       다 먹고 나면 "정산에 회차로 추가"를 눌러 "2차 마라탕" 같은 회차를 만들고, 금액만 넣으면
-      <a class="inline" href="settle.html">최소 송금으로 정산</a>할 수 있습니다. 누가 낼지는 <a class="inline" href="games.html">미니게임</a>으로 정해도 좋습니다.
+      <a class="inline" href="settle">최소 송금으로 정산</a>할 수 있습니다. 누가 낼지는 <a class="inline" href="games">미니게임</a>으로 정해도 좋습니다.
     </p>
 
     <a class="cta" href="../#/food">오늘 뭐먹지 시작하기</a>

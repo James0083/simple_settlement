@@ -13,8 +13,59 @@
 <meta property="og:url" content="https://ddakjeongsan.com/guide/settle" />
 <meta property="og:image" content="https://ddakjeongsan.com/screenshots/og.png" />
 <meta name="twitter:card" content="summary_large_image" />
+<!-- 구조화 데이터: 검색 결과의 경로 표시(BreadcrumbList) + 글 정보(Article). 내용을 고치면 dateModified 와 sitemap.xml lastmod 를 같이 고친다. -->
+<script type="application/ld+json">
+[
+  {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    "itemListElement": [
+      {
+        "@type": "ListItem",
+        "position": 1,
+        "name": "딱정산",
+        "item": "https://ddakjeongsan.com/"
+      },
+      {
+        "@type": "ListItem",
+        "position": 2,
+        "name": "사용 가이드",
+        "item": "https://ddakjeongsan.com/guide"
+      },
+      {
+        "@type": "ListItem",
+        "position": 3,
+        "name": "더치페이·N빵 정산 계산 방식",
+        "item": "https://ddakjeongsan.com/guide/settle"
+      }
+    ]
+  },
+  {
+    "@context": "https://schema.org",
+    "@type": "Article",
+    "headline": "더치페이·N빵 정산 계산 방식",
+    "description": "N빵부터 메뉴가 다른 더치페이까지, 1차·2차 참여 인원이 다른 모임 비용을 공평하게 나누는 방법. 딱정산의 정산과 송금액 계산 과정을 예시로 설명합니다.",
+    "url": "https://ddakjeongsan.com/guide/settle",
+    "mainEntityOfPage": "https://ddakjeongsan.com/guide/settle",
+    "image": "https://ddakjeongsan.com/screenshots/og.png",
+    "inLanguage": "ko",
+    "datePublished": "2026-09-30",
+    "dateModified": "2026-10-08",
+    "author": {
+      "@type": "Organization",
+      "name": "딱정산",
+      "url": "https://ddakjeongsan.com/"
+    },
+    "publisher": {
+      "@type": "Organization",
+      "name": "딱정산",
+      "url": "https://ddakjeongsan.com/"
+    }
+  }
+]
+</script>
 <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin="anonymous" />
-<link rel="stylesheet" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
+<link rel="stylesheet" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard-dynamic-subset.min.css" />
 <link rel="stylesheet" href="../src/shared/tokens.css" />
 <link rel="manifest" href="../manifest.webmanifest" />
 <meta name="theme-color" content="#EEF1F4" />
@@ -191,7 +242,8 @@
       <li><strong>정확함</strong> — 송금 합계가 결제 총액과 정확히 같아 남거나 모자라는 돈이 없습니다.</li>
     </ul>
     <p>
-      화면 사용법은 <a class="inline" href="../guide.html">사용 가이드</a>에서 볼 수 있습니다.
+      술 안 마신 사람, 생일자, 여행 경비처럼 자주 헷갈리는 경우의 입력 예시는 <a class="inline" href="cases">상황별 정산 방법</a>에,
+      화면 사용법은 <a class="inline" href="../guide">사용 가이드</a>에서 볼 수 있습니다.
     </p>
 
     <a class="cta" href="../">지금 정산해 보기</a>

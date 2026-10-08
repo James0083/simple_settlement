@@ -13,8 +13,53 @@
 <meta property="og:url" content="https://ddakjeongsan.com/guide" />
 <meta property="og:image" content="https://ddakjeongsan.com/screenshots/og.png" />
 <meta name="twitter:card" content="summary_large_image" />
+<!-- 구조화 데이터: 검색 결과의 경로 표시(BreadcrumbList) + 글 정보(Article). 내용을 고치면 dateModified 와 sitemap.xml lastmod 를 같이 고친다. -->
+<script type="application/ld+json">
+[
+  {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    "itemListElement": [
+      {
+        "@type": "ListItem",
+        "position": 1,
+        "name": "딱정산",
+        "item": "https://ddakjeongsan.com/"
+      },
+      {
+        "@type": "ListItem",
+        "position": 2,
+        "name": "사용 가이드",
+        "item": "https://ddakjeongsan.com/guide"
+      }
+    ]
+  },
+  {
+    "@context": "https://schema.org",
+    "@type": "Article",
+    "headline": "사용 가이드",
+    "description": "딱정산 사용법 — 모임 비용 회차별 정산, 오늘 뭐먹지 메뉴 추천, 낼 사람을 정하는 미니게임까지 한 번에 알아보기",
+    "url": "https://ddakjeongsan.com/guide",
+    "mainEntityOfPage": "https://ddakjeongsan.com/guide",
+    "image": "https://ddakjeongsan.com/screenshots/og.png",
+    "inLanguage": "ko",
+    "datePublished": "2026-09-30",
+    "dateModified": "2026-10-08",
+    "author": {
+      "@type": "Organization",
+      "name": "딱정산",
+      "url": "https://ddakjeongsan.com/"
+    },
+    "publisher": {
+      "@type": "Organization",
+      "name": "딱정산",
+      "url": "https://ddakjeongsan.com/"
+    }
+  }
+]
+</script>
 <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin="anonymous" />
-<link rel="stylesheet" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
+<link rel="stylesheet" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard-dynamic-subset.min.css" />
 <link rel="stylesheet" href="./src/shared/tokens.css" />
 <link rel="manifest" href="manifest.webmanifest" />
 <meta name="theme-color" content="#EEF1F4" />
@@ -58,7 +103,7 @@
 </head>
 <body>
   <main class="card">
-    <a class="back" href="index.html">← 딱정산으로 돌아가기</a>
+    <a class="back" href="./">← 딱정산으로 돌아가기</a>
     <h1>딱정산 사용 가이드</h1>
     <p class="lead">
       딱정산은 친구·동료 모임에서 <strong>무엇을 먹을지 정하고, 누가 낼지 정하고, 마지막에 돈을 나누는 일</strong>까지
@@ -69,9 +114,10 @@
       한 탭에서 이름을 추가하면 다른 탭에서도 바로 보입니다.
     </p>
     <ul class="hub">
-      <li><a href="guide/settle.html"><strong>정산 계산 방식</strong><span>1차·2차 모임 비용을 최소 송금으로 나누는 방법</span></a></li>
-      <li><a href="guide/food.html"><strong>뭐먹지 가이드</strong><span>장르별 메뉴, 상황별 메뉴 추천 방법</span></a></li>
-      <li><a href="guide/games.html"><strong>미니게임 가이드</strong><span>사다리 타기·룰렛 등 미니게임 규칙</span></a></li>
+      <li><a href="guide/settle"><strong>정산 계산 방식</strong><span>1차·2차 모임 비용을 최소 송금으로 나누는 방법</span></a></li>
+      <li><a href="guide/cases"><strong>상황별 정산 방법</strong><span>술 안 마신 사람, 생일자, 여행 경비, 카드+현금</span></a></li>
+      <li><a href="guide/food"><strong>뭐먹지 가이드</strong><span>장르별 메뉴, 상황별 메뉴 추천 방법</span></a></li>
+      <li><a href="guide/games"><strong>미니게임 가이드</strong><span>사다리 타기·룰렛 등 미니게임 규칙</span></a></li>
     </ul>
 
     <h2>1. 정산하기</h2>
@@ -84,7 +130,7 @@
       <li><strong>공유하기</strong> — "결과 복사하기"로 단톡방에 바로 붙여 넣거나, "이미지로 저장"으로 결과를 이미지로 보낼 수 있습니다. 휴대폰에서는 이미지를 크게 띄워 주니 길게 눌러 사진첩에 저장하세요.</li>
     </ol>
     <p>
-      어떻게 나누는지 궁금하다면 <a class="inline" href="guide/settle.html">정산 계산 방식</a>에서 예시와 함께 자세히 볼 수 있습니다.
+      어떻게 나누는지 궁금하다면 <a class="inline" href="guide/settle">정산 계산 방식</a>에서 예시와 함께 자세히 볼 수 있습니다.
     </p>
 
     <h3>정산을 잘 쓰는 요령</h3>
@@ -94,6 +140,7 @@
       <li>각자 시킨 메뉴 + 같이 먹은 안주처럼 섞여 있다면, 각자 메뉴 값만 "금액 따로 입력"에 적으세요. 같이 먹은 부분은 자동으로 1/n 됩니다.</li>
       <li>참가자 이름과 계좌는 기기에 저장되어 다음 모임 때 다시 채워집니다. 회차와 금액은 저장하지 않습니다.</li>
     </ul>
+    <p>술 안 마신 사람, 생일자 몫 빼기, 여행 경비처럼 헷갈리는 경우는 <a class="inline" href="guide/cases">상황별 정산 방법</a>에 입력 예시와 송금 결과를 정리했습니다.</p>
 
     <h2>2. 오늘 뭐먹지</h2>
     <p>메뉴를 정하지 못해 시간을 보내는 일이 없도록, 조건만 고르면 메뉴를 골라 줍니다. 메뉴는 510개입니다.</p>
@@ -105,7 +152,7 @@
       <li><strong>가게 찾기</strong> — 매장 식사라면 네이버지도·카카오맵에서 내 주변 가게를 바로 검색하고, 배달이라면 메뉴 이름을 복사해 배달 앱에 붙여 넣으세요.</li>
       <li><strong>정산으로 이어가기</strong> — "정산에 회차로 추가"를 누르면 정산 탭에 "2차 마라탕" 같은 회차가 만들어집니다.</li>
     </ul>
-    <p>장르별 메뉴와 상황별 활용법은 <a class="inline" href="guide/food.html">뭐먹지 가이드</a>에 자세히 정리했습니다.</p>
+    <p>장르별 메뉴와 상황별 활용법은 <a class="inline" href="guide/food">뭐먹지 가이드</a>에 자세히 정리했습니다.</p>
 
     <h2>3. 미니게임으로 낼 사람 정하기</h2>
     <p>
@@ -127,13 +174,13 @@
         <tr><td>동물 레이스</td><td>동물을 하나씩 배정받아 15초 동안 달리고, 꼴찌가 당첨</td></tr>
       </tbody>
     </table></div>
-    <p>효과음은 기본으로 꺼져 있습니다. 게임 화면의 🔊 버튼으로 켜면 훨씬 재미있습니다. 게임별 규칙과 상황별 추천은 <a class="inline" href="guide/games.html">미니게임 가이드</a>에서 볼 수 있습니다.</p>
+    <p>효과음은 기본으로 꺼져 있습니다. 게임 화면의 🔊 버튼으로 켜면 훨씬 재미있습니다. 게임별 규칙과 상황별 추천은 <a class="inline" href="guide/games">미니게임 가이드</a>에서 볼 수 있습니다.</p>
 
     <h2>자주 묻는 질문</h2>
     <h3>입력한 정보는 어디에 저장되나요?</h3>
     <p>
       서버로 보내지 않습니다. 계산은 모두 브라우저 안에서 이뤄지고, 참가자 이름·계좌와 최근 고른 메뉴, 소리 설정만
-      이 기기의 브라우저 저장소에 남습니다. 자세한 내용은 <a class="inline" href="privacy.html">개인정보처리방침</a>을 참고하세요.
+      이 기기의 브라우저 저장소에 남습니다. 자세한 내용은 <a class="inline" href="privacy">개인정보처리방침</a>을 참고하세요.
     </p>
     <h3>앱처럼 설치할 수 있나요?</h3>
     <p>
@@ -141,9 +188,9 @@
       한 번 열어 두면 인터넷이 없어도 정산과 메뉴 추천을 쓸 수 있습니다.
     </p>
     <h3>원하는 메뉴가 없어요.</h3>
-    <p><a class="inline" href="contact.html">문의하기</a>에서 "메뉴추가"로 알려주시면 반영하겠습니다.</p>
+    <p><a class="inline" href="contact">문의하기</a>에서 "메뉴추가"로 알려주시면 반영하겠습니다.</p>
 
-    <a class="cta" href="index.html">딱정산 시작하기</a>
+    <a class="cta" href="./">딱정산 시작하기</a>
   </main>
 <script>
   if ("serviceWorker" in navigator) {

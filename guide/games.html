@@ -13,8 +13,59 @@
 <meta property="og:url" content="https://ddakjeongsan.com/guide/games" />
 <meta property="og:image" content="https://ddakjeongsan.com/screenshots/og.png" />
 <meta name="twitter:card" content="summary_large_image" />
+<!-- 구조화 데이터: 검색 결과의 경로 표시(BreadcrumbList) + 글 정보(Article). 내용을 고치면 dateModified 와 sitemap.xml lastmod 를 같이 고친다. -->
+<script type="application/ld+json">
+[
+  {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    "itemListElement": [
+      {
+        "@type": "ListItem",
+        "position": 1,
+        "name": "딱정산",
+        "item": "https://ddakjeongsan.com/"
+      },
+      {
+        "@type": "ListItem",
+        "position": 2,
+        "name": "사용 가이드",
+        "item": "https://ddakjeongsan.com/guide"
+      },
+      {
+        "@type": "ListItem",
+        "position": 3,
+        "name": "미니게임 · 사다리 타기 · 룰렛",
+        "item": "https://ddakjeongsan.com/guide/games"
+      }
+    ]
+  },
+  {
+    "@context": "https://schema.org",
+    "@type": "Article",
+    "headline": "미니게임 · 사다리 타기 · 룰렛",
+    "description": "오늘 낼 사람을 게임으로! 사다리 타기, 룰렛, 폭탄 돌리기, 해적룰렛 등 폰 하나로 2~15명이 하는 무료 내기 게임.",
+    "url": "https://ddakjeongsan.com/guide/games",
+    "mainEntityOfPage": "https://ddakjeongsan.com/guide/games",
+    "image": "https://ddakjeongsan.com/screenshots/og.png",
+    "inLanguage": "ko",
+    "datePublished": "2026-09-30",
+    "dateModified": "2026-09-30",
+    "author": {
+      "@type": "Organization",
+      "name": "딱정산",
+      "url": "https://ddakjeongsan.com/"
+    },
+    "publisher": {
+      "@type": "Organization",
+      "name": "딱정산",
+      "url": "https://ddakjeongsan.com/"
+    }
+  }
+]
+</script>
 <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin="anonymous" />
-<link rel="stylesheet" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
+<link rel="stylesheet" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard-dynamic-subset.min.css" />
 <link rel="stylesheet" href="../src/shared/tokens.css" />
 <link rel="manifest" href="../manifest.webmanifest" />
 <meta name="theme-color" content="#EEF1F4" />
@@ -143,7 +194,7 @@
     <h2>게임 다음은 정산</h2>
     <p>
       당첨자가 정해지면 "정산에 추가"를 눌러 당첨자가 결제한 회차를 바로 만들 수 있습니다. 금액만 넣으면
-      <a class="inline" href="settle.html">최소 송금으로 정산</a>됩니다. 무엇을 먹을지는 <a class="inline" href="food.html">오늘 뭐먹지</a>에서 정해 보세요.
+      <a class="inline" href="settle">최소 송금으로 정산</a>됩니다. 무엇을 먹을지는 <a class="inline" href="food">오늘 뭐먹지</a>에서 정해 보세요.
     </p>
 
     <a class="cta" href="../#/games">미니게임 시작하기</a>

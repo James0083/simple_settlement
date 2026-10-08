@@ -53,7 +53,7 @@ export function FoodListScreen({ onBack }) {
           먹고 싶은 메뉴가 없나요?<br />
           문의하기에서 <strong>메뉴추가</strong>로 요청해 주세요.
         </p>
-        <a href="contact.html" style=${styles.foodListRequestLink}>문의하기 →</a>
+        <a href="contact" style=${styles.foodListRequestLink}>문의하기 →</a>
       </div>
     </div>
   `;

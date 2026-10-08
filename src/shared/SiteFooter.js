@@ -29,9 +29,9 @@ function AitFooter() {
 
 // 탭마다 사용 가이드 옆에 그 탭의 가이드를 둔다
 const TAB_GUIDES = {
-  settle: { href: "guide/settle.html", label: "정산 계산 방식" },
-  food: { href: "guide/food.html", label: "뭐먹지 가이드" },
-  games: { href: "guide/games.html", label: "미니게임 가이드" },
+  settle: { href: "guide/settle", label: "정산 계산 방식" },
+  food: { href: "guide/food", label: "뭐먹지 가이드" },
+  games: { href: "guide/games", label: "미니게임 가이드" },
 };
 
 export function SiteFooter({ route }) {
@@ -40,23 +40,23 @@ export function SiteFooter({ route }) {
   return html`
     <div style=${styles.footerWrap}>
       <nav style=${styles.footerGuides} aria-label="안내">
-        <a className="footer-guide-link" href="guide.html" style=${styles.footerGuide}>사용 가이드</a>
+        <a className="footer-guide-link" href="guide" style=${styles.footerGuide}>사용 가이드</a>
         <a className="footer-guide-link" href=${tabGuide.href} style=${styles.footerGuide}>${tabGuide.label}</a>
       </nav>
       <footer style=${styles.footer}>
-        <a className="settle-footer-link" href="privacy.html" style=${styles.footerLink}>
+        <a className="settle-footer-link" href="privacy" style=${styles.footerLink}>
           개인정보처리방침
         </a>
         <span style=${styles.footerDot}>·</span>
-        <a className="settle-footer-link" href="terms.html" style=${styles.footerLink}>
+        <a className="settle-footer-link" href="terms" style=${styles.footerLink}>
           이용약관
         </a>
         <span style=${styles.footerDot}>·</span>
-        <a className="settle-footer-link" href="release-notes.html" style=${styles.footerLink}>
+        <a className="settle-footer-link" href="release-notes" style=${styles.footerLink}>
           버전정보
         </a>
         <span style=${styles.footerDot}>·</span>
-        <a className="settle-footer-link" href="contact.html" style=${styles.footerLink}>
+        <a className="settle-footer-link" href="contact" style=${styles.footerLink}>
           문의하기
         </a>
       </footer>
