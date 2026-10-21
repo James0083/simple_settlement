@@ -5,6 +5,7 @@
  * 결판이 안 나면(동점) onFinish 대신 onTie(동점자 id 배열) — 동점자끼리 다시 하거나 다른 게임을 고르게 한다.
  * component 가 null 이면 준비 중.
  * releaseAt: "YYYY-MM-DD" 면 그날 0시(한국 시간)부터 열린다 — 새 게임은 매주 월요일 하나씩 공개.
+ * exactPlayers: 숫자면 정확히 그 인원일 때만 할 수 있다(숨바꼭질은 2명). 없으면 MIN_PLAYERS ~ MAX_PLAYERS.
  */
 import { RouletteGame } from "./RouletteGame.js";
 import { LadderGame } from "./LadderGame.js";
@@ -16,13 +17,18 @@ import { FingerGame } from "./FingerGame.js";
 import { UpDownGame } from "./UpDownGame.js";
 import { TenSecGame } from "./TenSecGame.js";
 import { RaceGame } from "./RaceGame.js";
+import { HideSeekGame } from "./HideSeekGame.js";
 import {
   RouletteIcon, LadderIcon, BombIcon, PirateIcon, CrocodileIcon,
-  TapBattleIcon, FingerIcon, UpDownIcon, TenSecIcon, RaceIcon,
+  TapBattleIcon, FingerIcon, UpDownIcon, TenSecIcon, RaceIcon, HideSeekIcon,
 } from "./gameIcons.js";
 
 export const MIN_PLAYERS = 2;
 export const MAX_PLAYERS = 15; // 뭐먹지 인원 상한(MAX_PEOPLE)과 같게 유지
+
+// 이 게임을 지금 인원으로 할 수 있는지
+export const playersOkFor = (game, count) =>
+  game.exactPlayers ? count === game.exactPlayers : count >= MIN_PLAYERS && count <= MAX_PLAYERS;
 
 export const GAMES = [
   { id: "roulette", name: "룰렛", emoji: "🎯", icon: RouletteIcon, desc: "원판을 돌려 한 명을 뽑아요", component: RouletteGame },
@@ -36,4 +42,5 @@ export const GAMES = [
   { id: "updown", name: "숫자 맞추기", emoji: "🔢", icon: UpDownIcon, desc: "폰을 돌아가며 진행 · 약 2~5분 걸려요", component: UpDownGame, releaseAt: "2026-10-12" },
   { id: "tensec", name: "10초 맞추기", emoji: "⏱️", icon: TenSecIcon, desc: "10초에서 가장 먼 사람이 당첨", component: TenSecGame, releaseAt: "2026-10-19" },
   { id: "race", name: "동물 레이스", emoji: "🏇", icon: RaceIcon, desc: "꼴찌로 들어오면 당첨", component: RaceGame, releaseAt: "2026-10-26" },
+  { id: "hideseek", name: "숨바꼭질", emoji: "🕵️", icon: HideSeekIcon, desc: "2명 전용 · 말을 숨기고 상대 말을 먼저 다 찾으면 승리", component: HideSeekGame, releaseAt: "2026-11-02", exactPlayers: 2 },
 ];

@@ -15,7 +15,7 @@ import { isSoundOn, setSoundOn, onSoundChange } from "./sfx.js";
 import { ReceiptCard, ScreenHeader } from "../shared/ReceiptCard.js";
 import { DiceIcon } from "../shared/icons.js";
 import { ChipGroup } from "../shared/ChipGroup.js";
-import { GAMES, MIN_PLAYERS, MAX_PLAYERS } from "./registry.js";
+import { GAMES, MIN_PLAYERS, MAX_PLAYERS, playersOkFor } from "./registry.js";
 import { GameResult } from "./GameResult.js";
 import { AdSlot } from "../shared/AdSlot.js";
 import { trackEvent } from "#platform";
@@ -153,7 +153,6 @@ export function GamesScreen({ s, sub }) {
   const players = roster
     .filter((p) => !excluded.includes(p.id))
     .map((p) => ({ id: p.id, name: p.name.trim() }));
-  const countOk = players.length >= MIN_PLAYERS && players.length <= MAX_PLAYERS;
 
   // 동점자만 참가자로 남기고 게임 목록으로 — 다른 게임으로 결판
   const pickTied = (ids) => {
@@ -164,7 +163,7 @@ export function GamesScreen({ s, sub }) {
   };
 
   const game = GAMES.find((g) => g.id === sub);
-  if (game && canPlay(game) && game.component && countOk) {
+  if (game && canPlay(game) && game.component && playersOkFor(game, players.length)) {
     // 게임마다 key 를 달리해, 다른 게임으로 옮겨가면 이전 결과·판 수가 남지 않게 한다.
     return html`<${GamePlay} key=${game.id} game=${game} players=${players} s=${s} onPickTied=${pickTied} />`;
   }
@@ -182,8 +181,14 @@ export function GamesScreen({ s, sub }) {
       setNotice(`${g.name}${josa(g.name, "은/는")} ${g.releaseAt ? releaseLabel(g) + "돼요!" : "곧 열려요!"}`);
       return;
     }
-    if (!countOk) {
-      setNotice(players.length < MIN_PLAYERS ? "참가자를 2명 이상 골라주세요" : `최대 ${MAX_PLAYERS}명까지 할 수 있어요`);
+    if (!playersOkFor(g, players.length)) {
+      setNotice(
+        g.exactPlayers
+          ? `${g.name}${josa(g.name, "은/는")} 정확히 ${g.exactPlayers}명이 필요해요 (지금 ${players.length}명)`
+          : players.length < MIN_PLAYERS
+            ? "참가자를 2명 이상 골라주세요"
+            : `최대 ${MAX_PLAYERS}명까지 할 수 있어요`
+      );
       return;
     }
     setNotice("");

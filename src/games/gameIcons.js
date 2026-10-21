@@ -725,6 +725,32 @@ function Elephant({ size }) {
   <//>`;
 }
 
+// 숨바꼭질 — 3×3 판에 숨은 졸라맨 하나 + 찾은 칸(💥 느낌의 빨간 별) + 빗나간 칸(점)
+export function HideSeekIcon({ size = 32 }) {
+  const cells = [0, 1, 2].flatMap((r) => [0, 1, 2].map((c) => [8 + c * 17, 8 + r * 17]));
+  return html`
+    <svg xmlns="http://www.w3.org/2000/svg" width=${size} height=${size} viewBox="0 0 64 64">
+      <rect x="4" y="4" width="56" height="56" rx="6" fill="#ECEFF1"/>
+      ${cells.map(([x, y], i) => html`<rect key=${i} x=${x} y=${y} width="14" height="14" rx="2" fill="white" stroke="#CFD8DC"/>`)}
+      <!-- 숨은 말 (졸라맨) -->
+      <rect x="25" y="25" width="14" height="14" rx="2" fill="#E6F7EF" stroke="#0F9D64"/>
+      <g stroke="#1A1D29" strokeWidth="1.6" strokeLinecap="round" fill="none">
+        <circle cx="32" cy="28.6" r="1.8" fill="#1A1D29"/>
+        <line x1="32" y1="30.5" x2="32" y2="34.5"/>
+        <line x1="28.8" y1="32" x2="35.2" y2="32"/>
+        <line x1="32" y1="34.5" x2="29.6" y2="37.4"/>
+        <line x1="32" y1="34.5" x2="34.4" y2="37.4"/>
+      </g>
+      <!-- 찾은 칸 -->
+      <rect x="42" y="8" width="14" height="14" rx="2" fill="#FDF0EC" stroke="#E8503A"/>
+      <path d="M49 10.5l1.4 3.1 3.3-.9-1.6 3 2.6 2.1-3.3.6.2 3.4-2.6-2.2-2.6 2.2.2-3.4-3.3-.6 2.6-2.1-1.6-3 3.3.9z" fill="#E8503A"/>
+      <!-- 빗나간 칸 -->
+      <circle cx="15" cy="49" r="2.4" fill="#9AA0B0"/>
+      <circle cx="49" cy="32" r="2.4" fill="#9AA0B0"/>
+    </svg>
+  `;
+}
+
 const ANIMAL_COMPONENTS = {
   turtle: Turtle, rabbit: Rabbit, dog: Dog, cat: Cat,
   frog: Frog, bear: Bear, panda: Panda, fox: Fox, mouse: Mouse, lion: Lion,

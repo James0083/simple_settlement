@@ -248,7 +248,7 @@ export const styles = {
     updownRangeHint: { margin: "2px 0 20px", fontSize: 11.5, color: C_MUTED, textAlign: "center" },
     updownInput: { textAlign: "center", fontSize: 32, fontWeight: 800, letterSpacing: "4px", marginBottom: 4, fontVariantNumeric: "tabular-nums" },
     feedbackEmoji: { fontSize: 72, lineHeight: 1, margin: "12px 0" },
-    feedbackTitle: { fontSize: 24, fontWeight: 900, color: C_DARK, margin: "0 0 8px", letterSpacing: "-0.5px", textAlign: "center" },
+    feedbackTitle: { fontSize: 24, fontWeight: 900, color: C_DARK, margin: "0 0 8px", letterSpacing: "-0.5px", textAlign: "center", wordBreak: "keep-all" },
     feedbackRange: { fontSize: 18, fontWeight: 800, color: C_DARK, margin: "0 0 8px", fontVariantNumeric: "tabular-nums" },
     // 10초 맞추기
     tensecDial: { width: 160, height: 160, borderRadius: "50%", border: "6px solid #E3E6EC", margin: "20px auto 8px", display: "flex", alignItems: "center", justifyContent: "center", background: "#F6F8FB", fontSize: 64 },
@@ -257,6 +257,18 @@ export const styles = {
     tensecPeekError: { fontSize: 16, fontWeight: 800, margin: "6px 0 0", fontVariantNumeric: "tabular-nums" },
     tensecElapsed: { fontSize: 13, color: C_MUTED, fontVariantNumeric: "tabular-nums" },
     tensecError: { minWidth: 60, fontSize: 12, fontWeight: 700, color: C_MUTED, textAlign: "right", fontVariantNumeric: "tabular-nums" },
+    // 숨바꼭질 — 격자 판 (칸 수는 gridTemplateColumns 를 인라인으로)
+    bsRules: { textAlign: "center", fontSize: 14, lineHeight: 1.7, color: C_SUB, margin: "4px 0 16px" },
+    bsCaption: { textAlign: "center", fontSize: 12.5, fontWeight: 700, color: "#8A8FA3", margin: "0 0 8px" },
+    bsBoard: { display: "grid", gap: 4, width: "100%", maxWidth: 340, margin: "0 auto", userSelect: "none", WebkitUserSelect: "none" },
+    bsBoardSmall: { maxWidth: 216, gap: 3 },
+    bsCell: { aspectRatio: "1", minWidth: 0, padding: 0, display: "flex", alignItems: "center", justifyContent: "center", borderWidth: 1.5, borderStyle: "solid", borderColor: "#DDE1E8", borderRadius: 4, background: C_WHITE, fontFamily: "inherit", fontSize: 22, lineHeight: 1, color: C_DARK, WebkitTapHighlightColor: "transparent", transition: "background 0.12s, border-color 0.12s" },
+    bsCellSmall: { fontSize: 13, borderWidth: 1 },
+    bsCellEmpty: { background: "#F6F8FB" },
+    bsCellPlaced: { background: "#E6F7EF", borderColor: C_GREEN },
+    bsCellHit: { background: "#FDF0EC", borderColor: C_RED },
+    bsCellMiss: { background: "#F6F8FB", borderColor: "#E3E6EC", color: C_MUTED, fontSize: 28, fontWeight: 900 },
+    bsRevealRow: { display: "flex", flexDirection: "column", gap: 16, margin: "8px 0 12px" },
     // 동물 레이스
     raceHead: { display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 10 },
     raceStatus: { fontSize: 13, fontWeight: 700, color: "#8A8FA3", margin: 0 },
