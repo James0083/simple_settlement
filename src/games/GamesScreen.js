@@ -3,13 +3,15 @@
  *   #/games          참가자 고르기 + 게임 고르기
  *   #/games/<게임id>  플레이 → 결과 → (정산에 추가 · 한 판 더 · 다른 게임)
  * 참가자는 정산 명단(s.validParticipants)을 그대로 쓰고, 이 탭에서 뺄 사람만 따로 기억한다.
+ * 게임 카드의 ★ 로 자주 하는 게임을 목록 맨 앞에 고정한다(기기에 "gameFavorites" 로 저장). 순서는 gamesInListOrder.
  * 결과의 당첨자 id 가 정산 참가자 id 와 같으므로 그대로 회차로 넘길 수 있다.
  */
 import { useState, useEffect } from "react";
 import { html } from "../shared/html.js";
 import { styles, C_RED, C_MUTED } from "../shared/styles.js";
 import { navigate, routeHref } from "../shared/router.js";
-import { canPlay, releaseLabel } from "../shared/entitlements.js";
+import { canPlay, releaseLabel, isNewGame } from "../shared/entitlements.js";
+import { load, save } from "../shared/storage.js";
 import { josa } from "./josa.js";
 import { isSoundOn, setSoundOn, onSoundChange } from "./sfx.js";
 import { ReceiptCard, ScreenHeader } from "../shared/ReceiptCard.js";
@@ -159,6 +161,17 @@ export function GamesScreen({ s, sub }) {
   const [excluded, setExcluded] = useState([]); // 이번 게임에서 뺀 참가자 id
   const [newName, setNewName] = useState("");
   const [notice, setNotice] = useState("");
+  const [favorites, setFavorites] = useState(() => {
+    const saved = load("gameFavorites", []);
+    return Array.isArray(saved) ? saved.filter((id) => typeof id === "string") : [];
+  });
+  const updateFavorites = (next) => {
+    setFavorites(next);
+    save("gameFavorites", next);
+  };
+  // 누른 순서대로 맨 앞에 쌓인다. 다시 누르면 빠진다.
+  const toggleFavorite = (id) =>
+    updateFavorites(favorites.includes(id) ? favorites.filter((f) => f !== id) : [...favorites, id]);
 
   const roster = s.validParticipants;
   const players = roster
@@ -174,7 +187,7 @@ export function GamesScreen({ s, sub }) {
   };
 
   const game = GAMES.find((g) => g.id === sub);
-  if (game && canPlay(game) && game.component && playersOkFor(game, players.length)) {
+  if (game && canPlay(game) && playersOkFor(game, players.length)) {
     // 게임마다 key 를 달리해, 다른 게임으로 옮겨가면 이전 결과·판 수가 남지 않게 한다.
     return html`<${GamePlay} key=${game.id} game=${game} players=${players} s=${s} onPickTied=${pickTied} />`;
   }
@@ -188,7 +201,7 @@ export function GamesScreen({ s, sub }) {
   };
 
   const openGame = (g) => {
-    if (!canPlay(g) || !g.component) {
+    if (!canPlay(g)) {
       setNotice(`${g.name}${josa(g.name, "은/는")} ${g.releaseAt ? releaseLabel(g) + "돼요!" : "곧 열려요!"}`);
       return;
     }
@@ -266,24 +279,50 @@ export function GamesScreen({ s, sub }) {
 
       <${AdSlot} placement="games-mid" />
 
-      <div style=${styles.sectionLabel}>게임</div>
+      <div style=${styles.gameListHead}>
+        <span style=${styles.sectionLabelInline}>게임</span>
+        <span style=${styles.gameListHint}>☆ 를 누르면 맨 앞에 고정돼요</span>
+        ${favorites.length > 0 &&
+        html`
+          <button type="button" className="settle-add-btn" style=${styles.shuffleBtn} onClick=${() => updateFavorites([])}>
+            기본 순서로
+          </button>
+        `}
+      </div>
       <div style=${styles.gameGrid}>
-        ${gamesInListOrder().map((g) => {
-          const open = canPlay(g) && !!g.component;
+        ${gamesInListOrder(undefined, { favorites }).map((g) => {
+          const open = canPlay(g);
+          const fav = favorites.includes(g.id);
           return html`
-            <button
-              key=${g.id}
-              type="button"
-              className=${open ? "game-card" : "game-card game-card-locked"}
-              style=${{ ...styles.gameCard, ...(open ? null : styles.gameCardLocked) }}
-              onClick=${() => openGame(g)}
-            >
-              <span style=${styles.gameCardEmoji} aria-hidden="true">
-                ${g.icon ? html`<${g.icon} size=${28} />` : g.emoji}
-              </span>
-              <span style=${styles.gameCardName}>${g.name}</span>
-              <span style=${styles.gameCardDesc}>${open ? g.desc : `🔒 ${releaseLabel(g)}`}</span>
-            </button>
+            <div key=${g.id} style=${styles.gameCardWrap}>
+              <button
+                type="button"
+                className=${open ? "game-card" : "game-card game-card-locked"}
+                style=${{ ...styles.gameCard, ...(open ? null : styles.gameCardLocked) }}
+                onClick=${() => openGame(g)}
+              >
+                <span style=${styles.gameCardEmoji} aria-hidden="true">
+                  ${g.icon ? html`<${g.icon} size=${28} />` : g.emoji}
+                </span>
+                <span style=${styles.gameCardName}>
+                  ${g.name}
+                  ${open && isNewGame(g) && html`<span style=${styles.gameCardNew}>NEW</span>`}
+                </span>
+                <span style=${styles.gameCardDesc}>${open ? g.desc : `🔒 ${releaseLabel(g)}`}</span>
+              </button>
+              ${open &&
+              html`
+                <button
+                  type="button"
+                  style=${{ ...styles.favBtn, ...(fav ? styles.favBtnOn : null) }}
+                  onClick=${() => toggleFavorite(g.id)}
+                  aria-pressed=${fav}
+                  aria-label=${`${g.name} 맨 앞에 고정`}
+                >
+                  ${fav ? "★" : "☆"}
+                </button>
+              `}
+            </div>
           `;
         })}
       </div>

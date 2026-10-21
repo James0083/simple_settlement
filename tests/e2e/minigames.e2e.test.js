@@ -260,3 +260,39 @@ test("기억력 릴레이 — 375×667 에서 차례마다 버튼 4개가 모두
   }
   await page.close();
 });
+
+test("게임 목록 — ★ 로 맨 앞에 고정하고 기기에 남는다, NEW 뱃지, 잠긴 게임은 맨 뒤", async () => {
+  const page = await app.browser.newPage({ viewport: { width: 375, height: 667 } });
+  const errors = collectErrors(page);
+  await openWithStorage(page, `${app.url}/#/games`, { roster: roster(...NAMES) });
+  const names = () => page.locator("button.game-card").evaluateAll((cards) => cards.map((c) => c.querySelector("span:nth-child(2)").firstChild.textContent.trim()));
+  const lockedFlags = () => page.locator("button.game-card").evaluateAll((cards) => cards.map((c) => c.classList.contains("game-card-locked")));
+
+  const flags = await lockedFlags();
+  const firstLocked = flags.indexOf(true);
+  if (firstLocked >= 0) assert.ok(flags.slice(firstLocked).every(Boolean), "잠긴 게임은 모두 맨 뒤");
+  assert.equal(await page.getByRole("button", { name: "기본 순서로" }).count(), 0);
+  assert.equal(await page.getByRole("button", { name: /맨 앞에 고정$/ }).count(), flags.filter((f) => !f).length, "잠긴 게임에는 ★ 가 없다");
+
+  // 10초 맞추기(10/19 공개)는 11/2 까지 NEW
+  if (Date.now() < Date.parse("2026-11-02T00:00:00+09:00")) {
+    assert.ok((await page.locator("button.game-card", { hasText: "10초 맞추기" }).innerText()).includes("NEW"));
+  }
+  assert.equal((await page.locator("button.game-card", { hasText: "룰렛" }).first().innerText()).includes("NEW"), false);
+
+  await page.getByRole("button", { name: "악어이빨 맨 앞에 고정" }).click();
+  await page.getByRole("button", { name: "사다리 타기 맨 앞에 고정" }).click();
+  assert.deepEqual((await names()).slice(0, 2), ["악어이빨", "사다리 타기"]);
+  assert.equal(await page.getByRole("button", { name: "악어이빨 맨 앞에 고정" }).getAttribute("aria-pressed"), "true");
+
+  await page.reload();
+  assert.deepEqual((await names()).slice(0, 2), ["악어이빨", "사다리 타기"], "새로고침 뒤에도 유지");
+
+  await page.getByRole("button", { name: "악어이빨 맨 앞에 고정" }).click(); // 다시 누르면 빠진다
+  assert.equal((await names())[0], "사다리 타기");
+  await page.getByRole("button", { name: "기본 순서로" }).click();
+  assert.equal((await names())[0], "룰렛");
+  assert.equal(await noHScroll(page), true);
+  assert.deepEqual(errors, []);
+  await page.close();
+});

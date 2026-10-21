@@ -2,7 +2,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { GAMES, MIN_PLAYERS, MAX_PLAYERS, playersOkFor } from "../../src/games/registry.js";
-import { releaseTime, releaseLabel, isReleased } from "../../src/shared/entitlements.js";
+import { releaseLabel, isReleased, isNewGame, newUntil, NEW_BADGE_DAYS } from "../../src/shared/entitlements.js";
 import { randInt, shuffle } from "../../src/games/random.js";
 
 test("게임 id 는 겹치지 않고, 모두 컴포넌트가 있다", () => {
@@ -31,10 +31,21 @@ test("releaseAt — YYYY-MM-DD 형식이고 월요일", () => {
   }
 });
 
-// 공개일이 지난 게임은 releaseAt 을 지운다(registry.js 규칙). 날짜가 지나면 이 테스트가 실패해 정리할 때를 알려준다.
-test("공개일이 지난 releaseAt 이 남아 있지 않다", () => {
-  const stale = GAMES.filter((g) => g.releaseAt && releaseTime(g) <= Date.now()).map((g) => `${g.id}(${g.releaseAt})`);
-  assert.deepEqual(stale, [], `공개일이 지났으니 registry.js 에서 releaseAt 을 지우세요: ${stale.join(", ")}`);
+// 공개 뒤 NEW 뱃지 기간(2주)이 끝난 게임은 releaseAt 을 지운다(registry.js 규칙). 때가 되면 이 테스트가 실패해 알려준다.
+test("NEW 뱃지 기간이 끝난 releaseAt 이 남아 있지 않다", () => {
+  const stale = GAMES.filter((g) => g.releaseAt && newUntil(g) <= Date.now()).map((g) => `${g.id}(${g.releaseAt})`);
+  assert.deepEqual(stale, [], `NEW 기간이 끝났으니 registry.js 에서 releaseAt 을 지우세요: ${stale.join(", ")}`);
+});
+
+test("NEW 뱃지 — 공개한 날부터 2주 동안만", () => {
+  const g = { releaseAt: "2026-11-02" };
+  const open = Date.parse("2026-11-02T00:00:00+09:00");
+  const day = 24 * 3600e3;
+  assert.equal(isNewGame(g, open - 1), false); // 공개 전
+  assert.equal(isNewGame(g, open), true);
+  assert.equal(isNewGame(g, open + NEW_BADGE_DAYS * day - 1), true);
+  assert.equal(isNewGame(g, open + NEW_BADGE_DAYS * day), false);
+  assert.equal(isNewGame({}, open), false); // releaseAt 이 없으면 오래된 게임
 });
 
 test("공개 판정 · 표시 — 한국 시간 그날 0시에 열린다", () => {

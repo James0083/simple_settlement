@@ -84,12 +84,30 @@ test("라이어 게임 — 최근에 나온 제시어는 다시 뽑지 않고, �
   assert.ok(words.includes(pickWord(words, words)));
 });
 
-test("목록 순서 — 복불복 나눠내기는 공개되는 순간 맨 앞, 공개 전에는 제자리", () => {
-  const ids = (released) => gamesInListOrder(GAMES, released).map((g) => g.id);
-  const before = ids((g) => !g.releaseAt);
-  assert.deepEqual(before, GAMES.map((g) => g.id));
-  const after = ids((g) => !g.releaseAt || g.id === "splitluck");
-  assert.equal(after[0], "splitluck");
-  assert.equal(after.length, GAMES.length);
-  assert.deepEqual(after.slice(1), GAMES.map((g) => g.id).filter((id) => id !== "splitluck"));
+test("목록 순서 — 즐겨찾기 → (즐겨찾기가 없으면) 공개된 복불복 → 나머지 공개 게임 → 잠긴 게임", () => {
+  const games = [
+    { id: "a" }, { id: "b" }, { id: "c" },
+    { id: "pin", pinFirst: true, locked: true },
+    { id: "late", locked: true },
+  ];
+  const order = (opts) => gamesInListOrder(games, opts).map((g) => g.id);
+  const lockedUntil = (open) => (g) => !g.locked || open.includes(g.id);
+
+  // 아무것도 안 정했고 복불복이 아직 잠김 → 제 순서, 잠긴 게임은 뒤
+  assert.deepEqual(order({ released: lockedUntil([]) }), ["a", "b", "c", "pin", "late"]);
+  // 복불복이 공개되는 순간 맨 앞
+  assert.deepEqual(order({ released: lockedUntil(["pin"]) }), ["pin", "a", "b", "c", "late"]);
+  // 즐겨찾기가 있으면 그 순서가 먼저이고 복불복도 다른 게임처럼 제자리
+  assert.deepEqual(order({ favorites: ["c", "a"], released: lockedUntil(["pin"]) }), ["c", "a", "b", "pin", "late"]);
+  // 새로 공개된 게임은 공개 게임 맨 아래, 아직 잠긴 게임은 그 뒤
+  assert.deepEqual(order({ favorites: ["c"], released: lockedUntil(["pin", "late"]) }), ["c", "a", "b", "pin", "late"]);
+  // 잠긴 게임 · 없는 게임 id 는 즐겨찾기에 있어도 무시
+  assert.deepEqual(order({ favorites: ["late", "zzz", "b"], released: lockedUntil([]) }), ["b", "a", "c", "pin", "late"]);
+});
+
+test("목록 순서 — 실제 목록: 잠긴 게임은 모두 맨 뒤", () => {
+  const list = gamesInListOrder(GAMES, { released: (g) => !g.releaseAt || g.releaseAt < "2026-10-26" });
+  const firstLocked = list.findIndex((g) => g.releaseAt >= "2026-10-26");
+  assert.ok(list.slice(firstLocked).every((g) => g.releaseAt >= "2026-10-26"));
+  assert.equal(list.length, GAMES.length);
 });

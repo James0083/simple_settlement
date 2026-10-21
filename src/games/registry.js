@@ -6,10 +6,12 @@
  * 결판이 안 나면(동점) onFinish 대신 onTie(동점자 id 배열) — 동점자끼리 다시 하거나 다른 게임을 고르게 한다.
  * component 가 null 이면 준비 중.
  * releaseAt: "YYYY-MM-DD" 면 그날 0시(한국 시간)부터 열린다 — 새 게임은 매주 월요일 하나씩 공개.
- *   공개일이 지나면 releaseAt 을 지운다(없으면 이미 공개로 본다). npm test 가 지난 날짜를 잡아낸다.
+ *   공개 뒤 2주(NEW_BADGE_DAYS) 동안 카드에 NEW 뱃지가 붙고, 그 뒤에는 releaseAt 을 지운다(없으면 이미 공개).
+ *   npm test 가 지울 때가 된 날짜를 잡아낸다.
+ * 새 게임은 GAMES 맨 끝에 추가한다 — 공개된 게임 중 맨 아래에 보인다(잠긴 게임은 그보다 뒤).
  * exactPlayers: 숫자면 정확히 그 인원일 때만 할 수 있다(숨바꼭질은 2명).
  * minPlayers · maxPlayers: 이 게임만의 인원 범위(라이어 게임은 3~10명). 없으면 MIN_PLAYERS ~ MAX_PLAYERS.
- * pinFirst: 공개되는 순간 목록 맨 앞에 보인다(공개 전에는 제자리에서 잠금 표시). releaseAt 을 지운 뒤에도 맨 앞에 남는다.
+ * pinFirst: 공개되는 순간 목록 맨 앞에 보인다. 단, 사용자가 즐겨찾기(★)를 하나라도 정했으면 그 순서가 우선이다.
  */
 import { RouletteGame } from "./RouletteGame.js";
 import { LadderGame } from "./LadderGame.js";
@@ -27,7 +29,7 @@ import { SplitLuckGame } from "./SplitLuckGame.js";
 import { StackGame } from "./StackGame.js";
 import { SimonGame } from "./SimonGame.js";
 import { LiarGame } from "./LiarGame.js";
-import { isReleased } from "../shared/entitlements.js";
+import { canPlay } from "../shared/entitlements.js";
 import {
   RouletteIcon, LadderIcon, BombIcon, PirateIcon, CrocodileIcon,
   TapBattleIcon, FingerIcon, UpDownIcon, TenSecIcon, RaceIcon, HideSeekIcon,
@@ -58,8 +60,8 @@ export const GAMES = [
 
   { id: "tap", name: "터치 대결", emoji: "⚡", icon: TapBattleIcon, desc: "2명은 화면 땅따먹기, 3명부터는 5초 연타 — 지면 당첨", component: TapBattleGame },
   { id: "finger", name: "손가락 룰렛", emoji: "👆", icon: FingerIcon, desc: "화면에 손가락을 올리면 한 명 선택", component: FingerGame },
-  { id: "updown", name: "숫자 맞추기", emoji: "🔢", icon: UpDownIcon, desc: "폰을 돌아가며 진행 · 약 2~5분 걸려요", component: UpDownGame },
-  { id: "tensec", name: "10초 맞추기", emoji: "⏱️", icon: TenSecIcon, desc: "10초에서 가장 먼 사람이 당첨", component: TenSecGame },
+  { id: "updown", name: "숫자 맞추기", emoji: "🔢", icon: UpDownIcon, desc: "폰을 돌아가며 진행 · 약 2~5분 걸려요", component: UpDownGame, releaseAt: "2026-10-12" },
+  { id: "tensec", name: "10초 맞추기", emoji: "⏱️", icon: TenSecIcon, desc: "10초에서 가장 먼 사람이 당첨", component: TenSecGame, releaseAt: "2026-10-19" },
   { id: "race", name: "동물 레이스", emoji: "🏇", icon: RaceIcon, desc: "꼴찌로 들어오면 당첨", component: RaceGame, releaseAt: "2026-10-26" },
   { id: "hideseek", name: "숨바꼭질", emoji: "🕵️", icon: HideSeekIcon, desc: "2명 전용 · 말을 숨기고 상대 말을 먼저 다 찾으면 승리", component: HideSeekGame, releaseAt: "2026-11-02", exactPlayers: 2 },
   { id: "reaction", name: "반응속도", emoji: "🚦", icon: ReactionIcon, desc: "초록불이 켜지면 누르기 · 가장 느리면 당첨", component: ReactionGame, releaseAt: "2026-11-09" },
@@ -69,8 +71,19 @@ export const GAMES = [
   { id: "liar", name: "라이어 게임", emoji: "🤥", icon: LiarIcon, desc: "3~10명 · 제시어를 모르는 라이어 찾기 · 약 5~10분", component: LiarGame, releaseAt: "2026-12-07", minPlayers: 3, maxPlayers: 10 },
 ];
 
-// 게임 목록에 보이는 순서 — 공개된 pinFirst 게임을 맨 앞으로, 나머지는 GAMES 순서 그대로
-export const gamesInListOrder = (games = GAMES, released = isReleased) => {
-  const pinned = games.filter((g) => g.pinFirst && released(g));
-  return [...pinned, ...games.filter((g) => !pinned.includes(g))];
-};
+/*
+ * 게임 목록에 보이는 순서
+ *   1) 즐겨찾기(★) — 고정한 순서대로. 잠긴 게임은 즐겨찾기할 수 없다
+ *   2) 즐겨찾기가 없을 때만: 공개된 pinFirst 게임
+ *   3) 나머지 공개된 게임 — GAMES 순서(새 게임은 맨 끝에 등록하므로 맨 아래)
+ *   4) 잠긴 게임 — 맨 뒤
+ * favorites 는 기기에 저장된 게임 id 배열. 없어진 게임 id 는 무시한다.
+ */
+export function gamesInListOrder(games = GAMES, { favorites = [], released = canPlay } = {}) {
+  const open = games.filter((g) => released(g));
+  const locked = games.filter((g) => !released(g));
+  const favs = favorites.map((id) => open.find((g) => g.id === id)).filter(Boolean);
+  const rest = open.filter((g) => !favs.includes(g));
+  const pinned = favs.length === 0 ? rest.filter((g) => g.pinFirst) : [];
+  return [...favs, ...pinned, ...rest.filter((g) => !pinned.includes(g)), ...locked];
+}

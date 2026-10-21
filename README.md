@@ -34,7 +34,8 @@
 ### 미니게임
 
 - 2~15명, 폰 한 대를 돌려가며 하는 게임 16종: 룰렛 · 사다리 타기 · 폭탄 돌리기 · 해적룰렛(3D) · 악어이빨(3D) · 터치 대결 · 손가락 룰렛 · 숫자 맞추기 · 10초 맞추기 · 동물 레이스 · 숨바꼭질(2명 전용) · 반응속도 · 복불복 나눠내기 · 탑 쌓기 · 기억력 릴레이 · 라이어 게임(3~10명)
-- 새 게임은 `registry.js`의 `releaseAt`으로 **매주 월요일 하나씩** 자동 공개(한국 시간 0시) — 지금 예약: 동물 레이스 10/26, 숨바꼭질 11/2, 반응속도 11/9, 복불복 나눠내기 11/16, 탑 쌓기 11/23, 기억력 릴레이 11/30, 라이어 게임 12/7 (계획: `admin/PLAN_next_games.md`). 공개 전에는 카드에 공개일 표시. 공개일이 지나면 `releaseAt` 을 지운다(`npm test` 가 지난 날짜를 잡아냄)
+- 새 게임은 `registry.js`의 `releaseAt`으로 **매주 월요일 하나씩** 자동 공개(한국 시간 0시) — 지금 예약: 동물 레이스 10/26, 숨바꼭질 11/2, 반응속도 11/9, 복불복 나눠내기 11/16, 탑 쌓기 11/23, 기억력 릴레이 11/30, 라이어 게임 12/7 (계획: `admin/PLAN_next_games.md`). 공개 전에는 카드에 공개일 표시. 공개 뒤 2주 동안 카드에 NEW 뱃지, 그 뒤 `releaseAt` 을 지운다(`npm test` 가 지울 때가 된 날짜를 잡아냄)
+- 게임 목록 순서(`gamesInListOrder`): ★ 즐겨찾기(누른 순서, 기기에 저장) → 즐겨찾기가 없을 때만 공개된 `pinFirst` 게임 → 나머지 공개 게임(`GAMES` 순서 — 새 게임은 맨 끝에 등록하므로 맨 아래) → 잠긴 게임. "기본 순서로"로 즐겨찾기를 비움
 - 인원이 정해진 게임은 `registry.js` 의 `exactPlayers`(숨바꼭질 = 2) 또는 `minPlayers` · `maxPlayers`(라이어 게임 = 3~10). 인원이 안 맞으면 카드를 눌러도 "정확히 2명이 필요해요" · "3명 이상 필요해요"로 막음(`playersOkFor`)
 - `pinFirst`(복불복 나눠내기): 공개되는 순간 목록 맨 앞으로(`gamesInListOrder`)
 - 폰을 돌려 가며 하는 게임은 차례마다 `useScrollToStage(active, turnKey)` 로 무대를 화면 맨 위로 올리고 탭바 위 화면 높이만큼 늘림
@@ -86,7 +87,7 @@
 
 `useSettlement`는 셸(`App.js`)에서 호출하므로 탭을 옮겨도 입력이 남고, 다른 탭은 `addRoundFrom({ title, payerId, amount, participantIds })`으로 회차를 넘깁니다. 아무것도 입력하지 않은 회차 하나만 있으면 그 회차를 대체합니다.
 
-localStorage 키 (모두 `ddak:` 접두사, `src/shared/storage.js`의 `load`/`save`로만 접근, 실패 시 저장 없이 동작): `roster`(명단) · `foodHistory`(최근 고른 메뉴 10개) · `sound`(효과음) · `liarCategory` · `liarRecent`(라이어 게임 마지막 카테고리 · 최근 제시어 30개) · `entitlements`(`previewGames` — 공개 전 게임 미리 열기, `adFree`) · `coupangWeights`(쿠팡 배너 가중치, 개발·테스트용)
+localStorage 키 (모두 `ddak:` 접두사, `src/shared/storage.js`의 `load`/`save`로만 접근, 실패 시 저장 없이 동작): `roster`(명단) · `foodHistory`(최근 고른 메뉴 10개) · `sound`(효과음) · `liarCategory` · `liarRecent`(라이어 게임 마지막 카테고리 · 최근 제시어 30개) · `gameFavorites`(★ 고정한 게임 id, 누른 순서) · `entitlements`(`previewGames` — 공개 전 게임 미리 열기, `adFree`) · `coupangWeights`(쿠팡 배너 가중치, 개발·테스트용)
 
 ## 정산 알고리즘
 
@@ -362,7 +363,7 @@ npm run test:e2e   # 브라우저 테스트 (정산 금액 따로 입력 · 결�
 ### 테스트
 
 - Node 내장 테스트 러너(`node:test`)를 씁니다. 테스트 프레임워크 의존성 없음.
-- **단위** `tests/unit/` — 정산 계산은 가이드 글(`guide/settle` · `guide/cases`)의 예시를 기대값으로 씁니다. 게임 레지스트리 테스트는 **공개일이 지난 `releaseAt` 이 남아 있으면 실패**해서 정리할 때를 알려줍니다(공개일이 지나면 `registry.js` 에서 지운다).
+- **단위** `tests/unit/` — 정산 계산은 가이드 글(`guide/settle` · `guide/cases`)의 예시를 기대값으로 씁니다. 게임 레지스트리 테스트는 **NEW 뱃지 기간(공개 뒤 2주)이 끝난 `releaseAt` 이 남아 있으면 실패**해서 정리할 때를 알려줍니다(그때 `registry.js` 에서 지운다).
 - **브라우저** `tests/e2e/` — 테스트가 Vite 개발 서버를 빈 포트로 띄우고, 설치된 Chrome 을 `playwright-core` 로 엽니다(브라우저를 따로 내려받지 않음). Chrome 이 다른 경로에 있으면 `CHROME_PATH=/경로/chrome npm run test:e2e`. 공개 전 게임은 테스트 안에서 `previewGames` 권한을 켜고 확인합니다. 콘솔 오류가 나면 실패하며, 기존 React 개발 경고(SVG 속성 이름 · key)만 `helpers.js` 에서 제외합니다.
 - Node 에서 앱 모듈을 불러올 수 있도록 `package.json` 의 `imports` 가 `#platform` 을 웹 어댑터(`src/platform/web.js`)로 연결합니다. 빌드에서는 `vite.config.js` 의 별칭이 먼저 적용되므로 웹 · 앱인토스 번들은 영향이 없습니다.
 
