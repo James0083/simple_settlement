@@ -68,7 +68,7 @@ export function PirateGame({ players: initialPlayers, onFinish }) {
   };
   const onHoleRef = useRef(onHole);
   onHoleRef.current = onHole;
-  const stageRef = useScrollToStage(phase !== "order");
+  const stageRef = useScrollToStage(phase === "play");
 
   if (phase === "order") {
     return html`

@@ -751,6 +751,75 @@ export function HideSeekIcon({ size = 32 }) {
   `;
 }
 
+export function ReactionIcon({ size = 32 }) {
+  return html`
+    <svg xmlns="http://www.w3.org/2000/svg" width=${size} height=${size} viewBox="0 0 64 64">
+      <rect x="20" y="4" width="24" height="56" rx="8" fill="#37474F"/>
+      <circle cx="32" cy="17" r="7" fill="#E8503A"/>
+      <circle cx="32" cy="32" r="7" fill="#546E7A"/>
+      <circle cx="32" cy="47" r="7" fill="#0F9D64"/>
+      <circle cx="32" cy="47" r="10" fill="none" stroke="#4FD69C" strokeWidth="2" opacity="0.7"/>
+      <path d="M50 38l6-3M50 47h7M50 56l6 3" stroke="#F9A825" strokeWidth="2.5" strokeLinecap="round"/>
+    </svg>
+  `;
+}
+
+export function SplitLuckIcon({ size = 32 }) {
+  return html`
+    <svg xmlns="http://www.w3.org/2000/svg" width=${size} height=${size} viewBox="0 0 64 64">
+      <rect x="6" y="18" width="24" height="34" rx="3" fill="#E8503A" transform="rotate(-10 18 35)"/>
+      <rect x="34" y="18" width="24" height="34" rx="3" fill="#C62828" transform="rotate(8 46 35)"/>
+      <rect x="20" y="12" width="24" height="38" rx="3" fill="#E53935"/>
+      <path d="M20 15l12 10 12-10" fill="none" stroke="#B71C1C" strokeWidth="2"/>
+      <circle cx="32" cy="34" r="7" fill="#F9A825"/>
+      <text x="32" y="38" textAnchor="middle" fontSize="10" fontWeight="900" fill="#7B5800">₩</text>
+    </svg>
+  `;
+}
+
+export function StackIcon({ size = 32 }) {
+  return html`
+    <svg xmlns="http://www.w3.org/2000/svg" width=${size} height=${size} viewBox="0 0 64 64">
+      <rect x="8" y="50" width="48" height="9" rx="2" fill="#B9BFCC"/>
+      <rect x="12" y="40" width="40" height="9" rx="2" fill="#E8503A"/>
+      <rect x="16" y="30" width="32" height="9" rx="2" fill="#3A6FE8"/>
+      <rect x="20" y="20" width="26" height="9" rx="2" fill="#0F9D64"/>
+      <rect x="28" y="6" width="22" height="9" rx="2" fill="#F2B233"/>
+      <path d="M22 10h-6M54 10h4" stroke="#9AA0B0" strokeWidth="2" strokeLinecap="round"/>
+    </svg>
+  `;
+}
+
+export function SimonIcon({ size = 32 }) {
+  return html`
+    <svg xmlns="http://www.w3.org/2000/svg" width=${size} height=${size} viewBox="0 0 64 64">
+      <rect x="6" y="6" width="24" height="24" rx="6" fill="#FF8A73"/>
+      <rect x="34" y="6" width="24" height="24" rx="6" fill="#3A6FE8"/>
+      <rect x="6" y="34" width="24" height="24" rx="6" fill="#0F9D64"/>
+      <rect x="34" y="34" width="24" height="24" rx="6" fill="#F2B233"/>
+      <circle cx="18" cy="18" r="11" fill="none" stroke="#FFFFFF" strokeWidth="2" opacity="0.8"/>
+      <path d="M40 46v-7l9-2v7" fill="none" stroke="#1A1D29" strokeWidth="1.8" strokeLinejoin="round"/>
+      <circle cx="38" cy="46" r="2.4" fill="#1A1D29"/>
+      <circle cx="47" cy="44" r="2.4" fill="#1A1D29"/>
+    </svg>
+  `;
+}
+
+export function LiarIcon({ size = 32 }) {
+  return html`
+    <svg xmlns="http://www.w3.org/2000/svg" width=${size} height=${size} viewBox="0 0 64 64">
+      <rect x="8" y="8" width="34" height="24" rx="5" fill="#ECEFF1" stroke="#CFD8DC"/>
+      <path d="M16 32l-2 7 9-7" fill="#ECEFF1" stroke="#CFD8DC"/>
+      <text x="25" y="25" textAnchor="middle" fontSize="15" fontWeight="900" fill="#1A1D29">?</text>
+      <circle cx="42" cy="44" r="15" fill="#F2B233"/>
+      <circle cx="37" cy="41" r="2" fill="#1A1D29"/>
+      <circle cx="47" cy="41" r="2" fill="#1A1D29"/>
+      <path d="M36 49q6 4 12 0" fill="none" stroke="#1A1D29" strokeWidth="2" strokeLinecap="round"/>
+      <rect x="54" y="42" width="8" height="4" rx="2" fill="#E8503A"/>
+    </svg>
+  `;
+}
+
 const ANIMAL_COMPONENTS = {
   turtle: Turtle, rabbit: Rabbit, dog: Dog, cat: Cat,
   frog: Frog, bear: Bear, panda: Panda, fox: Fox, mouse: Mouse, lion: Lion,

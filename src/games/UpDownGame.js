@@ -28,7 +28,8 @@ export function UpDownGame({ players, onFinish, onTie }) {
   const [escapedNames, setEscapedNames] = useState([]);
   const [tries, setTries] = useState({}); // playerIdx → 시도 횟수
   const [losers, setLosers] = useState([]); // 결과: 최다 시도자 인덱스 (여러 명이면 동점)
-  const stageRef = useScrollToStage(phase !== "order");
+  const triesSoFar = Object.values(tries).reduce((s, n) => s + n, 0); // 차례가 바뀔 때마다 늘어난다
+  const stageRef = useScrollToStage(["prepare", "input", "feedback"].includes(phase), `${phase}-${triesSoFar}`);
   const finishTimer = useRef(null);
   useEffect(() => () => clearTimeout(finishTimer.current), []);
 

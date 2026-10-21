@@ -67,7 +67,7 @@ function CustomAmountsPanel({ round, validParticipants, onUpdateCustomAmount }) 
         <span style=${styles.customCommonLabel}>공통 금액 (1/n)</span>
         <span style=${styles.customCommonValue}>${won(Math.max(0, common))}원</span>
       </div>
-      <p style=${styles.customPerHead}>1인당 ${won(Math.max(0, common) / activePeople.length)}원</p>
+      ${common > 0 && html`<p style=${styles.customPerHead}>1인당 ${won(common / activePeople.length)}원</p>`}
       ${activePeople.map(
         (p) => html`
           <${CustomAmountRow}
@@ -97,7 +97,8 @@ function RoundCard({
   onToggleParticipant,
   onToggleAll,
 }) {
-  const [customOpen, setCustomOpen] = useState(false);
+  // 다른 탭에서 금액까지 채워 넘긴 회차(복불복 나눠내기)는 펼친 채로 시작한다
+  const [customOpen, setCustomOpen] = useState(() => Object.keys(round.customAmounts).length > 0);
   const customCount = round.participantIds.filter((id) => round.customAmounts[id]).length;
 
   return html`

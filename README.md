@@ -33,9 +33,12 @@
 
 ### 미니게임
 
-- 2~15명, 폰 한 대를 돌려가며 하는 게임 11종: 룰렛 · 사다리 타기 · 폭탄 돌리기 · 해적룰렛(3D) · 악어이빨(3D) · 터치 대결 · 손가락 룰렛 · 숫자 맞추기 · 10초 맞추기 · 동물 레이스 · 숨바꼭질(2명 전용)
-- 새 게임은 `registry.js`의 `releaseAt`으로 **매주 월요일 하나씩** 자동 공개(한국 시간 0시) — 지금 예약: 동물 레이스 10/26, 숨바꼭질 11/2. 공개 전에는 카드에 공개일 표시. 공개일이 지나면 `releaseAt` 을 지운다(`npm test` 가 지난 날짜를 잡아냄)
-- 인원이 정해진 게임은 `registry.js` 의 `exactPlayers`(숨바꼭질 = 2). 인원이 안 맞으면 카드를 눌러도 "정확히 2명이 필요해요"로 막음(`playersOkFor`)
+- 2~15명, 폰 한 대를 돌려가며 하는 게임 16종: 룰렛 · 사다리 타기 · 폭탄 돌리기 · 해적룰렛(3D) · 악어이빨(3D) · 터치 대결 · 손가락 룰렛 · 숫자 맞추기 · 10초 맞추기 · 동물 레이스 · 숨바꼭질(2명 전용) · 반응속도 · 복불복 나눠내기 · 탑 쌓기 · 기억력 릴레이 · 라이어 게임(3~10명)
+- 새 게임은 `registry.js`의 `releaseAt`으로 **매주 월요일 하나씩** 자동 공개(한국 시간 0시) — 지금 예약: 동물 레이스 10/26, 숨바꼭질 11/2, 반응속도 11/9, 복불복 나눠내기 11/16, 탑 쌓기 11/23, 기억력 릴레이 11/30, 라이어 게임 12/7 (계획: `admin/PLAN_next_games.md`). 공개 전에는 카드에 공개일 표시. 공개일이 지나면 `releaseAt` 을 지운다(`npm test` 가 지난 날짜를 잡아냄)
+- 인원이 정해진 게임은 `registry.js` 의 `exactPlayers`(숨바꼭질 = 2) 또는 `minPlayers` · `maxPlayers`(라이어 게임 = 3~10). 인원이 안 맞으면 카드를 눌러도 "정확히 2명이 필요해요" · "3명 이상 필요해요"로 막음(`playersOkFor`)
+- `pinFirst`(복불복 나눠내기): 공개되는 순간 목록 맨 앞으로(`gamesInListOrder`)
+- 폰을 돌려 가며 하는 게임은 차례마다 `useScrollToStage(active, turnKey)` 로 무대를 화면 맨 위로 올리고 탭바 위 화면 높이만큼 늘림
+- 복불복 나눠내기는 당첨자 대신 각자 낼 금액을 정함: `onFinish(id, { total, amounts })` → "정산에 추가"가 총액 + 금액 따로 입력이 채워진 회차를 만들고, 결제자만 고르면 됨
 - 차례가 있는 게임은 시작 전에 순서를 보여주고 위/아래 · 섞기로 바꿀 수 있음
 - 결과 → **정산에 추가**: 게임 참가자 전원이 참여하고 당첨자가 결제한 회차(`N차 룰렛 게임`)를 만듦(당첨자 1명일 때)
 - 동점(숫자 맞추기): 동점자끼리 같은 게임 재대결, 또는 동점자만 선택된 채 게임 목록으로 이동
@@ -83,7 +86,7 @@
 
 `useSettlement`는 셸(`App.js`)에서 호출하므로 탭을 옮겨도 입력이 남고, 다른 탭은 `addRoundFrom({ title, payerId, amount, participantIds })`으로 회차를 넘깁니다. 아무것도 입력하지 않은 회차 하나만 있으면 그 회차를 대체합니다.
 
-localStorage 키 (모두 `ddak:` 접두사, `src/shared/storage.js`의 `load`/`save`로만 접근, 실패 시 저장 없이 동작): `roster`(명단) · `foodHistory`(최근 고른 메뉴 10개) · `sound`(효과음) · `entitlements`(`previewGames` — 공개 전 게임 미리 열기, `adFree`) · `coupangWeights`(쿠팡 배너 가중치, 개발·테스트용)
+localStorage 키 (모두 `ddak:` 접두사, `src/shared/storage.js`의 `load`/`save`로만 접근, 실패 시 저장 없이 동작): `roster`(명단) · `foodHistory`(최근 고른 메뉴 10개) · `sound`(효과음) · `liarCategory` · `liarRecent`(라이어 게임 마지막 카테고리 · 최근 제시어 30개) · `entitlements`(`previewGames` — 공개 전 게임 미리 열기, `adFree`) · `coupangWeights`(쿠팡 배너 가중치, 개발·테스트용)
 
 ## 정산 알고리즘
 
@@ -298,7 +301,7 @@ src/
   games/                    # 미니게임 탭
     GamesScreen.js          #   참가자 · 게임 목록 · 플레이(GamePlay) · 동점 처리(TieResult)
     registry.js             #   게임 목록 (MIN/MAX_PLAYERS, releaseAt)
-    *Game.js                #   게임 11종
+    *Game.js                #   게임 16종 (liarWords.js = 라이어 게임 제시어)
     GameResult.js           #   결과 카드 · 정산에 추가
     TurnOrder.js · common.js · palette.js   # 순서 정하기 · 차례 표시/큰 버튼 · 플레이어 색 15개
     gameIcons.js            #   게임 카드 아이콘 · 레이스 동물 15종 (SVG)
@@ -349,8 +352,8 @@ npm install
 npm run dev        # 개발 서버 — http://localhost:5173 (파일을 고치면 바로 반영)
 npm run build      # 프로덕션 번들 → dist/
 npm run preview    # dist/ 를 로컬에서 확인 (서비스 워커 포함)
-npm test           # 단위 테스트 (정산 알고리즘 · 게임 레지스트리 · 공개일 · 난수) — 1초 이내
-npm run test:e2e   # 브라우저 테스트 (정산 금액 따로 입력 · 결과표 배치 · 숨바꼭질 완주) — 약 20초
+npm test           # 단위 테스트 (정산 알고리즘 · 게임 레지스트리 · 공개일 · 난수 · 새 게임 판정) — 1초 이내
+npm run test:e2e   # 브라우저 테스트 (정산 금액 따로 입력 · 결과표 배치 · 미니게임 6종 완주) — 약 1분
 ```
 
 - **폰에서 테스트**: `npm run dev -- --host` 로 띄우고 같은 Wi-Fi에서 `http://<Mac의 IP>:5173`(IP는 `ipconfig getifaddr en0`). 서비스 워커·공유 기능까지 확인하려면 `npm run build && npm run preview -- --host` 후 HTTPS 터널을 씁니다: `cloudflared tunnel --url http://localhost:4173`

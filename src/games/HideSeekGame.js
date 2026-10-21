@@ -61,7 +61,7 @@ export function HideSeekGame({ players, onFinish }) {
   const [shots, setShots] = useState({ 0: new Map(), 1: new Map() }); // 플레이어별 "내가 상대에게 쏜" 칸 → "hit" | "miss"
   const [lastShot, setLastShot] = useState(null); // { cell, hit }
   const [loser, setLoser] = useState(null);
-  const stageRef = useScrollToStage(phase !== "intro");
+  const stageRef = useScrollToStage(phase !== "intro" && phase !== "done", `${phase}-${placeIdx}-${turn}`);
   const finishTimer = useRef(null);
   useEffect(() => () => clearTimeout(finishTimer.current), []);
 

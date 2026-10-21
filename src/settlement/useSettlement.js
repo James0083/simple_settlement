@@ -160,13 +160,13 @@ export function useSettlement() {
     );
   };
   // 다른 탭(뭐먹지·미니게임)에서 회차를 넘겨받는다. participantIds 를 안 주면 이름 있는 참가자 전원.
-  // 아직 아무것도 입력하지 않은 회차 하나만 있으면 그것을 대체한다.
-  const addRoundFrom = ({ title = "", payerId = "", amount = "", participantIds } = {}) => {
+  // 아직 아무것도 입력하지 않은 회차 하나만 있으면 그것을 대체한다. customAmounts 를 주면 금액 따로 입력도 채운다.
+  const addRoundFrom = ({ title = "", payerId = "", amount = "", participantIds, customAmounts = {} } = {}) => {
     invalidate();
     const ids = participantIds ?? participants.filter((p) => p.name.trim()).map((p) => p.id);
     setRounds((prev) => {
       const kept = prev.length === 1 && isBlankRound(prev[0]) ? [] : prev;
-      return [...kept, { ...makeRound(ids), title, payerId, amount: String(amount) }];
+      return [...kept, { ...makeRound(ids), title, payerId, amount: String(amount), customAmounts }];
     });
   };
   const removeRound = (id) => {

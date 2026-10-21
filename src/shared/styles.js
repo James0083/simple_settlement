@@ -22,7 +22,7 @@ const zigzag = (flip) => ({
 });
 
 // 하단 탭바 높이 (safe-area 제외). page 의 아래 여백이 이 값을 따라간다.
-const TAB_BAR_HEIGHT = 58;
+export const TAB_BAR_HEIGHT = 58;
 
 export const styles = {
     page: { minHeight: "100vh", width: "100%", background: C_BG, display: "flex", flexDirection: "column", alignItems: "center", padding: `40px 16px calc(${TAB_BAR_HEIGHT + 32}px + env(safe-area-inset-bottom))`, fontFamily: "'Pretendard', -apple-system, sans-serif" },
@@ -87,7 +87,7 @@ export const styles = {
     summaryLabel: { fontSize: 13.5, color: C_DIM },
     summaryValue: { fontFamily: "'Space Grotesk', 'Pretendard', sans-serif", fontSize: 16, fontWeight: 700, color: C_DARK, fontVariantNumeric: "tabular-nums" },
     calcBtn: { marginTop: 26, width: "100%", padding: "15px 0", border: "none", borderRadius: 4, background: C_RED, color: C_WHITE, fontFamily: "inherit", fontSize: 15.5, fontWeight: 700, letterSpacing: "0.5px", boxShadow: "2px 3px 0 #B8391F", transition: "transform 0.12s, box-shadow 0.12s" },
-    hint: { marginTop: 10, fontSize: 12, color: C_MUTED, textAlign: "center" },
+    hint: { marginTop: 10, fontSize: 12, color: C_MUTED, textAlign: "center", wordBreak: "keep-all" },
 
     // 좌우 여백은 375px 이상에서 24px, 더 좁은 폰에서만 줄어 결과표 금액 칸에 폭을 내준다.
     captureWrap: { background: C_WHITE, padding: "28px clamp(16px, 6.4vw, 24px) 26px" },
@@ -233,8 +233,8 @@ export const styles = {
     // 미니게임 — 폰을 돌려가며 하는 게임 공용 (숫자 맞추기 · 10초 맞추기 · 동물 레이스)
     gameStageCenter: { display: "flex", flexDirection: "column", alignItems: "center" },
     gameCaption: { textAlign: "center", fontSize: 13, fontWeight: 700, color: "#8A8FA3", letterSpacing: "1px", margin: "0 0 12px" },
-    gameMeta: { textAlign: "center", fontSize: 13, color: C_MUTED, margin: "0 0 14px" },
-    privacyNote: { textAlign: "center", fontSize: 14, fontWeight: 700, color: "#7B5800", margin: "6px 0 20px", padding: "11px 16px", background: "#FFF8E1", border: "1px solid #FFE082", borderRadius: 4, lineHeight: 1.6 },
+    gameMeta: { textAlign: "center", fontSize: 13, color: C_MUTED, margin: "0 0 14px", wordBreak: "keep-all" },
+    privacyNote: { textAlign: "center", fontSize: 14, fontWeight: 700, color: "#7B5800", margin: "6px 0 20px", padding: "11px 16px", background: "#FFF8E1", border: "1px solid #FFE082", borderRadius: 4, lineHeight: 1.6, wordBreak: "keep-all" },
     privacyNoteSub: { fontSize: 12, fontWeight: 500, color: "#A07800" },
     rankList: { display: "flex", flexDirection: "column", gap: 6, marginBottom: 14 },
     rankRow: { display: "flex", alignItems: "center", gap: 10, padding: "8px 12px", background: "#F6F8FB", border: "1px solid #E3E6EC", borderRadius: 4 },
@@ -258,7 +258,7 @@ export const styles = {
     tensecElapsed: { fontSize: 13, color: C_MUTED, fontVariantNumeric: "tabular-nums" },
     tensecError: { minWidth: 60, fontSize: 12, fontWeight: 700, color: C_MUTED, textAlign: "right", fontVariantNumeric: "tabular-nums" },
     // 숨바꼭질 — 격자 판 (칸 수는 gridTemplateColumns 를 인라인으로)
-    bsRules: { textAlign: "center", fontSize: 14, lineHeight: 1.7, color: C_SUB, margin: "4px 0 16px" },
+    bsRules: { textAlign: "center", fontSize: 14, lineHeight: 1.7, color: C_SUB, margin: "4px 0 16px", wordBreak: "keep-all" },
     bsCaption: { textAlign: "center", fontSize: 12.5, fontWeight: 700, color: "#8A8FA3", margin: "0 0 8px" },
     bsBoard: { display: "grid", gap: 4, width: "100%", maxWidth: 340, margin: "0 auto", userSelect: "none", WebkitUserSelect: "none" },
     bsBoardSmall: { maxWidth: 216, gap: 3 },
@@ -269,6 +269,32 @@ export const styles = {
     bsCellHit: { background: "#FDF0EC", borderColor: C_RED },
     bsCellMiss: { background: "#F6F8FB", borderColor: "#E3E6EC", color: C_MUTED, fontSize: 28, fontWeight: 900 },
     bsRevealRow: { display: "flex", flexDirection: "column", gap: 16, margin: "8px 0 12px" },
+    // 반응속도 — 화면 대부분을 차지하는 신호판 (빨강 → 초록)
+    reactionPad: { flex: 1, width: "100%", minHeight: 300, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 10, border: "none", borderRadius: 8, background: C_RED, color: C_WHITE, fontFamily: "inherit", fontSize: 28, fontWeight: 900, letterSpacing: "-0.5px", cursor: "pointer", touchAction: "manipulation", userSelect: "none", WebkitUserSelect: "none", WebkitTapHighlightColor: "transparent" },
+    reactionPadGo: { background: C_GREEN },
+    reactionPadEmoji: { fontSize: 56, lineHeight: 1 },
+    // 복불복 나눠내기 — 봉투 격자
+    envGrid: { display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(72px, 1fr))", gap: 8 },
+    envBtn: { minHeight: 64, padding: "6px 4px", borderWidth: 1.5, borderStyle: "solid", borderColor: "#F4C4B7", borderRadius: 6, background: "#FDF0EC", fontFamily: "inherit", fontSize: 30, lineHeight: 1, color: C_DARK, cursor: "pointer", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", WebkitTapHighlightColor: "transparent" },
+    envBtnOpened: { display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 3, borderColor: "transparent", cursor: "default" },
+    envName: { maxWidth: "100%", overflow: "hidden", textOverflow: "ellipsis", fontSize: 12, fontWeight: 700, opacity: 0.9 },
+    envAmount: { fontFamily: "'Space Grotesk', 'Pretendard', sans-serif", fontVariantNumeric: "tabular-nums", fontSize: 13.5, fontWeight: 800, letterSpacing: "-0.3px" },
+    // 탑 쌓기 — 화면을 누르면 블록을 놓는 무대
+    stackPad: { display: "block", width: "100%", padding: 0, borderWidth: 1.5, borderStyle: "solid", borderColor: "#E3E6EC", borderRadius: 6, background: "linear-gradient(#F6F8FB, #EEF1F4)", cursor: "pointer", touchAction: "manipulation", userSelect: "none", WebkitUserSelect: "none", WebkitTapHighlightColor: "transparent" },
+    // 기억력 릴레이 — 색 버튼 2×2 · 정답 순서 점
+    simonGrid: { display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, width: "100%", maxWidth: 320, margin: "0 auto" },
+    simonPad: { aspectRatio: "1", display: "flex", alignItems: "center", justifyContent: "center", padding: 0, border: "none", borderRadius: 12, cursor: "pointer", touchAction: "manipulation", transition: "background 0.08s, transform 0.08s, opacity 0.15s", WebkitTapHighlightColor: "transparent" },
+    simonDots: { display: "flex", flexWrap: "wrap", justifyContent: "center", gap: 5, maxWidth: 300, margin: "0 auto 4px" },
+    simonShape: { fontSize: 44, lineHeight: 1, color: "rgba(255,255,255,0.85)", pointerEvents: "none" },
+    simonDot: { width: 20, height: 20, borderRadius: "50%", boxSizing: "border-box", display: "inline-flex", alignItems: "center", justifyContent: "center", fontSize: 10, lineHeight: 1, color: C_WHITE },
+    simonDotMark: { outline: `3px solid ${C_DARK}`, outlineOffset: 2 },
+    // 라이어 게임 — 제시어 카드 · 지목 버튼
+    liarCard: { width: "100%", margin: "8px 0 4px", padding: "22px 16px", textAlign: "center", background: "#F6F8FB", border: "1.5px solid #E3E6EC", borderRadius: 6 },
+    liarCardLabel: { margin: 0, fontSize: 14, fontWeight: 700, color: "#8A8FA3" },
+    liarWord: { margin: "6px 0 0", fontSize: 34, fontWeight: 900, letterSpacing: "-0.8px", color: C_DARK, wordBreak: "keep-all" },
+    liarCardSub: { margin: "8px 0 0", fontSize: 12.5, color: C_MUTED, wordBreak: "keep-all" },
+    liarVoteGrid: { display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(96px, 1fr))", gap: 8 },
+    liarVoteBtn: { minHeight: 48, padding: "8px 6px", borderWidth: 1.5, borderStyle: "solid", borderColor: "#DDE1E8", borderRadius: 6, background: C_WHITE, fontFamily: "inherit", fontSize: 15, fontWeight: 800, color: C_DARK, cursor: "pointer", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" },
     // 동물 레이스
     raceHead: { display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 10 },
     raceStatus: { fontSize: 13, fontWeight: 700, color: "#8A8FA3", margin: 0 },
@@ -309,7 +335,7 @@ export const styles = {
     orderMoveBtn: { width: 36, height: 36, flexShrink: 0, border: "1.5px solid #DDE1E8", borderRadius: 4, background: C_WHITE, color: C_DARK, fontFamily: "inherit", fontSize: 16, lineHeight: 1, cursor: "pointer" },
     turnStrip: { display: "flex", flexWrap: "wrap", justifyContent: "center", alignItems: "center", rowGap: 6, marginBottom: 10 },
     turnChipWrap: { display: "inline-flex", alignItems: "center" },
-    turnChip: { fontSize: 12, fontWeight: 700, color: "#8A8FA3", border: "1px solid #DDE1E8", borderRadius: 4, padding: "3px 7px", background: C_WHITE },
+    turnChip: { fontSize: 12, fontWeight: 700, color: "#8A8FA3", borderWidth: 1, borderStyle: "solid", borderColor: "#DDE1E8", borderRadius: 4, padding: "3px 7px", background: C_WHITE },
     turnArrow: { color: "#B9BFCC", fontSize: 14, margin: "0 4px" },
 
     // 3D 장면
@@ -352,6 +378,10 @@ export const styles = {
     loserName: { fontSize: 34, fontWeight: 900, letterSpacing: "-1px", color: C_RED, marginTop: 6 },
     loserNameMany: { fontSize: 26, letterSpacing: "-0.5px", lineHeight: 1.3 },
     loserText: { fontSize: 14, color: C_DIM, marginTop: 4 },
+    splitTable: { margin: "0 0 12px", padding: "8px 12px", background: "#F6F8FB", border: "1px solid #E3E6EC", borderRadius: 4 },
+    splitRow: { display: "flex", justifyContent: "space-between", alignItems: "baseline", gap: 10, padding: "4px 0", fontSize: 14, fontWeight: 700, color: C_DARK },
+    splitAmount: { fontFamily: "'Space Grotesk', 'Pretendard', sans-serif", fontVariantNumeric: "tabular-nums" },
+    splitTotal: { marginTop: 4, paddingTop: 8, borderTop: "1px dashed #DDE1E8", color: C_SUB },
     loserPlayers: { fontSize: 12, color: C_MUTED, borderTop: "1px solid #F0F2F6", paddingTop: 10, textAlign: "center", lineHeight: 1.6 },
     linkBtn: { display: "flex", alignItems: "center", justifyContent: "center", textDecoration: "none" },
     adSlot: { margin: "16px auto 0", width: "100%", minHeight: 60 },

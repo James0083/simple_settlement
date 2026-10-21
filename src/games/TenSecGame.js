@@ -22,7 +22,7 @@ export function TenSecGame({ players, onFinish }) {
   const [peekElapsed, setPeekElapsed] = useState(null);
   const startTimeRef = useRef(null);
   const timers = useRef([]);
-  const stageRef = useScrollToStage(phase !== "order");
+  const stageRef = useScrollToStage(["prepare", "timing", "peek"].includes(phase), `${phase}-${turnPos}`);
   useEffect(() => () => timers.current.forEach(clearTimeout), []);
 
   const startGame = () => {

@@ -84,7 +84,7 @@ export function CrocodileGame({ players: initialPlayers, onFinish }) {
   };
   const onToothRef = useRef(onTooth);
   onToothRef.current = onTooth;
-  const stageRef = useScrollToStage(phase !== "order");
+  const stageRef = useScrollToStage(phase === "play");
 
   if (phase === "order") {
     return html`

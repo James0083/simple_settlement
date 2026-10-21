@@ -15,7 +15,7 @@ import { isSoundOn, setSoundOn, onSoundChange } from "./sfx.js";
 import { ReceiptCard, ScreenHeader } from "../shared/ReceiptCard.js";
 import { DiceIcon } from "../shared/icons.js";
 import { ChipGroup } from "../shared/ChipGroup.js";
-import { GAMES, MIN_PLAYERS, MAX_PLAYERS, playersOkFor } from "./registry.js";
+import { GAMES, MAX_PLAYERS, playersOkFor, playerRangeOf, gamesInListOrder } from "./registry.js";
 import { GameResult } from "./GameResult.js";
 import { AdSlot } from "../shared/AdSlot.js";
 import { trackEvent } from "#platform";
@@ -72,21 +72,24 @@ function GamePlay({ game, players, s, onPickTied }) {
   const [round, setRound] = useState(0); // 바뀌면 게임을 새로 마운트(한 판 더)
   const [loserIds, setLoserIds] = useState(null); // 당첨자 id 목록 (사다리는 여러 명일 수 있다)
   const [tieIds, setTieIds] = useState(null); // 동점자 id 목록 (onTie 를 부르는 게임만)
+  const [split, setSplit] = useState(null); // { total, amounts } — 각자 낼 금액을 정하는 게임만
   const [roundPlayers, setRoundPlayers] = useState(null); // 동점자 재대결이면 그 인원만
   const Game = game.component;
   const playing = roundPlayers ?? players;
   const byId = (id) => players.find((p) => p.id === id);
   const losers = loserIds ? loserIds.map(byId).filter(Boolean) : [];
   const tied = tieIds ? tieIds.map(byId).filter(Boolean) : [];
-  // 게임은 당첨자 id 하나 또는 id 배열로 끝을 알린다
-  const finish = (result) => {
+  // 게임은 당첨자 id 하나 또는 id 배열로 끝을 알린다. 각자 금액을 정한 게임은 extra.amounts 도 넘긴다.
+  const finish = (result, extra) => {
     trackEvent("game_finish", { game: game.id, players: playing.length });
+    setSplit(extra?.amounts ? { total: extra.total, amounts: extra.amounts } : null);
     setLoserIds([].concat(result));
   };
 
   const restart = (nextPlayers) => {
     setLoserIds(null);
     setTieIds(null);
+    setSplit(null);
     setRoundPlayers(nextPlayers);
     setRound(round + 1);
     window.scrollTo(0, 0);
@@ -94,14 +97,21 @@ function GamePlay({ game, players, s, onPickTied }) {
   const again = () => restart(null); // 한 판 더는 처음 인원 전체로
   const rematch = () => restart(tied);
 
-  // 당첨자가 한 명일 때만: 게임 참가자 전원이 참여자, 당첨자가 결제자
+  // 당첨자가 한 명일 때만: 게임 참가자 전원이 참여자, 당첨자가 결제자.
+  // 각자 금액을 정한 게임이면 총액과 금액 따로 입력을 채우고, 결제자는 정산 탭에서 고르게 비워 둔다.
   const addToSettle = () => {
     trackEvent("game_to_settle", { game: game.id });
-    s.addRoundFrom({
-      title: `${s.nextRoundNo}차 ${game.name} 게임`,
-      payerId: losers[0].id,
-      participantIds: players.map((p) => p.id),
-    });
+    const title = `${s.nextRoundNo}차 ${game.name}`;
+    if (split) {
+      s.addRoundFrom({
+        title,
+        amount: split.total,
+        participantIds: playing.map((p) => p.id),
+        customAmounts: Object.fromEntries(Object.entries(split.amounts).map(([id, a]) => [id, String(a)])),
+      });
+    } else {
+      s.addRoundFrom({ title: `${title} 게임`, payerId: losers[0].id, participantIds: players.map((p) => p.id) });
+    }
     navigate("settle");
   };
 
@@ -136,6 +146,7 @@ function GamePlay({ game, players, s, onPickTied }) {
           game=${game}
           losers=${losers}
           players=${players}
+          split=${split}
           onAgain=${again}
           onAddToSettle=${losers.length === 1 ? addToSettle : null}
         />
@@ -182,12 +193,15 @@ export function GamesScreen({ s, sub }) {
       return;
     }
     if (!playersOkFor(g, players.length)) {
+      const [min, max] = playerRangeOf(g);
+      const own = g.exactPlayers || g.minPlayers || g.maxPlayers; // 이 게임만의 인원 제한이면 게임 이름을 붙인다
+      const subject = `${g.name}${josa(g.name, "은/는")}`;
       setNotice(
         g.exactPlayers
-          ? `${g.name}${josa(g.name, "은/는")} 정확히 ${g.exactPlayers}명이 필요해요 (지금 ${players.length}명)`
-          : players.length < MIN_PLAYERS
-            ? "참가자를 2명 이상 골라주세요"
-            : `최대 ${MAX_PLAYERS}명까지 할 수 있어요`
+          ? `${subject} 정확히 ${g.exactPlayers}명이 필요해요 (지금 ${players.length}명)`
+          : players.length < min
+            ? own ? `${subject} ${min}명 이상 필요해요 (지금 ${players.length}명)` : `참가자를 ${min}명 이상 골라주세요`
+            : own ? `${subject} 최대 ${max}명까지 할 수 있어요 (지금 ${players.length}명)` : `최대 ${max}명까지 할 수 있어요`
       );
       return;
     }
@@ -254,7 +268,7 @@ export function GamesScreen({ s, sub }) {
 
       <div style=${styles.sectionLabel}>게임</div>
       <div style=${styles.gameGrid}>
-        ${GAMES.map((g) => {
+        ${gamesInListOrder().map((g) => {
           const open = canPlay(g) && !!g.component;
           return html`
             <button

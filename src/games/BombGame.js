@@ -145,7 +145,7 @@ export function BombGame({ players: initialPlayers, onFinish }) {
     vibrate(30);
   };
 
-  const stageRef = useScrollToStage(phase !== "order");
+  const stageRef = useScrollToStage(phase === "running");
 
   if (phase === "order") {
     return html`

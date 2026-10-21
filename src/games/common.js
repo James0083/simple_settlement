@@ -1,7 +1,7 @@
 /* 게임 공용 조각 — 차례 표시 · 큰 버튼 · 플레이 화면 스크롤 */
 import { useRef, useEffect } from "react";
 import { html } from "../shared/html.js";
-import { styles } from "../shared/styles.js";
+import { styles, TAB_BAR_HEIGHT } from "../shared/styles.js";
 import { colorOf } from "./palette.js";
 
 // 결과 연출이 끝난 뒤 onFinish 까지 잠깐 쉬는 시간
@@ -38,16 +38,24 @@ export function BigButton({ onClick, disabled, children }) {
   `;
 }
 
-// 게임 화면이 시작되면(순서 정하기 → 플레이) 차례 표시부터 화면 위에 오게 스크롤한다.
-// 위의 제목 영역 때문에 3D 무대·버튼·안내 문구가 하단 탭바에 가리지 않도록.
-// active 가 true 가 되는 순간(플레이 시작) 한 번 스크롤한다. 훅은 순서 화면에서도 불러야 하므로 조건을 인자로 받는다.
-export function useScrollToStage(active = true) {
+const STAGE_TOP_GAP = 12;
+// 플레이 화면이 하단 탭바 위의 화면 높이를 다 쓰게 하는 최소 높이 — 페이지가 짧아도 무대를 화면 맨 위까지 올릴 수 있다
+const STAGE_FILL = `calc(100svh - ${TAB_BAR_HEIGHT + STAGE_TOP_GAP * 2}px - env(safe-area-inset-bottom))`;
+
+// 플레이 중에는 차례가 바뀔 때마다(turnKey 가 바뀔 때마다) 무대를 화면 맨 위로 올리고 화면 높이만큼 늘린다.
+// 위의 제목 영역 때문에 버튼·판이 하단 탭바에 가리지 않고, 폰을 넘겨받은 사람이 바로 자기 화면을 본다.
+// active: 플레이 중인지 (순서 정하기 · 결과 화면에서는 false — 결과는 GameResult 가 따로 스크롤한다).
+// 단계마다 다른 요소를 그리는 게임이 많아 최소 높이는 요소에 직접 넣는다(스타일 객체에 없는 속성이라 렌더가 덮어쓰지 않는다).
+export function useScrollToStage(active = true, turnKey = null) {
   const ref = useRef(null);
   useEffect(() => {
     const el = ref.current;
-    if (!active || !el) return;
-    const top = el.getBoundingClientRect().top + window.scrollY - 12;
-    if (top > window.scrollY) window.scrollTo({ top, behavior: "smooth" });
-  }, [active]);
+    if (!el) return;
+    // 결과 화면은 React 가 같은 div 를 다시 쓸 수 있으므로 늘린 높이를 되돌린다
+    el.style.minHeight = active ? STAGE_FILL : "";
+    if (!active) return;
+    const top = el.getBoundingClientRect().top + window.scrollY - STAGE_TOP_GAP;
+    if (Math.abs(top - window.scrollY) > 2) window.scrollTo({ top, behavior: "smooth" });
+  }, [active, turnKey]);
   return ref;
 }
