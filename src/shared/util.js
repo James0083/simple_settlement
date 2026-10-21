@@ -7,6 +7,10 @@ export const TOAST_MS = 1800;
 // 금액 표기: 반올림 후 천단위 구분
 export const won = (n) => Math.round(n).toLocaleString("ko-KR");
 
+// 금액 입력: 숫자만 남기고 맨 앞 0 은 지운다 ("0" 단독 입력도 빈 값으로). maxDigits 를 주면 그 자리수까지만.
+export const toDigits = (raw, maxDigits = Infinity) =>
+  String(raw).replace(/[^0-9]/g, "").replace(/^0+/, "").slice(0, maxDigits);
+
 export const uid = () => Math.random().toString(36).slice(2, 9);
 
 // account: 정산받을 계좌(선택). showAccount: 참가자 입력란에서 계좌 입력칸을 펼쳤는지.

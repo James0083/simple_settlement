@@ -9,7 +9,7 @@
  * 첫 설명자는 라이어가 아닌 사람 중에서 뽑는다 — 아무것도 듣지 못한 라이어가 먼저 말하면 거의 바로 들킨다.
  * 마지막에 고른 카테고리와 최근 제시어는 기기에 기억해, 한 판 더 할 때 같은 카테고리로 시작하고 같은 제시어가 연달아 나오지 않게 한다.
  */
-import { Fragment, useState, useRef, useEffect } from "react";
+import { Fragment, useState } from "react";
 import { html } from "../shared/html.js";
 import { styles, C_RED, C_GREEN } from "../shared/styles.js";
 import { ChipGroup } from "../shared/ChipGroup.js";
@@ -17,7 +17,7 @@ import { load, save } from "../shared/storage.js";
 import { colorOf } from "./palette.js";
 import { randInt, shuffle } from "./random.js";
 import { unlockAudio, beep, chime, explosion, fanfare, vibrate } from "./sfx.js";
-import { GAME_FINISH_MS, TurnBanner, BigButton, useScrollToStage } from "./common.js";
+import { GAME_FINISH_MS, TurnBanner, BigButton, useScrollToStage, useTimers } from "./common.js";
 import { LIAR_CATEGORIES } from "./liarWords.js";
 
 const ANY = "any";
@@ -40,9 +40,8 @@ export function LiarGame({ players, onFinish }) {
   const [order] = useState(() => shuffle(players.map((_, i) => i))); // 제시어 확인 순서
   const [peekPos, setPeekPos] = useState(0);
   const [chosen, setChosen] = useState(null); // 지목된 playerIdx
-  const finishTimer = useRef(null);
+  const timers = useTimers();
   const stageRef = useScrollToStage(phase !== "setup" && phase !== "done", `${phase}-${peekPos}`);
-  useEffect(() => () => clearTimeout(finishTimer.current), []);
 
   const start = () => {
     unlockAudio();
@@ -83,7 +82,7 @@ export function LiarGame({ players, onFinish }) {
     if (phase !== "reveal") return; // 한 번만
     setPhase("done");
     fanfare();
-    finishTimer.current = setTimeout(() => onFinish(players[chosen].id), GAME_FINISH_MS);
+    timers.later(() => onFinish(players[chosen].id), GAME_FINISH_MS);
   };
 
   // ── 카테고리 고르기 ────────────────────────────────────────

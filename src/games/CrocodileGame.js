@@ -9,7 +9,7 @@ import { html } from "../shared/html.js";
 import { styles } from "../shared/styles.js";
 import { randInt, shuffle } from "./random.js";
 import { chomp as chompSound, toothClick, tensionLoop, vibrate, unlockAudio } from "./sfx.js";
-import { TurnBanner, useScrollToStage, GAME_FINISH_MS, equalTurnCount } from "./common.js";
+import { TurnBanner, useScrollToStage, GAME_FINISH_MS, equalTurnCount, useTimers } from "./common.js";
 import { TurnOrderSetup, TurnStrip } from "./TurnOrder.js";
 import { ThreeView } from "./three/ThreeView.js";
 import { loadThree } from "./three/stage.js";
@@ -30,7 +30,7 @@ export function CrocodileGame({ players: initialPlayers, onFinish }) {
   const tension = useRef(null);
   const pressed = useRef(new Set());
   const scene = useRef(null);
-  const timers = useRef([]);
+  const timers = useTimers();
   const alive = useRef(true);
   const live = useRef(null);
   live.current = { phase, turnPos, order };
@@ -39,7 +39,6 @@ export function CrocodileGame({ players: initialPlayers, onFinish }) {
     loadThree().catch(() => {});
     return () => {
       alive.current = false;
-      timers.current.forEach(clearTimeout);
       tension.current?.stop();
     };
   }, []);
@@ -63,20 +62,18 @@ export function CrocodileGame({ players: initialPlayers, onFinish }) {
     if (k === bad) {
       setPhase("snapped");
       // 이빨이 들어가는 걸 잠깐 보여준 뒤 입이 닫히고, 아픈 이빨을 보여주는 것까지 끝나면 결과
-      timers.current.push(
-        setTimeout(() => {
-          const chomp = () => {
-            tension.current?.stop();
-            chompSound();
-            vibrate([300, 60, 200]);
-            setChomped(true);
-          };
-          const shown = scene.current ? scene.current.snap(bad, { onChomp: chomp }) : (chomp(), Promise.resolve());
-          shown.then(() => {
-            if (alive.current) timers.current.push(setTimeout(() => onFinish(players[who].id), GAME_FINISH_MS));
-          });
-        }, 160)
-      );
+      timers.later(() => {
+        const chomp = () => {
+          tension.current?.stop();
+          chompSound();
+          vibrate([300, 60, 200]);
+          setChomped(true);
+        };
+        const shown = scene.current ? scene.current.snap(bad, { onChomp: chomp }) : (chomp(), Promise.resolve());
+        shown.then(() => {
+          if (alive.current) timers.later(() => onFinish(players[who].id), GAME_FINISH_MS);
+        });
+      }, 160);
     } else {
       vibrate(20);
       setTurnPos((turnPos + 1) % n);

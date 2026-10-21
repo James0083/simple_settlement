@@ -25,13 +25,12 @@ export async function startApp() {
   };
 }
 
-// 콘솔 오류 · 페이지 예외를 모은다. React 개발 모드의 기존 경고(SVG 속성 이름 · key)는 테스트 대상이 아니라 뺀다.
-const KNOWN_WARNINGS = /Invalid DOM property|unique "key" prop/;
+// 콘솔 오류 · 페이지 예외를 모은다 — React 개발 모드 경고(key · DOM 속성 이름 등)도 오류로 센다.
 export function collectErrors(page) {
   const errors = [];
   page.on("pageerror", (e) => errors.push(e.message));
   page.on("console", (m) => {
-    if (m.type() === "error" && !KNOWN_WARNINGS.test(m.text())) errors.push(m.text());
+    if (m.type() === "error") errors.push(m.text());
   });
   return errors;
 }

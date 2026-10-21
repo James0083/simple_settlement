@@ -10,13 +10,13 @@
  * 플레이 중에는 화면 전체를 덮는 판(오버레이)을 띄운다 — 하단 탭바·스크롤에 손가락이 걸리지 않게.
  * 여러 손가락 동시 터치(pointerdown 마다 1회)를 그대로 센다. 시작 전 3·2·1 카운트다운 동안의 터치는 세지 않는다.
  */
-import { useState, useRef, useEffect } from "react";
+import { Fragment, useState, useRef, useEffect } from "react";
 import { html } from "../shared/html.js";
 import { styles, C_RED, C_DARK } from "../shared/styles.js";
 import { shuffle } from "./random.js";
 import { tapPop, countBeep, fanfare, vibrate, unlockAudio } from "./sfx.js";
 import { colorOf } from "./palette.js";
-import { BigButton, TurnBanner } from "./common.js";
+import { BigButton, TurnBanner, useTimers } from "./common.js";
 import { TurnOrderSetup, TurnStrip } from "./TurnOrder.js";
 
 export const DUEL_STEP = 0.025; // 한 번 누를 때 경계선이 움직이는 양 (화면 높이 비율) — 가운데서 약 20번 더 누르면 승리
@@ -25,30 +25,24 @@ export const RELAY_SECONDS = 5;
 // 3·2·1 카운트다운 후 onGo(). 돌려주는 값: 지금 숫자(3,2,1) / "GO" / null
 function useCountdown() {
   const [count, setCount] = useState(null);
-  const timers = useRef([]);
-  useEffect(() => () => timers.current.forEach(clearTimeout), []);
+  const timers = useTimers();
   const start = (onGo) => {
     [3, 2, 1].forEach((n, i) =>
-      timers.current.push(
-        setTimeout(() => {
-          setCount(n);
-          countBeep(false);
-        }, i * 700)
-      )
+      timers.later(() => {
+        setCount(n);
+        countBeep(false);
+      }, i * 700)
     );
-    timers.current.push(
-      setTimeout(() => {
-        setCount("GO");
-        countBeep(true);
-        vibrate(60);
-        onGo();
-      }, 2100)
-    );
-    timers.current.push(setTimeout(() => setCount(null), 2700));
+    timers.later(() => {
+      setCount("GO");
+      countBeep(true);
+      vibrate(60);
+      onGo();
+    }, 2100);
+    timers.later(() => setCount(null), 2700);
   };
   const cancel = () => {
-    timers.current.forEach(clearTimeout);
-    timers.current = [];
+    timers.clear();
     setCount(null);
   };
   return { count, start, cancel };
@@ -96,8 +90,7 @@ function Duel({ players, onFinish }) {
   const [winnerSide, setWinnerSide] = useState(null);
   const live = useRef({ playing: false, share: 0.5 });
   const cd = useCountdown();
-  const timers = useRef([]);
-  useEffect(() => () => timers.current.forEach(clearTimeout), []);
+  const timers = useTimers();
 
   const begin = () => {
     unlockAudio();
@@ -132,12 +125,10 @@ function Duel({ players, onFinish }) {
       fanfare();
       vibrate([80, 40, 160]);
       // 승부 장면을 잠깐 보여준 뒤 판을 닫고 결과로
-      timers.current.push(
-        setTimeout(() => {
-          setPhase("finished");
-          onFinish(players[sides[1 - win]].id);
-        }, 1800)
-      );
+      timers.later(() => {
+        setPhase("finished");
+        onFinish(players[sides[1 - win]].id);
+      }, 1800);
     }
   };
 
@@ -159,6 +150,7 @@ function Duel({ players, onFinish }) {
         ${phase === "finished"
           ? html`<p style=${styles.hint}>${players[sides[winnerSide]].name} 승리 · 터치 ${taps[0]} : ${taps[1]}</p>`
           : html`
+              <${Fragment}>
               <p style=${styles.hint}>
                 폰을 가운데 두고 마주 앉아요. 내 영역을 누를수록 넓어지고, 화면을 다 채우면 승리! 밀려난 사람이 당첨이에요.
               </p>
@@ -166,6 +158,7 @@ function Duel({ players, onFinish }) {
                 위·아래 바꾸기
               </button>
               <${BigButton} onClick=${begin}>대결 시작 (화면 전체로 열려요)<//>
+              <//>
             `}
       </div>
     `;
@@ -210,8 +203,7 @@ function Relay({ players, onFinish }) {
   const [rematch, setRematch] = useState(false);
   const live = useRef({ playing: false, taps: 0 });
   const cd = useCountdown();
-  const timers = useRef([]);
-  useEffect(() => () => timers.current.forEach(clearTimeout), []);
+  const timers = useTimers();
 
   const startRound = (who) => {
     setQueue(who);
@@ -232,10 +224,10 @@ function Relay({ players, onFinish }) {
       const tick = () => {
         const rest = Math.max(0, RELAY_SECONDS - (performance.now() - t0) / 1000);
         setLeft(rest);
-        if (rest > 0 && live.current.playing) timers.current.push(setTimeout(tick, 50));
+        if (rest > 0 && live.current.playing) timers.later(tick, 50);
       };
       tick();
-      timers.current.push(setTimeout(stop, RELAY_SECONDS * 1000));
+      timers.later(stop, RELAY_SECONDS * 1000);
     });
   };
 
@@ -244,7 +236,7 @@ function Relay({ players, onFinish }) {
     countBeep(true);
     vibrate(120);
     setPhase("shown");
-    timers.current.push(setTimeout(() => record(live.current.taps), 1400));
+    timers.later(() => record(live.current.taps), 1400);
   };
 
   // 한 사람이 끝나면 점수를 적고 다음 사람 / 라운드 결과
@@ -266,7 +258,7 @@ function Relay({ players, onFinish }) {
     } else {
       // 꼴찌 동점 — 그 사람들끼리 다시
       setRematch(true);
-      timers.current.push(setTimeout(() => startRound(lowest), 1600));
+      timers.later(() => startRound(lowest), 1600);
       setPhase("tie");
     }
   };

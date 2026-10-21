@@ -9,13 +9,13 @@
  * 공정성: 사다리는 본래 출발 위치 근처에 도착하기 쉽지만, 💸 칸의 위치를 가로줄과 따로 균등하게
  * 섞으므로(셔플) 누가 어느 이름을 골라도 당첨 확률은 정확히 (당첨 개수)/n 이다.
  */
-import { useState, useRef, useEffect } from "react";
+import { Fragment, useState, useRef, useEffect } from "react";
 import { html } from "../shared/html.js";
 import { styles, C_DARK, C_WHITE } from "../shared/styles.js";
 import { randomFloat, shuffle } from "./random.js";
 import { vibrate, ladderRun, ladderPass, fanfare, prefersReducedMotion } from "./sfx.js";
 import { colorOf, shortName } from "./palette.js";
-import { BigButton, useScrollToStage } from "./common.js";
+import { BigButton, useScrollToStage, useTimers } from "./common.js";
 
 const LEVELS = 10;
 const MIN_COL_PX = 58; // 이름 4글자가 잘리지 않는 칸 최소 너비 — 화면에 다 안 들어가면 좌우 스크롤
@@ -81,17 +81,11 @@ export function LadderGame({ players: initialPlayers, onFinish }) {
   const [traced, setTraced] = useState({}); // playerIndex -> { end, done } — 경로 좌표는 화면 폭에 맞춰 그릴 때 계산
   const winners = useRef(new Set()); // 당첨 칸에 도착한 플레이어
   const finished = useRef(false);
-  const timers = useRef([]);
+  const timers = useTimers();
   const resultsRef = useRef(null);
   const stageRef = useScrollToStage(game !== null);
   const scrollRef = useRef(null);
   const [boxW, setBoxW] = useState(330); // 사다리 영역의 보이는 폭(px)
-  useEffect(
-    () => () => {
-      timers.current.forEach(clearTimeout);
-    },
-    []
-  );
   useEffect(() => {
     const el = scrollRef.current;
     if (!el) return;
@@ -121,23 +115,21 @@ export function LadderGame({ players: initialPlayers, onFinish }) {
     ladderRun((drawMs || 400) / 1000);
     // 도착 칸이 화면 밖이면 보이게 내린다 (탭바에 가리지 않게 scrollMarginBottom)
     resultsRef.current?.scrollIntoView({ behavior: "smooth", block: "nearest" });
-    timers.current.push(
-      setTimeout(() => {
-        setTraced((prev) => ({ ...prev, [i]: { ...prev[i], done: true } }));
-        if (!game.win[t.end]) {
-          ladderPass();
-          return;
-        }
-        winners.current.add(i);
-        vibrate(120);
-        fanfare();
-        // 당첨 칸이 모두 밝혀지면 결과 — 당첨자는 사다리 순서(왼쪽부터)대로
-        if (winners.current.size === winCount && !finished.current) {
-          finished.current = true;
-          onFinish([...winners.current].sort((a, b) => a - b).map((k) => players[k].id));
-        }
-      }, drawMs + 50)
-    );
+    timers.later(() => {
+      setTraced((prev) => ({ ...prev, [i]: { ...prev[i], done: true } }));
+      if (!game.win[t.end]) {
+        ladderPass();
+        return;
+      }
+      winners.current.add(i);
+      vibrate(120);
+      fanfare();
+      // 당첨 칸이 모두 밝혀지면 결과 — 당첨자는 사다리 순서(왼쪽부터)대로
+      if (winners.current.size === winCount && !finished.current) {
+        finished.current = true;
+        onFinish([...winners.current].sort((a, b) => a - b).map((k) => players[k].id));
+      }
+    }, drawMs + 50);
   };
 
   const traceAll = () => players.forEach((_, i) => trace(i));
@@ -249,10 +241,12 @@ export function LadderGame({ players: initialPlayers, onFinish }) {
               }}
             >
               ${shown
-                ? html`<span style=${styles.ladderResultLabel}>${isTarget ? (geo.colW < 64 ? "💸" : "💸 당첨") : "통과"}</span>
+                ? html`<${Fragment}>
+                    <span style=${styles.ladderResultLabel}>${isTarget ? (geo.colW < 64 ? "💸" : "💸 당첨") : "통과"}</span>
                     <span style=${{ ...styles.ladderResultName, background: colorOf(owner)[0], color: colorOf(owner)[1] }}>
                       ${shortName(players[owner].name, NAME_CHARS)}
-                    </span>`
+                    </span>
+                  <//>`
                 : "?"}
             </div>
           `;

@@ -11,7 +11,7 @@ import { styles, C_RED, C_GREEN } from "../shared/styles.js";
 import { colorOf } from "./palette.js";
 import { shuffle } from "./random.js";
 import { unlockAudio, tapPop, chime, explosion, fanfare, vibrate, prefersReducedMotion } from "./sfx.js";
-import { GAME_FINISH_MS, TurnBanner, BigButton, useScrollToStage } from "./common.js";
+import { GAME_FINISH_MS, TurnBanner, BigButton, useScrollToStage, useTimers, onActivateKey } from "./common.js";
 import { TurnOrderSetup, TurnStrip } from "./TurnOrder.js";
 
 // 좌표는 SVG viewBox 단위
@@ -22,7 +22,7 @@ const VIEW_H = BLOCK_H * (VISIBLE + 2);
 export const BASE_W = 180;
 export const PERFECT_RATIO = 0.04; // 위 블록 폭의 4% 이내로 어긋나면 퍼펙트
 const PERFECT_BONUS = 6; // 퍼펙트면 폭을 이만큼 돌려준다 (BASE_W 까지)
-export const BLOCKS_PER_TURN = 2;
+const BLOCKS_PER_TURN = 2;
 const START_SPEED = 130; // viewBox 단위 / 초
 const SPEED_STEP = 9; // 층마다 빨라지는 정도
 const MAX_SPEED = 380;
@@ -59,15 +59,9 @@ export function StackGame({ players, onFinish }) {
   const mover = useRef({ x: 0, dir: 1, active: false }); // 움직이는 블록 — 매 프레임 바뀌므로 ref
   const raf = useRef(0);
   const lastT = useRef(0);
-  const timers = useRef([]);
+  const timers = useTimers();
   const stageRef = useScrollToStage(["ready", "play", "missed"].includes(phase), turnPos);
-  useEffect(
-    () => () => {
-      cancelAnimationFrame(raf.current);
-      timers.current.forEach(clearTimeout);
-    },
-    []
-  );
+  useEffect(() => () => cancelAnimationFrame(raf.current), []);
 
   const level = tower.length; // 다음에 놓을 층 (0층 = 바닥)
   const top = tower[tower.length - 1];
@@ -126,13 +120,11 @@ export function StackGame({ players, onFinish }) {
       vibrate(200);
       setMissedBlock({ x: m.x, w: top.w, owner: playerIdx });
       setPhase("missed");
-      timers.current.push(
-        setTimeout(() => {
-          setPhase("done");
-          fanfare();
-          timers.current.push(setTimeout(() => onFinish(players[playerIdx].id), GAME_FINISH_MS));
-        }, MISS_SHOW_MS)
-      );
+      timers.later(() => {
+        setPhase("done");
+        fanfare();
+        timers.later(() => onFinish(players[playerIdx].id), GAME_FINISH_MS);
+      }, MISS_SHOW_MS);
       return;
     }
     if (res.perfect) {
@@ -152,13 +144,7 @@ export function StackGame({ players, onFinish }) {
       setPhase("ready"); // 다음 사람에게 넘기기
     } else {
       setPlacedThisTurn(placed);
-      timers.current.push(setTimeout(() => spawn(level + 1, res.w), SPAWN_MS));
-    }
-  };
-  const dropKey = (e) => {
-    if (e.key === "Enter" || e.key === " ") {
-      e.preventDefault();
-      drop();
+      timers.later(() => spawn(level + 1, res.w), SPAWN_MS);
     }
   };
 
@@ -189,7 +175,7 @@ export function StackGame({ players, onFinish }) {
       type="button"
       style=${styles.stackPad}
       onPointerDown=${drop}
-      onKeyDown=${dropKey}
+      onKeyDown=${onActivateKey(drop)}
       disabled=${phase !== "play" && phase !== "ready"}
       aria-label="블록 놓기"
     >

@@ -1,5 +1,5 @@
-/* 게임 공용 조각 — 차례 표시 · 큰 버튼 · 플레이 화면 스크롤 */
-import { useRef, useEffect } from "react";
+/* 게임 공용 조각 — 차례 표시 · 큰 버튼 · 순위 행 · 플레이 화면 스크롤 · 타이머 · 결과 알리기 */
+import { useRef, useEffect, useMemo } from "react";
 import { html } from "../shared/html.js";
 import { styles, TAB_BAR_HEIGHT } from "../shared/styles.js";
 import { colorOf } from "./palette.js";
@@ -21,6 +21,18 @@ export function TurnBanner({ label = "지금 차례", player, index }) {
     <div style=${styles.turnBanner} aria-live="polite">
       <span style=${styles.turnLabel}>${label}</span>
       <span style=${{ ...styles.turnName, background: bg, color: fg }}>${player.name}</span>
+    </div>
+  `;
+}
+
+// 결과 순위 한 줄 — 순번(플레이어 색) · 이름 · 오른쪽 값(children). hit 이면 당첨 줄로 강조.
+export function RankRow({ rank, index, name, hit = false, mark = "💥", children }) {
+  const [bg, fg] = colorOf(index);
+  return html`
+    <div style=${{ ...styles.rankRow, ...(hit ? styles.rankRowHit : null) }}>
+      <span style=${{ ...styles.rankNo, background: bg, color: fg }}>${rank}</span>
+      <span style=${styles.rankName}>${name}${hit && mark ? ` ${mark}` : ""}</span>
+      ${children}
     </div>
   `;
 }
@@ -59,3 +71,37 @@ export function useScrollToStage(active = true, turnKey = null) {
   }, [active, turnKey]);
   return ref;
 }
+
+// 게임 안에서 거는 setTimeout 모음 — 게임 화면을 떠나면(언마운트) 남은 것을 모두 취소한다.
+// later(fn, ms) 로 걸고, clear() 로 지금까지 건 것을 한꺼번에 취소한다. 돌려주는 객체는 렌더마다 같다.
+export function useTimers() {
+  const ids = useRef([]);
+  useEffect(() => () => ids.current.forEach(clearTimeout), []);
+  return useMemo(
+    () => ({
+      later: (fn, ms) => {
+        ids.current.push(setTimeout(fn, ms));
+      },
+      clear: () => {
+        ids.current.forEach(clearTimeout);
+        ids.current = [];
+      },
+    }),
+    []
+  );
+}
+
+// 당첨자 id 목록으로 게임을 끝낸다 — 한 명이면 onFinish, 여럿이면 onTie(동점자끼리 다시), onTie 가 없으면 여럿 모두 당첨.
+export function finishWithTie(ids, onFinish, onTie) {
+  if (ids.length === 1) onFinish(ids[0]);
+  else if (onTie) onTie(ids);
+  else onFinish(ids);
+}
+
+// 화면 전체를 누르는 버튼(반응속도 신호판 · 탑 쌓기 판)은 pointerdown 으로 반응한다 — 키보드로는 Enter · Space.
+export const onActivateKey = (fn) => (e) => {
+  if (e.key === "Enter" || e.key === " ") {
+    e.preventDefault();
+    fn();
+  }
+};

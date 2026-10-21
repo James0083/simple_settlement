@@ -8,7 +8,7 @@
  * 다음 방문 때 다시 채우고, 뭐먹지·미니게임 탭이 같은 명단을 읽는다.
  */
 import { useState, useMemo, useRef, useEffect } from "react";
-import { uid, makeParticipant, isMobileDevice, TOAST_MS } from "../shared/util.js";
+import { uid, makeParticipant, isMobileDevice, toDigits, TOAST_MS } from "../shared/util.js";
 import { load, save } from "../shared/storage.js";
 import {
   isRoundValid,
@@ -32,9 +32,6 @@ const makeRound = (participantIds) => ({
 // 입력을 하나도 안 건드린 회차 — 다른 탭에서 회차를 넘길 때 이런 빈 회차 하나는 대체한다.
 const isBlankRound = (r) =>
   !r.title.trim() && !r.payerId && !r.amount && Object.keys(r.customAmounts).length === 0;
-
-// 금액은 숫자만 허용하고 맨 앞 0 은 제거한다. ("0" 단독 입력도 빈 값으로)
-const toDigits = (raw) => String(raw).replace(/[^0-9]/g, "").replace(/^0+/, "");
 
 // 개별 금액은 "13000+4000" 처럼 + 로 여러 메뉴를 이어 적을 수 있다.
 // 숫자와 + 만 남기고, + 연속·맨 앞 + 와 조각마다 맨 앞 0 을 없앤다. (맨 끝 + 는 입력 중이라 둔다)

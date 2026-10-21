@@ -3,17 +3,17 @@
  * 순서를 틀리게 누른 사람이 당첨 (사이먼 게임). 첫 사람은 아무거나 하나만 누르면 된다.
  * "순서 다시 보여주기"를 켜면 차례마다 지금까지의 순서를 한 번 재생해 준다 (기본은 꺼짐 — 외워야 한다).
  */
-import { Fragment, useState, useRef, useEffect } from "react";
+import { Fragment, useState, useRef } from "react";
 import { html } from "../shared/html.js";
 import { styles, C_RED } from "../shared/styles.js";
 import { ChipGroup } from "../shared/ChipGroup.js";
 import { shuffle } from "./random.js";
 import { unlockAudio, beep, explosion, fanfare, vibrate } from "./sfx.js";
-import { GAME_FINISH_MS, TurnBanner, BigButton, useScrollToStage } from "./common.js";
+import { GAME_FINISH_MS, TurnBanner, BigButton, useScrollToStage, useTimers } from "./common.js";
 import { TurnOrderSetup, TurnStrip } from "./TurnOrder.js";
 
 // 버튼마다 고정 음 (도 · 미 · 솔 · 높은 도). 색만으로 구분하기 어려운 사람도 있어 모양을 함께 그린다.
-export const PADS = [
+const PADS = [
   { id: 0, label: "빨강", shape: "●", color: "#E8503A", lit: "#FF8A73", freq: 523 },
   { id: 1, label: "파랑", shape: "▲", color: "#3A6FE8", lit: "#82A6FF", freq: 659 },
   { id: 2, label: "초록", shape: "■", color: "#0F9D64", lit: "#4FD69C", freq: 784 },
@@ -43,12 +43,10 @@ export function SimonGame({ players, onFinish }) {
   const [lit, setLit] = useState(null); // 빛나는 버튼
   const [wrongAt, setWrongAt] = useState(null); // { pos, pad }
   const locked = useRef(false);
-  const timers = useRef([]);
+  const { later } = useTimers();
   const stageRef = useScrollToStage(["ready", "replay", "input", "passed", "wrong"].includes(phase), `${phase}-${turnPos}`);
-  useEffect(() => () => timers.current.forEach(clearTimeout), []);
 
   const playerIdx = order[turnPos % order.length];
-  const later = (fn, ms) => timers.current.push(setTimeout(fn, ms));
 
   const light = (pad) => {
     setLit(pad);

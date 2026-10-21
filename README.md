@@ -354,7 +354,7 @@ npm run dev        # 개발 서버 — http://localhost:5173 (파일을 고치�
 npm run build      # 프로덕션 번들 → dist/
 npm run preview    # dist/ 를 로컬에서 확인 (서비스 워커 포함)
 npm test           # 단위 테스트 (정산 알고리즘 · 게임 레지스트리 · 공개일 · 난수 · 새 게임 판정) — 1초 이내
-npm run test:e2e   # 브라우저 테스트 (정산 금액 따로 입력 · 결과표 배치 · 미니게임 6종 완주) — 약 1분
+npm run test:e2e   # 브라우저 테스트 (정산 금액 따로 입력 · 결과표 배치 · 미니게임 14종 완주 · 게임 목록 순서) — 약 3분(폭탄 도화선 15~45초 포함)
 ```
 
 - **폰에서 테스트**: `npm run dev -- --host` 로 띄우고 같은 Wi-Fi에서 `http://<Mac의 IP>:5173`(IP는 `ipconfig getifaddr en0`). 서비스 워커·공유 기능까지 확인하려면 `npm run build && npm run preview -- --host` 후 HTTPS 터널을 씁니다: `cloudflared tunnel --url http://localhost:4173`
@@ -364,7 +364,7 @@ npm run test:e2e   # 브라우저 테스트 (정산 금액 따로 입력 · 결�
 
 - Node 내장 테스트 러너(`node:test`)를 씁니다. 테스트 프레임워크 의존성 없음.
 - **단위** `tests/unit/` — 정산 계산은 가이드 글(`guide/settle` · `guide/cases`)의 예시를 기대값으로 씁니다. 게임 레지스트리 테스트는 **NEW 뱃지 기간(공개 뒤 2주)이 끝난 `releaseAt` 이 남아 있으면 실패**해서 정리할 때를 알려줍니다(그때 `registry.js` 에서 지운다).
-- **브라우저** `tests/e2e/` — 테스트가 Vite 개발 서버를 빈 포트로 띄우고, 설치된 Chrome 을 `playwright-core` 로 엽니다(브라우저를 따로 내려받지 않음). Chrome 이 다른 경로에 있으면 `CHROME_PATH=/경로/chrome npm run test:e2e`. 공개 전 게임은 테스트 안에서 `previewGames` 권한을 켜고 확인합니다. 콘솔 오류가 나면 실패하며, 기존 React 개발 경고(SVG 속성 이름 · key)만 `helpers.js` 에서 제외합니다.
+- **브라우저** `tests/e2e/` — 테스트가 Vite 개발 서버를 빈 포트로 띄우고, 설치된 Chrome 을 `playwright-core` 로 엽니다(브라우저를 따로 내려받지 않음). Chrome 이 다른 경로에 있으면 `CHROME_PATH=/경로/chrome npm run test:e2e`. 공개 전 게임은 테스트 안에서 `previewGames` 권한을 켜고 확인합니다. 콘솔 오류가 나면 실패하며, React 개발 모드 경고(key 누락 · SVG 속성 이름 등)도 오류로 봅니다.
 - Node 에서 앱 모듈을 불러올 수 있도록 `package.json` 의 `imports` 가 `#platform` 을 웹 어댑터(`src/platform/web.js`)로 연결합니다. 빌드에서는 `vite.config.js` 의 별칭이 먼저 적용되므로 웹 · 앱인토스 번들은 영향이 없습니다.
 
 ## 배포

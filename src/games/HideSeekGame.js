@@ -7,13 +7,13 @@
  * 폰 한 대로 하므로 배치·공격 화면은 "준비됐어요"로 가렸다가 연다(숫자 맞추기와 같은 방식).
  * 공격 화면에는 상대 판이 아니라 "내가 쏜 기록"만 보인다. 동점은 없다(한 번에 한 칸씩, 먼저 다 찾은 쪽이 끝냄).
  */
-import { useState, useRef, useEffect } from "react";
+import { useState } from "react";
 import { html } from "../shared/html.js";
 import { styles, C_RED, C_GREEN } from "../shared/styles.js";
 import { colorOf } from "./palette.js";
 import { shuffle } from "./random.js";
 import { unlockAudio, beep, explosion, fanfare, vibrate } from "./sfx.js";
-import { GAME_FINISH_MS, TurnBanner, BigButton, useScrollToStage } from "./common.js";
+import { GAME_FINISH_MS, TurnBanner, BigButton, useScrollToStage, useTimers } from "./common.js";
 
 // 모바일 한 손 탭 기준: 6칸이면 390px 폭에서 한 칸 약 46px. 말 8개 = 36칸 중 22%.
 export const GRID_SIZE = 6;
@@ -62,8 +62,7 @@ export function HideSeekGame({ players, onFinish }) {
   const [lastShot, setLastShot] = useState(null); // { cell, hit }
   const [loser, setLoser] = useState(null);
   const stageRef = useScrollToStage(phase !== "intro" && phase !== "done", `${phase}-${placeIdx}-${turn}`);
-  const finishTimer = useRef(null);
-  useEffect(() => () => clearTimeout(finishTimer.current), []);
+  const timers = useTimers();
 
   const placing = phase === "gate" || phase === "place";
   const current = placing ? order[placeIdx] : order[turn % 2]; // 지금 차례인 플레이어
@@ -115,7 +114,7 @@ export function HideSeekGame({ players, onFinish }) {
       fanfare();
       setLoser(opponent);
       setPhase("done");
-      finishTimer.current = setTimeout(() => onFinish(players[opponent].id), GAME_FINISH_MS);
+      timers.later(() => onFinish(players[opponent].id), GAME_FINISH_MS);
       return;
     }
     setPhase("feedback");

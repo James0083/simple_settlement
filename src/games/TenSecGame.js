@@ -1,11 +1,10 @@
 /* 10초 맞추기 — 10초라고 느끼는 순간 버튼을 누른다. 10초에서 가장 멀리 벗어난 사람이 당첨 */
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef } from "react";
 import { html } from "../shared/html.js";
 import { styles, C_RED, C_GREEN } from "../shared/styles.js";
-import { colorOf } from "./palette.js";
 import { shuffle } from "./random.js";
 import { unlockAudio, countBeep, tick as sfxTick, fanfare } from "./sfx.js";
-import { GAME_FINISH_MS, TurnBanner, BigButton, useScrollToStage } from "./common.js";
+import { GAME_FINISH_MS, TurnBanner, BigButton, useScrollToStage, useTimers, RankRow } from "./common.js";
 import { TurnOrderSetup } from "./TurnOrder.js";
 
 const TARGET_MS = 10000;
@@ -21,9 +20,8 @@ export function TenSecGame({ players, onFinish }) {
   const [records, setRecords] = useState([]); // [{playerIdx, elapsed}]
   const [peekElapsed, setPeekElapsed] = useState(null);
   const startTimeRef = useRef(null);
-  const timers = useRef([]);
+  const timers = useTimers();
   const stageRef = useScrollToStage(["prepare", "timing", "peek"].includes(phase), `${phase}-${turnPos}`);
-  useEffect(() => () => timers.current.forEach(clearTimeout), []);
 
   const startGame = () => {
     unlockAudio();
@@ -49,17 +47,15 @@ export function TenSecGame({ players, onFinish }) {
     setPhase("peek");
 
     const nextTurnPos = turnPos + 1;
-    timers.current.push(
-      setTimeout(() => {
-        setPeekElapsed(null);
-        if (nextTurnPos >= order.length) {
-          setPhase("results");
-        } else {
-          setTurnPos(nextTurnPos);
-          setPhase("prepare");
-        }
-      }, PEEK_MS)
-    );
+    timers.later(() => {
+      setPeekElapsed(null);
+      if (nextTurnPos >= order.length) {
+        setPhase("results");
+      } else {
+        setTurnPos(nextTurnPos);
+        setPhase("prepare");
+      }
+    }, PEEK_MS);
   };
 
   // 오차 큰 순 (첫 번째 = 당첨)
@@ -77,7 +73,7 @@ export function TenSecGame({ players, onFinish }) {
     setPhase("done");
     fanfare();
     const loserId = results[0].player.id;
-    timers.current.push(setTimeout(() => onFinish(loserId), GAME_FINISH_MS));
+    timers.later(() => onFinish(loserId), GAME_FINISH_MS);
   };
 
   // ── 순서 정하기 ─────────────────────────────────────────────
@@ -145,17 +141,14 @@ export function TenSecGame({ players, onFinish }) {
         <p style=${styles.gameCaption}>결과</p>
         <div style=${styles.rankList}>
           ${results.map((r, rank) => {
-            const [bg, fg] = colorOf(r.playerIdx);
             const isLoser = rank === 0;
             return html`
-              <div key=${r.player.id} style=${{ ...styles.rankRow, ...(isLoser ? styles.rankRowHit : null) }}>
-                <span style=${{ ...styles.rankNo, background: bg, color: fg }}>${rank + 1}</span>
-                <span style=${styles.rankName}>${r.player.name}${isLoser ? " 💥" : ""}</span>
+              <${RankRow} key=${r.player.id} rank=${rank + 1} index=${r.playerIdx} name=${r.player.name} hit=${isLoser}>
                 <span style=${styles.tensecElapsed}>${sec(r.elapsed)}초</span>
                 <span style=${{ ...styles.tensecError, ...(isLoser ? { color: C_RED } : null) }}>
                   ${r.over ? "+" : "-"}${sec(r.error)}초
                 </span>
-              </div>
+              <//>
             `;
           })}
         </div>

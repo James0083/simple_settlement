@@ -6,14 +6,14 @@
  *   4) 다 열면 금액표 — 가장 많이 내는 사람을 "당첨"으로 보여준다
  * onFinish(가장 많이 내는 사람 id, { total, amounts: { [id]: 금액 } }) — 정산에 추가하면 금액 따로 입력이 채워진 회차가 된다.
  */
-import { Fragment, useState, useRef, useEffect } from "react";
+import { Fragment, useState } from "react";
 import { html } from "../shared/html.js";
 import { styles, C_RED } from "../shared/styles.js";
-import { won } from "../shared/util.js";
+import { won, toDigits } from "../shared/util.js";
 import { colorOf } from "./palette.js";
 import { randomFloat, shuffle } from "./random.js";
 import { unlockAudio, beep, chime, fanfare } from "./sfx.js";
-import { GAME_FINISH_MS, TurnBanner, BigButton, useScrollToStage } from "./common.js";
+import { GAME_FINISH_MS, TurnBanner, BigButton, useScrollToStage, useTimers, RankRow } from "./common.js";
 import { TurnStrip } from "./TurnOrder.js";
 
 export const MIN_PER_PERSON = 1000; // 총액 하한 = 인원 × 1,000원 (이보다 적으면 0원 봉투가 나올 수 있다)
@@ -49,7 +49,6 @@ export function splitAmounts(total, n, rand = randomFloat) {
   }
 }
 
-const toDigits = (raw) => String(raw).replace(/[^0-9]/g, "").replace(/^0+/, "").slice(0, MAX_TOTAL_DIGITS);
 
 export function SplitLuckGame({ players, onFinish }) {
   const [phase, setPhase] = useState("setup"); // setup | pick | reveal | results | done
@@ -59,9 +58,8 @@ export function SplitLuckGame({ players, onFinish }) {
   const [opened, setOpened] = useState({}); // 봉투 번호 → playerIdx
   const [turnPos, setTurnPos] = useState(0);
   const [lastEnv, setLastEnv] = useState(null);
-  const finishTimer = useRef(null);
+  const timers = useTimers();
   const stageRef = useScrollToStage(phase === "pick" || phase === "reveal", `${phase}-${turnPos}`);
-  useEffect(() => () => clearTimeout(finishTimer.current), []);
 
   const total = Number(totalRaw) || 0;
   const minTotal = players.length * MIN_PER_PERSON;
@@ -103,7 +101,7 @@ export function SplitLuckGame({ players, onFinish }) {
     fanfare();
     const amounts = Object.fromEntries(rows.map((r) => [players[r.playerIdx].id, r.amount]));
     const loserId = players[rows[0].playerIdx].id;
-    finishTimer.current = setTimeout(() => onFinish(loserId, { total, amounts }), GAME_FINISH_MS);
+    timers.later(() => onFinish(loserId, { total, amounts }), GAME_FINISH_MS);
   };
 
   // ── 총액 넣기 ──────────────────────────────────────────────
@@ -123,8 +121,8 @@ export function SplitLuckGame({ players, onFinish }) {
             type="text"
             inputMode="numeric"
             placeholder="0"
-            value=${total ? total.toLocaleString("ko-KR") : ""}
-            onChange=${(e) => setTotalRaw(toDigits(e.target.value))}
+            value=${total ? won(total) : ""}
+            onChange=${(e) => setTotalRaw(toDigits(e.target.value, MAX_TOTAL_DIGITS))}
           />
           <span style=${styles.wonSuffix}>원</span>
         </div>
@@ -195,14 +193,11 @@ export function SplitLuckGame({ players, onFinish }) {
         <p style=${styles.gameCaption}>결과 · 총 ${won(total)}원</p>
         <div style=${styles.rankList}>
           ${rows.map((r, rank) => {
-            const [bg, fg] = colorOf(r.playerIdx);
             const top = rank === 0;
             return html`
-              <div key=${r.playerIdx} style=${{ ...styles.rankRow, ...(top ? styles.rankRowHit : null) }}>
-                <span style=${{ ...styles.rankNo, background: bg, color: fg }}>${rank + 1}</span>
-                <span style=${styles.rankName}>${players[r.playerIdx].name}${top ? " 💸" : ""}</span>
+              <${RankRow} key=${r.playerIdx} rank=${rank + 1} index=${r.playerIdx} name=${players[r.playerIdx].name} hit=${top} mark="💸">
                 <span style=${{ ...styles.rankValue, ...(top ? { color: C_RED } : null) }}>${won(r.amount)}원</span>
-              </div>
+              <//>
             `;
           })}
         </div>

@@ -4,18 +4,19 @@
  * 부정 출발이 한 명이면 그 사람, 여럿이면 onTie(부정 출발자). 기록이 ms 까지 같으면 역시 onTie.
  * 누르는 순간은 click(손을 뗄 때)이 아니라 pointerdown 으로 잰다.
  */
-import { Fragment, useState, useRef, useEffect } from "react";
+import { Fragment, useState, useRef } from "react";
 import { html } from "../shared/html.js";
 import { styles, C_RED } from "../shared/styles.js";
-import { colorOf } from "./palette.js";
 import { randInt, shuffle } from "./random.js";
 import { unlockAudio, beep, tick as sfxTick, fanfare, vibrate } from "./sfx.js";
-import { GAME_FINISH_MS, TurnBanner, BigButton, useScrollToStage } from "./common.js";
+import {
+  GAME_FINISH_MS, TurnBanner, BigButton, RankRow, useScrollToStage, useTimers, finishWithTie, onActivateKey,
+} from "./common.js";
 import { TurnOrderSetup } from "./TurnOrder.js";
 
-export const WAIT_MIN_MS = 1500; // 초록까지 기다리는 시간 = 1.5초 ~ 5초 (사람마다 새로 뽑는다)
-export const WAIT_RANGE_MS = 3500;
-export const TOO_FAST_MS = 50; // 초록 뒤 이보다 빠른 입력은 미리 누르고 있던 것으로 본다
+const WAIT_MIN_MS = 1500; // 초록까지 기다리는 시간 = 1.5초 ~ 5초 (사람마다 새로 뽑는다)
+const WAIT_RANGE_MS = 3500;
+const TOO_FAST_MS = 50; // 초록 뒤 이보다 빠른 입력은 미리 누르고 있던 것으로 본다
 const PEEK_MS = 1400; // 내 기록을 잠깐 보여주는 시간
 
 const sec = (ms) => (ms / 1000).toFixed(3);
@@ -36,9 +37,8 @@ export function ReactionGame({ players, onFinish, onTie }) {
   const [records, setRecords] = useState([]);
   const [last, setLast] = useState(null); // 방금 사람의 기록 { ms | null, early }
   const goAt = useRef(0);
-  const timers = useRef([]);
+  const timers = useTimers();
   const stageRef = useScrollToStage(["ready", "wait", "go", "peek"].includes(phase), `${phase}-${turnPos}`);
-  useEffect(() => () => timers.current.forEach(clearTimeout), []);
 
   const playerIdx = order[turnPos];
   const player = players[playerIdx];
@@ -50,35 +50,30 @@ export function ReactionGame({ players, onFinish, onTie }) {
 
   const arm = () => {
     setPhase("wait");
-    timers.current.push(
-      setTimeout(() => {
-        goAt.current = performance.now();
-        beep(1040, 120, "square", 0.05);
-        setPhase("go");
-      }, WAIT_MIN_MS + randInt(WAIT_RANGE_MS + 1))
-    );
+    timers.later(() => {
+      goAt.current = performance.now();
+      beep(1040, 120, "square", 0.05);
+      setPhase("go");
+    }, WAIT_MIN_MS + randInt(WAIT_RANGE_MS + 1));
   };
 
   const record = (ms) => {
-    timers.current.forEach(clearTimeout);
-    timers.current = [];
+    timers.clear();
     const early = ms == null;
     if (early) vibrate(120);
     else sfxTick(false);
     setRecords((prev) => [...prev, { playerIdx, ms }]);
     setLast({ ms, early });
     setPhase("peek");
-    timers.current.push(
-      setTimeout(() => {
-        setLast(null);
-        if (turnPos + 1 >= order.length) {
-          setPhase("results");
-        } else {
-          setTurnPos(turnPos + 1);
-          setPhase("ready");
-        }
-      }, PEEK_MS)
-    );
+    timers.later(() => {
+      setLast(null);
+      if (turnPos + 1 >= order.length) {
+        setPhase("results");
+      } else {
+        setTurnPos(turnPos + 1);
+        setPhase("ready");
+      }
+    }, PEEK_MS);
   };
 
   const press = () => {
@@ -86,12 +81,6 @@ export function ReactionGame({ players, onFinish, onTie }) {
     if (phase !== "go") return;
     const ms = Math.round(performance.now() - goAt.current);
     record(ms < TOO_FAST_MS ? null : ms);
-  };
-  const pressKey = (e) => {
-    if (e.key === "Enter" || e.key === " ") {
-      e.preventDefault();
-      press();
-    }
   };
 
   // 기록 빠른 순 · 부정 출발은 맨 아래
@@ -103,13 +92,7 @@ export function ReactionGame({ players, onFinish, onTie }) {
     setPhase("done");
     fanfare();
     const ids = loserIdxs.map((i) => players[i].id);
-    timers.current.push(
-      setTimeout(() => {
-        if (ids.length === 1) onFinish(ids[0]);
-        else if (onTie) onTie(ids);
-        else onFinish(ids);
-      }, GAME_FINISH_MS)
-    );
+    timers.later(() => finishWithTie(ids, onFinish, onTie), GAME_FINISH_MS);
   };
 
   // ── 순서 정하기 ─────────────────────────────────────────────
@@ -152,7 +135,7 @@ export function ReactionGame({ players, onFinish, onTie }) {
           type="button"
           style=${{ ...styles.reactionPad, ...(go ? styles.reactionPadGo : null) }}
           onPointerDown=${press}
-          onKeyDown=${pressKey}
+          onKeyDown=${onActivateKey(press)}
           aria-live="assertive"
         >
           <span style=${styles.reactionPadEmoji} aria-hidden="true">${go ? "🟢" : "🔴"}</span>
@@ -196,16 +179,13 @@ export function ReactionGame({ players, onFinish, onTie }) {
         <p style=${styles.gameCaption}>결과</p>
         <div style=${styles.rankList}>
           ${ranked.map((r, rank) => {
-            const [bg, fg] = colorOf(r.playerIdx);
             const isLoser = loserIdxs.includes(r.playerIdx);
             return html`
-              <div key=${r.playerIdx} style=${{ ...styles.rankRow, ...(isLoser ? styles.rankRowHit : null) }}>
-                <span style=${{ ...styles.rankNo, background: bg, color: fg }}>${rank + 1}</span>
-                <span style=${styles.rankName}>${players[r.playerIdx].name}${isLoser ? " 💥" : ""}</span>
+              <${RankRow} key=${r.playerIdx} rank=${rank + 1} index=${r.playerIdx} name=${players[r.playerIdx].name} hit=${isLoser}>
                 <span style=${{ ...styles.rankValue, ...(isLoser ? { color: C_RED } : null) }}>
                   ${r.ms == null ? "부정 출발" : `${sec(r.ms)}초`}
                 </span>
-              </div>
+              <//>
             `;
           })}
         </div>

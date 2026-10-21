@@ -5,13 +5,13 @@
  * 막판엔 불꽃이 커지고 폭탄이 빨갛게 깜빡인다. 터지는 순간 들고 있던 사람이 당첨.
  * 받자마자 되넘기는 연타를 막으려고 받은 뒤 0.8초는 못 넘긴다.
  */
-import { useState, useRef, useEffect } from "react";
+import { Fragment, useState, useRef } from "react";
 import { html } from "../shared/html.js";
 import { styles, C_RED, C_DARK, C_WHITE, C_SUB } from "../shared/styles.js";
 import { randInt, shuffle } from "./random.js";
 import { beep, explosion, tick as tickSound, vibrate, unlockAudio, prefersReducedMotion } from "./sfx.js";
 import { josa } from "./josa.js";
-import { TurnBanner, useScrollToStage } from "./common.js";
+import { TurnBanner, useScrollToStage, useTimers } from "./common.js";
 import { TurnOrderSetup, TurnStrip } from "./TurnOrder.js";
 
 export const FUSE_MIN_MS = 15000;
@@ -99,10 +99,7 @@ export function BombGame({ players: initialPlayers, onFinish }) {
   const [progress, setProgress] = useState(0);
   const [locked, setLocked] = useState(false);
   const game = useRef(null); // { fuse, startAt, pos, lockUntil }
-  const timers = useRef([]);
-  useEffect(() => () => timers.current.forEach(clearTimeout), []);
-
-  const later = (fn, ms) => timers.current.push(setTimeout(fn, ms));
+  const { later } = useTimers();
 
   const tick = () => {
     const g = game.current;
@@ -183,7 +180,7 @@ export function BombGame({ players: initialPlayers, onFinish }) {
         >
           ${locked
             ? html`<span style=${styles.passBtnMain}>받았다!</span>`
-            : html`<span style=${styles.passBtnMain}>넘기기</span><span style=${styles.passBtnSub}>→ ${next.name}</span>`}
+            : html`<${Fragment}><span style=${styles.passBtnMain}>넘기기</span><span style=${styles.passBtnSub}>→ ${next.name}</span><//>`}
         </button>
       `}
     </div>

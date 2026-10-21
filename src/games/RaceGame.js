@@ -5,7 +5,7 @@ import { styles, C_RED } from "../shared/styles.js";
 import { colorOf } from "./palette.js";
 import { shuffle, randInt } from "./random.js";
 import { unlockAudio, beep, chime, fanfare } from "./sfx.js";
-import { GAME_FINISH_MS, BigButton } from "./common.js";
+import { GAME_FINISH_MS, BigButton, useTimers } from "./common.js";
 import { AnimalIcon } from "./gameIcons.js";
 
 // 최대 인원(MAX_PLAYERS)만큼 서로 다른 동물이 있어야 한다
@@ -54,8 +54,7 @@ export function RaceGame({ players, onFinish }) {
   const dispRef = useRef({});
   const velRef = useRef({});
   const animalEls = useRef({});
-  const endTimers = useRef([]);
-  useEffect(() => () => endTimers.current.forEach(clearTimeout), []);
+  const timers = useTimers();
 
   const startRace = () => {
     unlockAudio();
@@ -157,12 +156,10 @@ export function RaceGame({ players, onFinish }) {
 
         fanfare();
         setLoserIdx(loser);
-        endTimers.current.push(
-          setTimeout(() => {
-            setPhase("done");
-            endTimers.current.push(setTimeout(() => onFinish(players[loser].id), GAME_FINISH_MS));
-          }, 800)
-        );
+        timers.later(() => {
+          setPhase("done");
+          timers.later(() => onFinish(players[loser].id), GAME_FINISH_MS);
+        }, 800);
       }
     }, TICK_MS);
 

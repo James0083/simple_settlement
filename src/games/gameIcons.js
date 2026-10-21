@@ -11,9 +11,9 @@ export function RouletteIcon({ size = 32 }) {
       <circle cx="32" cy="32" r="17" fill="#EEE"/>
       <circle cx="32" cy="32" r="10" fill="#1565C0"/>
       <circle cx="32" cy="32" r="5" fill="#F9A825"/>
-      <line x1="48" y1="16" x2="34" y2="30" stroke="#424242" stroke-width="2.5" stroke-linecap="round"/>
+      <line x1="48" y1="16" x2="34" y2="30" stroke="#424242" strokeWidth="2.5" strokeLinecap="round"/>
       <polygon points="34,30 30,26 31,24" fill="#9E9E9E"/>
-      <line x1="48" y1="16" x2="53" y2="11" stroke="#E53935" stroke-width="2.5" stroke-linecap="round"/>
+      <line x1="48" y1="16" x2="53" y2="11" stroke="#E53935" strokeWidth="2.5" strokeLinecap="round"/>
     </svg>
   `;
 }
@@ -34,7 +34,7 @@ export function BombIcon({ size = 32 }) {
   return html`
     <svg xmlns="http://www.w3.org/2000/svg" width=${size} height=${size} viewBox="0 0 64 64">
       <circle cx="32" cy="38" r="22" fill="#212121"/>
-      <path d="M32 16 Q40 8 48 12" stroke="#795548" stroke-width="3" fill="none" stroke-linecap="round"/>
+      <path d="M32 16 Q40 8 48 12" stroke="#795548" strokeWidth="3" fill="none" strokeLinecap="round"/>
       <ellipse cx="48" cy="11" rx="4" ry="6" fill="#FF6F00" opacity="0.9"/>
       <ellipse cx="48" cy="10" rx="2.5" ry="4" fill="#FFEB3B"/>
       <ellipse cx="25" cy="30" rx="6" ry="4" fill="#424242" opacity="0.5"/>
@@ -50,8 +50,8 @@ export function PirateIcon({ size = 32 }) {
       <rect x="13" y="6" width="46" height="38" fill="#212121"/>
       <!-- 교차 뼈 (두개골 뒤) -->
       <g fill="#FAFAFA">
-        <line x1="22" y1="28" x2="50" y2="38" stroke="#FAFAFA" stroke-width="3" stroke-linecap="round"/>
-        <line x1="22" y1="38" x2="50" y2="28" stroke="#FAFAFA" stroke-width="3" stroke-linecap="round"/>
+        <line x1="22" y1="28" x2="50" y2="38" stroke="#FAFAFA" strokeWidth="3" strokeLinecap="round"/>
+        <line x1="22" y1="38" x2="50" y2="28" stroke="#FAFAFA" strokeWidth="3" strokeLinecap="round"/>
         <circle cx="20.5" cy="29.3" r="2.2"/><circle cx="21.6" cy="26.1" r="2.2"/>
         <circle cx="50.4" cy="39.9" r="2.2"/><circle cx="51.5" cy="36.7" r="2.2"/>
         <circle cx="21.6" cy="39.9" r="2.2"/><circle cx="20.5" cy="36.7" r="2.2"/>
@@ -63,8 +63,8 @@ export function PirateIcon({ size = 32 }) {
       <circle cx="32.6" cy="19.5" r="2.7" fill="#212121"/>
       <circle cx="39.4" cy="19.5" r="2.7" fill="#212121"/>
       <polygon points="36,22.3 34.8,24.8 37.2,24.8" fill="#212121"/>
-      <line x1="34.3" y1="27" x2="34.3" y2="30" stroke="#212121" stroke-width="1"/>
-      <line x1="37.7" y1="27" x2="37.7" y2="30" stroke="#212121" stroke-width="1"/>
+      <line x1="34.3" y1="27" x2="34.3" y2="30" stroke="#212121" strokeWidth="1"/>
+      <line x1="37.7" y1="27" x2="37.7" y2="30" stroke="#212121" strokeWidth="1"/>
     </svg>
   `;
 }
@@ -74,11 +74,11 @@ export function CrocodileIcon({ size = 32 }) {
   return html`
     <svg xmlns="http://www.w3.org/2000/svg" width=${size} height=${size} viewBox="0 0 64 64">
       <!-- 다리 (몸통보다 먼저 그려 이음새를 몸통이 덮음) -->
-      <g stroke="#388E3C" stroke-width="5" fill="none" stroke-linecap="round" stroke-linejoin="round">
+      <g stroke="#388E3C" strokeWidth="5" fill="none" strokeLinecap="round" strokeLinejoin="round">
         <path d="M21 38 L21 44.5 L26 45.5"/>
         <path d="M35 38 L35 44.5 L40 45.5"/>
       </g>
-      <g stroke="#1B5E20" stroke-width="1.6" stroke-linecap="round">
+      <g stroke="#1B5E20" strokeWidth="1.6" strokeLinecap="round">
         <line x1="25" y1="44" x2="29.5" y2="43.3"/><line x1="25" y1="45.7" x2="30" y2="46.1"/><line x1="25" y1="47.3" x2="29.2" y2="48.7"/>
         <line x1="39" y1="44" x2="43.5" y2="43.3"/><line x1="39" y1="45.7" x2="44" y2="46.1"/><line x1="39" y1="47.3" x2="43.2" y2="48.7"/>
       </g>
@@ -127,25 +127,25 @@ export function TapBattleIcon({ size = 32 }) {
       <!-- 주먹 (손등) -->
       <rect x="17" y="28" width="31" height="26" rx="9" fill="#FFCC80"/>
       <!-- 위에서 아래로 접힌 손가락 3개 (중지·약지·소지): 윗부분 마디, 아래로 말려 내려옴 -->
-      <g fill="#FFCC80" stroke="#E69A4C" stroke-width="1.2">
+      <g fill="#FFCC80" stroke="#E69A4C" strokeWidth="1.2">
         <rect x="29" y="29" width="7" height="19" rx="3.5"/>
         <rect x="36" y="30" width="6.5" height="18" rx="3.25"/>
         <rect x="42.5" y="32" width="5.5" height="15" rx="2.75"/>
       </g>
       <!-- 접힌 마디 주름 -->
-      <g stroke="#E69A4C" stroke-width="1.1" stroke-linecap="round">
+      <g stroke="#E69A4C" strokeWidth="1.1" strokeLinecap="round">
         <line x1="30.5" y1="36" x2="34.5" y2="36"/>
         <line x1="37.5" y1="36.5" x2="41" y2="36.5"/>
         <line x1="43.8" y1="37.5" x2="46.7" y2="37.5"/>
       </g>
       <!-- 엄지 (주먹 앞을 가로지름) -->
-      <path d="M18 37 Q16 47 23 48.5 L33 48" stroke="#FFCC80" stroke-width="7" fill="none" stroke-linecap="round"/>
-      <path d="M21 45.5 Q25 49 33 48" stroke="#E69A4C" stroke-width="1.2" fill="none" stroke-linecap="round"/>
+      <path d="M18 37 Q16 47 23 48.5 L33 48" stroke="#FFCC80" strokeWidth="7" fill="none" strokeLinecap="round"/>
+      <path d="M21 45.5 Q25 49 33 48" stroke="#E69A4C" strokeWidth="1.2" fill="none" strokeLinecap="round"/>
       <!-- 검지 손톱·마디 -->
       <rect x="20" y="9.5" width="7" height="8" rx="3.5" fill="#FFE0B2"/>
-      <line x1="20" y1="25" x2="27" y2="25" stroke="#E69A4C" stroke-width="1.2" stroke-linecap="round"/>
+      <line x1="20" y1="25" x2="27" y2="25" stroke="#E69A4C" strokeWidth="1.2" strokeLinecap="round"/>
       <!-- 터치 효과 -->
-      <g stroke="#FF8F00" stroke-width="2" stroke-linecap="round">
+      <g stroke="#FF8F00" strokeWidth="2" strokeLinecap="round">
         <line x1="23.5" y1="4" x2="23.5" y2="1"/>
         <line x1="16" y1="6" x2="14" y2="4"/>
         <line x1="31" y1="6" x2="33" y2="4"/>
@@ -175,8 +175,8 @@ export function UpDownIcon({ size = 32 }) {
     <svg xmlns="http://www.w3.org/2000/svg" width=${size} height=${size} viewBox="0 0 64 64">
       <rect x="8" y="14" width="48" height="36" rx="6" fill="#1A237E"/>
       <rect x="11" y="17" width="42" height="30" rx="4" fill="#0D47A1"/>
-      <text x="32" y="37" font-size="20" font-weight="800" fill="#40C4FF"
-        text-anchor="middle" font-family="monospace">??</text>
+      <text x="32" y="37" fontSize="20" fontWeight="800" fill="#40C4FF"
+        textAnchor="middle" fontFamily="monospace">??</text>
       <polygon points="32,6 26,14 38,14" fill="#F44336"/>
       <polygon points="32,58 26,50 38,50" fill="#4CAF50"/>
     </svg>
@@ -187,18 +187,18 @@ export function TenSecIcon({ size = 32 }) {
   return html`
     <svg xmlns="http://www.w3.org/2000/svg" width=${size} height=${size} viewBox="0 0 64 64">
       <circle cx="32" cy="36" r="24" fill="#ECEFF1"/>
-      <circle cx="32" cy="36" r="24" fill="none" stroke="#B0BEC5" stroke-width="2"/>
-      <circle cx="32" cy="36" r="20" fill="none" stroke="#CFD8DC" stroke-width="1.5"/>
+      <circle cx="32" cy="36" r="24" fill="none" stroke="#B0BEC5" strokeWidth="2"/>
+      <circle cx="32" cy="36" r="20" fill="none" stroke="#CFD8DC" strokeWidth="1.5"/>
       <rect x="28" y="8" width="8" height="6" rx="2" fill="#90A4AE"/>
       <rect x="26" y="11" width="12" height="3" rx="1.5" fill="#78909C"/>
       <rect x="16" y="9" width="6" height="4" rx="2" fill="#78909C"/>
-      <line x1="32" y1="36" x2="32" y2="18" stroke="#F44336" stroke-width="2.5" stroke-linecap="round"/>
-      <line x1="32" y1="36" x2="44" y2="36" stroke="#37474F" stroke-width="2" stroke-linecap="round"/>
+      <line x1="32" y1="36" x2="32" y2="18" stroke="#F44336" strokeWidth="2.5" strokeLinecap="round"/>
+      <line x1="32" y1="36" x2="44" y2="36" stroke="#37474F" strokeWidth="2" strokeLinecap="round"/>
       <circle cx="32" cy="36" r="3" fill="#455A64"/>
-      <line x1="32" y1="14" x2="32" y2="18" stroke="#607D8B" stroke-width="2"/>
-      <line x1="50" y1="36" x2="46" y2="36" stroke="#607D8B" stroke-width="2"/>
-      <line x1="14" y1="36" x2="18" y2="36" stroke="#607D8B" stroke-width="2"/>
-      <line x1="32" y1="58" x2="32" y2="54" stroke="#607D8B" stroke-width="2"/>
+      <line x1="32" y1="14" x2="32" y2="18" stroke="#607D8B" strokeWidth="2"/>
+      <line x1="50" y1="36" x2="46" y2="36" stroke="#607D8B" strokeWidth="2"/>
+      <line x1="14" y1="36" x2="18" y2="36" stroke="#607D8B" strokeWidth="2"/>
+      <line x1="32" y1="58" x2="32" y2="54" stroke="#607D8B" strokeWidth="2"/>
     </svg>
   `;
 }
@@ -264,7 +264,7 @@ function Turtle({ size }) {
     <!-- 눈·입 -->
     <circle cx="33" cy="19.8" r="1.1" fill="#212121"/>
     <circle cx="33.4" cy="19.4" r="0.35" fill="white"/>
-    <path d="M35.8,22.3 Q34.5,23.2 33,22.9" stroke="#2E7D32" stroke-width="0.6" fill="none" stroke-linecap="round"/>
+    <path d="M35.8,22.3 Q34.5,23.2 33,22.9" stroke="#2E7D32" strokeWidth="0.6" fill="none" strokeLinecap="round"/>
     </g>
     <!-- 가까운 다리 (굵고 짧은 기둥 + 발) -->
     <rect x="9.5" y="30" width="5" height="6" rx="2.5" fill="#66BB6A"/>
@@ -290,7 +290,7 @@ function Turtle({ size }) {
 function Rabbit({ size }) {
   return html`<${AnimalBase} size=${size}>
     <!-- 외곽선 (흰 몸이 배경에 묻히지 않게) -->
-    <g fill="#EEE" stroke="#BDBDBD" stroke-width="1.6">
+    <g fill="#EEE" stroke="#BDBDBD" strokeWidth="1.6">
       <ellipse cx="17" cy="26" rx="10" ry="8"/>
       <circle cx="29" cy="21" r="7"/>
       <ellipse cx="12" cy="34" rx="6" ry="2.5"/>
@@ -298,7 +298,7 @@ function Rabbit({ size }) {
       <circle cx="7.5" cy="24" r="3.5"/>
     </g>
     <!-- 귀 (뒤로 누임) -->
-    <ellipse cx="23" cy="12" rx="2.6" ry="6.5" fill="#EEE" stroke="#BDBDBD" stroke-width="0.8" transform="rotate(-25,23,12)"/>
+    <ellipse cx="23" cy="12" rx="2.6" ry="6.5" fill="#EEE" stroke="#BDBDBD" strokeWidth="0.8" transform="rotate(-25,23,12)"/>
     <ellipse cx="23" cy="12" rx="1.2" ry="4.5" fill="#F48FB1" transform="rotate(-25,23,12)"/>
     <!-- 채우기 (이음새 없이 한 덩어리) -->
     <g fill="#F5F5F5">
@@ -319,7 +319,7 @@ function Dog({ size }) {
     <!-- 몸통 -->
     <ellipse cx="18" cy="26" rx="11" ry="8" fill="#A1887F"/>
     <!-- 꼬리 (위로 올라감) -->
-    <path d="M8,24 Q3,17 8,13" stroke="#8D6E63" stroke-width="3" fill="none" stroke-linecap="round"/>
+    <path d="M8,24 Q3,17 8,13" stroke="#8D6E63" strokeWidth="3" fill="none" strokeLinecap="round"/>
     <!-- 머리 -->
     <circle cx="30" cy="20" r="8" fill="#BCAAA4"/>
     <!-- 귀 (늘어진, 가까운 귀만 — 측면) -->
@@ -342,14 +342,14 @@ function Dog({ size }) {
 function Cat({ size }) {
   return html`<${AnimalBase} size=${size}>
     <!-- 꼬리 (위로 말림) -->
-    <path d="M8,24 Q3,19 5,13 Q6,10 9,10" stroke="#78909C" stroke-width="2.6" fill="none" stroke-linecap="round"/>
+    <path d="M8,24 Q3,19 5,13 Q6,10 9,10" stroke="#78909C" strokeWidth="2.6" fill="none" strokeLinecap="round"/>
     <!-- 뒷다리 (먼 쪽) -->
     <rect x="9" y="28" width="3.2" height="9" rx="1.6" fill="#607D8B"/>
     <rect x="24" y="28" width="3.2" height="9" rx="1.6" fill="#607D8B"/>
     <!-- 몸통 (가늘고 긴) -->
     <ellipse cx="17.5" cy="25.5" rx="10.5" ry="5.8" fill="#90A4AE"/>
     <!-- 줄무늬 -->
-    <g stroke="#607D8B" stroke-width="1.4" stroke-linecap="round" opacity="0.7">
+    <g stroke="#607D8B" strokeWidth="1.4" strokeLinecap="round" opacity="0.7">
       <path d="M13,20.5 Q12.5,23 13.5,25"/>
       <path d="M17,20 Q16.5,22.5 17.5,24.5"/>
       <path d="M21,20.3 Q20.5,22.8 21.5,24.8"/>
@@ -373,9 +373,9 @@ function Cat({ size }) {
     <ellipse cx="32.3" cy="17.3" rx="0.5" ry="1.4" fill="#212121"/>
     <!-- 코·입 -->
     <path d="M37.6,19.2 L36.4,19.4 L37.3,20.4 Z" fill="#F06292"/>
-    <path d="M37.2,20.6 Q36.8,22 35.4,22" stroke="#546E7A" stroke-width="0.6" fill="none"/>
+    <path d="M37.2,20.6 Q36.8,22 35.4,22" stroke="#546E7A" strokeWidth="0.6" fill="none"/>
     <!-- 수염 (앞으로) -->
-    <g stroke="#546E7A" stroke-width="0.5" stroke-linecap="round">
+    <g stroke="#546E7A" strokeWidth="0.5" strokeLinecap="round">
       <line x1="35" y1="20.3" x2="39.6" y2="19.3"/>
       <line x1="35" y1="21" x2="39.6" y2="21.6"/>
     </g>
@@ -386,12 +386,12 @@ function Frog({ size }) {
   return html`<${AnimalBase} size=${size}>
     <!-- 뒷다리 (큰 L자형, 전부 0~40 내) -->
     <!-- 왼쪽 뒷다리: 몸에서 왼쪽-아래로 뻗고 발로 끝 -->
-    <path d="M11,26 Q5,30 6,35" stroke="#2E7D32" stroke-width="5"
-      fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M11,26 Q5,30 6,35" stroke="#2E7D32" strokeWidth="5"
+      fill="none" strokeLinecap="round" strokeLinejoin="round"/>
     <ellipse cx="6" cy="35" rx="4" ry="2" fill="#2E7D32"/>
     <!-- 오른쪽 뒷다리 (약간 다른 각도) -->
-    <path d="M14,29 Q8,33 9,38" stroke="#388E3C" stroke-width="4"
-      fill="none" stroke-linecap="round"/>
+    <path d="M14,29 Q8,33 9,38" stroke="#388E3C" strokeWidth="4"
+      fill="none" strokeLinecap="round"/>
     <ellipse cx="9" cy="38" rx="4" ry="1.8" fill="#388E3C"/>
     <!-- 몸통 -->
     <ellipse cx="21" cy="24" rx="12" ry="9" fill="#43A047"/>
@@ -407,10 +407,10 @@ function Frog({ size }) {
     <circle cx="34" cy="10" r="2.8" fill="#212121"/>
     <circle cx="32.8" cy="9" r="0.9" fill="white"/>
     <!-- 입 -->
-    <path d="M25,21 Q30,24 35,21" stroke="#1B5E20" stroke-width="1.5" fill="none"/>
+    <path d="M25,21 Q30,24 35,21" stroke="#1B5E20" strokeWidth="1.5" fill="none"/>
     <!-- 앞다리 (오른쪽으로) -->
-    <path d="M29,26 Q35,29 37,27" stroke="#2E7D32" stroke-width="3.5"
-      fill="none" stroke-linecap="round"/>
+    <path d="M29,26 Q35,29 37,27" stroke="#2E7D32" strokeWidth="3.5"
+      fill="none" strokeLinecap="round"/>
   <//>`;
 }
 
@@ -438,14 +438,14 @@ function Bear({ size }) {
     <circle cx="31.8" cy="16.9" r="0.35" fill="white"/>
     <!-- 코·입 -->
     <ellipse cx="38.4" cy="19.9" rx="1.3" ry="1" fill="#212121"/>
-    <path d="M37.8,21.8 Q36.5,23 35,22.6" stroke="#4E342E" stroke-width="0.7" fill="none" stroke-linecap="round"/>
+    <path d="M37.8,21.8 Q36.5,23 35,22.6" stroke="#4E342E" strokeWidth="0.7" fill="none" strokeLinecap="round"/>
   <//>`;
 }
 
 function Panda({ size }) {
   return html`<${AnimalBase} size=${size}>
     <!-- 외곽선 -->
-    <g fill="#FAFAFA" stroke="#BDBDBD" stroke-width="1.6">
+    <g fill="#FAFAFA" stroke="#BDBDBD" strokeWidth="1.6">
       <ellipse cx="18" cy="26" rx="13" ry="9"/>
       <circle cx="30" cy="18" r="9"/>
       <circle cx="6" cy="23" r="2.5"/>
@@ -470,7 +470,7 @@ function Panda({ size }) {
     <circle cx="30.5" cy="16" r="0.8" fill="#212121"/>
     <!-- 코 -->
     <ellipse cx="37.5" cy="20" rx="1.8" ry="1.3" fill="#212121"/>
-    <path d="M34 23 Q35.5 24.5 37.5 23" stroke="#424242" stroke-width="0.9" fill="none"/>
+    <path d="M34 23 Q35.5 24.5 37.5 23" stroke="#424242" strokeWidth="0.9" fill="none"/>
   <//>`;
 }
 
@@ -515,7 +515,7 @@ function Fox({ size }) {
 function Mouse({ size }) {
   return html`<${AnimalBase} size=${size}>
     <!-- 꼬리 (가늘고 긺, 땅 따라) -->
-    <path d="M9,28 Q3,30 3,34 Q4,36.5 8,35.5" stroke="#F48FB1" stroke-width="1.3" fill="none" stroke-linecap="round"/>
+    <path d="M9,28 Q3,30 3,34 Q4,36.5 8,35.5" stroke="#F48FB1" strokeWidth="1.3" fill="none" strokeLinecap="round"/>
     <!-- 먼 다리 -->
     <ellipse cx="13" cy="35.5" rx="2.3" ry="1.3" fill="#F48FB1"/>
     <ellipse cx="25" cy="35.5" rx="2" ry="1.2" fill="#F48FB1"/>
@@ -537,7 +537,7 @@ function Mouse({ size }) {
     <!-- 코 -->
     <circle cx="38" cy="24.2" r="0.9" fill="#F06292"/>
     <!-- 수염 -->
-    <g stroke="#616161" stroke-width="0.5" stroke-linecap="round">
+    <g stroke="#616161" strokeWidth="0.5" strokeLinecap="round">
       <line x1="35.5" y1="24.5" x2="39.8" y2="22.8"/>
       <line x1="35.5" y1="25.2" x2="39.8" y2="26"/>
     </g>
@@ -547,7 +547,7 @@ function Mouse({ size }) {
 function Lion({ size }) {
   return html`<${AnimalBase} size=${size}>
     <!-- 꼬리 (끝에 털 뭉치) -->
-    <path d="M7,24 Q2,26 3,19" stroke="#F9A825" stroke-width="2" fill="none" stroke-linecap="round"/>
+    <path d="M7,24 Q2,26 3,19" stroke="#F9A825" strokeWidth="2" fill="none" strokeLinecap="round"/>
     <ellipse cx="3" cy="17.5" rx="2" ry="2.6" fill="#BF360C"/>
     <!-- 먼 다리 -->
     <rect x="8" y="28" width="4" height="9" rx="2" fill="#E0A020"/>
@@ -576,7 +576,7 @@ function Lion({ size }) {
     <ellipse cx="32.3" cy="16" rx="0.9" ry="1.1" fill="#4E342E"/>
     <!-- 코·입 -->
     <path d="M38.8,17.9 L37.2,17.9 Q37.6,19.4 38.6,19.2 Z" fill="#6D4C41"/>
-    <path d="M38.2,19.6 Q37.6,21.6 35.8,21.6" stroke="#8D6E63" stroke-width="0.6" fill="none" stroke-linecap="round"/>
+    <path d="M38.2,19.6 Q37.6,21.6 35.8,21.6" stroke="#8D6E63" strokeWidth="0.6" fill="none" strokeLinecap="round"/>
   <//>`;
 }
 
@@ -586,7 +586,7 @@ function Pig({ size }) {
     <rect x="9" y="29" width="3.6" height="7.5" rx="1.8" fill="#E57F9A"/>
     <rect x="23" y="29" width="3.6" height="7.5" rx="1.8" fill="#E57F9A"/>
     <!-- 꼬리 (돌돌 말림) -->
-    <path d="M7,23 Q3.5,22 4.5,19.5 Q6,18 6.5,20 Q6.5,21.5 5,21" stroke="#F48FB1" stroke-width="1.2" fill="none" stroke-linecap="round"/>
+    <path d="M7,23 Q3.5,22 4.5,19.5 Q6,18 6.5,20 Q6.5,21.5 5,21" stroke="#F48FB1" strokeWidth="1.2" fill="none" strokeLinecap="round"/>
     <!-- 몸통 (통통) -->
     <ellipse cx="17" cy="24.5" rx="11" ry="7.5" fill="#F8BBD0"/>
     <!-- 가까운 다리 -->
@@ -610,7 +610,7 @@ function Pig({ size }) {
 function Chick({ size }) {
   return html`<${AnimalBase} size=${size}>
     <!-- 다리 (가는 두 다리) -->
-    <g stroke="#FB8C00" stroke-width="1.3" stroke-linecap="round" fill="none">
+    <g stroke="#FB8C00" strokeWidth="1.3" strokeLinecap="round" fill="none">
       <path d="M17,29 L16,36 L18.5,36.5"/>
       <path d="M22,29 L23,36 L25.5,36.5"/>
     </g>
@@ -656,8 +656,8 @@ function Penguin({ size }) {
 function Tiger({ size }) {
   return html`<${AnimalBase} size=${size}>
     <!-- 꼬리 -->
-    <path d="M7,23 Q2,24 2.5,17" stroke="#FB8C00" stroke-width="2" fill="none" stroke-linecap="round"/>
-    <path d="M2.3,19.5 L4.6,19.8 M2.8,22.5 L5,22" stroke="#3E2723" stroke-width="0.9"/>
+    <path d="M7,23 Q2,24 2.5,17" stroke="#FB8C00" strokeWidth="2" fill="none" strokeLinecap="round"/>
+    <path d="M2.3,19.5 L4.6,19.8 M2.8,22.5 L5,22" stroke="#3E2723" strokeWidth="0.9"/>
     <!-- 먼 다리 -->
     <rect x="8" y="28" width="4" height="9" rx="2" fill="#E07B00"/>
     <rect x="22" y="28" width="4" height="9" rx="2" fill="#E07B00"/>
@@ -666,7 +666,7 @@ function Tiger({ size }) {
     <!-- 배 -->
     <path d="M9,28.5 Q17,33 26,28.5 Q18,30.5 9,28.5 Z" fill="#FFF3E0"/>
     <!-- 줄무늬 -->
-    <g stroke="#3E2723" stroke-width="1.3" stroke-linecap="round" fill="none">
+    <g stroke="#3E2723" strokeWidth="1.3" strokeLinecap="round" fill="none">
       <path d="M11,19.5 Q10,22 11,24"/>
       <path d="M15,18.6 Q14,21.5 15,24"/>
       <path d="M19,18.6 Q18,21.5 19,24"/>
@@ -682,7 +682,7 @@ function Tiger({ size }) {
     <!-- 주둥이 (흰) -->
     <ellipse cx="35.2" cy="20.3" rx="3.4" ry="2.6" fill="#FFF3E0"/>
     <!-- 얼굴 줄무늬 -->
-    <g stroke="#3E2723" stroke-width="1" stroke-linecap="round">
+    <g stroke="#3E2723" strokeWidth="1" strokeLinecap="round">
       <line x1="29" y1="13.6" x2="29.6" y2="15.8"/>
       <line x1="27" y1="15.5" x2="28.3" y2="17"/>
       <line x1="27" y1="19.5" x2="28.8" y2="19.6"/>
@@ -694,7 +694,7 @@ function Tiger({ size }) {
     <ellipse cx="32.4" cy="16.6" rx="0.9" ry="1.1" fill="#212121"/>
     <!-- 코·입 -->
     <path d="M38.6,18.6 L37,18.6 Q37.5,20 38.4,19.8 Z" fill="#6D4C41"/>
-    <path d="M38.1,20.3 Q37.5,22 35.8,22" stroke="#8D6E63" stroke-width="0.6" fill="none" stroke-linecap="round"/>
+    <path d="M38.1,20.3 Q37.5,22 35.8,22" stroke="#8D6E63" strokeWidth="0.6" fill="none" strokeLinecap="round"/>
   <//>`;
 }
 
@@ -704,7 +704,7 @@ function Elephant({ size }) {
     <rect x="8" y="28" width="5" height="9" rx="2" fill="#78909C"/>
     <rect x="22" y="28" width="5" height="9" rx="2" fill="#78909C"/>
     <!-- 꼬리 -->
-    <path d="M5.5,21 Q3,24 3.5,27" stroke="#90A4AE" stroke-width="1.2" fill="none" stroke-linecap="round"/>
+    <path d="M5.5,21 Q3,24 3.5,27" stroke="#90A4AE" strokeWidth="1.2" fill="none" strokeLinecap="round"/>
     <!-- 몸통 -->
     <ellipse cx="16.5" cy="23" rx="11.5" ry="8.5" fill="#90A4AE"/>
     <!-- 가까운 다리 -->
@@ -713,9 +713,9 @@ function Elephant({ size }) {
     <!-- 머리 -->
     <circle cx="29.5" cy="17.5" r="6.5" fill="#90A4AE"/>
     <!-- 코 (길게 내려와 앞으로 말림) -->
-    <path d="M33.5,19 Q37.5,22 36.5,28 Q36,31 38.5,31" stroke="#90A4AE" stroke-width="3.4" fill="none" stroke-linecap="round"/>
+    <path d="M33.5,19 Q37.5,22 36.5,28 Q36,31 38.5,31" stroke="#90A4AE" strokeWidth="3.4" fill="none" strokeLinecap="round"/>
     <!-- 상아 -->
-    <path d="M32,22.5 Q34,25.5 36,24.5" stroke="#FFFDE7" stroke-width="1.4" fill="none" stroke-linecap="round"/>
+    <path d="M32,22.5 Q34,25.5 36,24.5" stroke="#FFFDE7" strokeWidth="1.4" fill="none" strokeLinecap="round"/>
     <!-- 귀 (크게 펄럭) -->
     <path d="M24,12.5 Q18.5,14 19.5,21 Q21,26 26,23.5 Q27.5,18 24,12.5 Z" fill="#B0BEC5"/>
     <path d="M23.5,15 Q20.8,16.5 21.5,20.5 Q22.5,23 25,22 Q25.5,18.5 23.5,15 Z" fill="#F8BBD0" opacity="0.7"/>

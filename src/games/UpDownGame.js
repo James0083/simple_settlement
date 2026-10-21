@@ -2,13 +2,13 @@
  * 숫자 맞추기 — 모두 같은 비밀 숫자를 각자 자기 범위로 좁혀가며 맞힌다. 맞히면 탈출.
  * 전원이 탈출하면 시도 횟수가 가장 많은 사람이 당첨. 최다 횟수가 여러 명이면 onTie(동점자 id 목록).
  */
-import { useState, useRef, useEffect } from "react";
+import { useState } from "react";
 import { html } from "../shared/html.js";
 import { styles, C_RED, C_GREEN } from "../shared/styles.js";
 import { colorOf } from "./palette.js";
 import { shuffle, randInt } from "./random.js";
 import { unlockAudio, beep, chime, fanfare } from "./sfx.js";
-import { GAME_FINISH_MS, TurnBanner, BigButton, useScrollToStage } from "./common.js";
+import { GAME_FINISH_MS, TurnBanner, BigButton, useScrollToStage, useTimers, finishWithTie } from "./common.js";
 import { TurnOrderSetup } from "./TurnOrder.js";
 
 const FULL_RANGE = [1, 100];
@@ -30,8 +30,7 @@ export function UpDownGame({ players, onFinish, onTie }) {
   const [losers, setLosers] = useState([]); // 결과: 최다 시도자 인덱스 (여러 명이면 동점)
   const triesSoFar = Object.values(tries).reduce((s, n) => s + n, 0); // 차례가 바뀔 때마다 늘어난다
   const stageRef = useScrollToStage(["prepare", "input", "feedback"].includes(phase), `${phase}-${triesSoFar}`);
-  const finishTimer = useRef(null);
-  useEffect(() => () => clearTimeout(finishTimer.current), []);
+  const timers = useTimers();
 
   const startGame = () => {
     unlockAudio();
@@ -92,11 +91,7 @@ export function UpDownGame({ players, onFinish, onTie }) {
       setLosers(worst);
       setSurvivors(newSurvivors);
       setPhase("done");
-      finishTimer.current = setTimeout(() => {
-        if (ids.length === 1) onFinish(ids[0]);
-        else if (onTie) onTie(ids);
-        else onFinish(ids);
-      }, GAME_FINISH_MS);
+      timers.later(() => finishWithTie(ids, onFinish, onTie), GAME_FINISH_MS);
       return;
     }
     setSurvivors(newSurvivors);
