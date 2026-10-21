@@ -34,7 +34,7 @@
 ### 미니게임
 
 - 2~15명, 폰 한 대를 돌려가며 하는 게임 11종: 룰렛 · 사다리 타기 · 폭탄 돌리기 · 해적룰렛(3D) · 악어이빨(3D) · 터치 대결 · 손가락 룰렛 · 숫자 맞추기 · 10초 맞추기 · 동물 레이스 · 숨바꼭질(2명 전용)
-- 새 게임은 `registry.js`의 `releaseAt`으로 **매주 월요일 하나씩** 자동 공개(한국 시간 0시) — 지금 예약: 동물 레이스 10/26, 숨바꼭질 11/2. 공개 전에는 카드에 공개일 표시. 공개일이 지나면 `releaseAt` 을 지운다
+- 새 게임은 `registry.js`의 `releaseAt`으로 **매주 월요일 하나씩** 자동 공개(한국 시간 0시) — 지금 예약: 동물 레이스 10/26, 숨바꼭질 11/2. 공개 전에는 카드에 공개일 표시. 공개일이 지나면 `releaseAt` 을 지운다(`npm test` 가 지난 날짜를 잡아냄)
 - 인원이 정해진 게임은 `registry.js` 의 `exactPlayers`(숨바꼭질 = 2). 인원이 안 맞으면 카드를 눌러도 "정확히 2명이 필요해요"로 막음(`playersOkFor`)
 - 차례가 있는 게임은 시작 전에 순서를 보여주고 위/아래 · 섞기로 바꿀 수 있음
 - 결과 → **정산에 추가**: 게임 참가자 전원이 참여하고 당첨자가 결제한 회차(`N차 룰렛 게임`)를 만듦(당첨자 1명일 때)
@@ -324,6 +324,7 @@ ads.txt                     # 애드센스 판매자 인증 (pub-394898350956236
 privacy.html · terms.html · contact.html
 manifest.webmanifest · sw.js · favicon.svg · apple-touch-icon.png · icons/ · screenshots/
 admin/                      # 내부 문서(ADS_PLAN · PLAN_expansion) · 소리 테스트 페이지 (배포 안 함 — npm run dev 에서 /admin/sound-test.html)
+tests/unit · tests/e2e         # npm test(단위) · npm run test:e2e(브라우저) — 아래 "테스트"
 docs/index.html             # 옛 GitHub Pages 주소 → 새 도메인 안내
 prototype/receipt-ocr.html  # 영수증 OCR 검토용 프로토타입 (앱 본체와 분리)
 ```
@@ -348,10 +349,19 @@ npm install
 npm run dev        # 개발 서버 — http://localhost:5173 (파일을 고치면 바로 반영)
 npm run build      # 프로덕션 번들 → dist/
 npm run preview    # dist/ 를 로컬에서 확인 (서비스 워커 포함)
+npm test           # 단위 테스트 (정산 알고리즘 · 게임 레지스트리 · 공개일 · 난수) — 1초 이내
+npm run test:e2e   # 브라우저 테스트 (정산 금액 따로 입력 · 결과표 배치 · 숨바꼭질 완주) — 약 20초
 ```
 
 - **폰에서 테스트**: `npm run dev -- --host` 로 띄우고 같은 Wi-Fi에서 `http://<Mac의 IP>:5173`(IP는 `ipconfig getifaddr en0`). 서비스 워커·공유 기능까지 확인하려면 `npm run build && npm run preview -- --host` 후 HTTPS 터널을 씁니다: `cloudflared tunnel --url http://localhost:4173`
 - `src/settlement/settlement.js`(순수 함수)는 아무 의존성 없이 재사용 가능합니다.
+
+### 테스트
+
+- Node 내장 테스트 러너(`node:test`)를 씁니다. 테스트 프레임워크 의존성 없음.
+- **단위** `tests/unit/` — 정산 계산은 가이드 글(`guide/settle` · `guide/cases`)의 예시를 기대값으로 씁니다. 게임 레지스트리 테스트는 **공개일이 지난 `releaseAt` 이 남아 있으면 실패**해서 정리할 때를 알려줍니다(공개일이 지나면 `registry.js` 에서 지운다).
+- **브라우저** `tests/e2e/` — 테스트가 Vite 개발 서버를 빈 포트로 띄우고, 설치된 Chrome 을 `playwright-core` 로 엽니다(브라우저를 따로 내려받지 않음). Chrome 이 다른 경로에 있으면 `CHROME_PATH=/경로/chrome npm run test:e2e`. 공개 전 게임은 테스트 안에서 `previewGames` 권한을 켜고 확인합니다. 콘솔 오류가 나면 실패하며, 기존 React 개발 경고(SVG 속성 이름 · key)만 `helpers.js` 에서 제외합니다.
+- Node 에서 앱 모듈을 불러올 수 있도록 `package.json` 의 `imports` 가 `#platform` 을 웹 어댑터(`src/platform/web.js`)로 연결합니다. 빌드에서는 `vite.config.js` 의 별칭이 먼저 적용되므로 웹 · 앱인토스 번들은 영향이 없습니다.
 
 ## 배포
 

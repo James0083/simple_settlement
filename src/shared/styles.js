@@ -55,7 +55,7 @@ export const styles = {
     roundTopRow: { display: "flex", alignItems: "center", gap: 8, marginBottom: 10 },
     roundTitleInput: { flex: 1, minWidth: 0, fontFamily: "inherit", fontSize: 14, fontWeight: 700, color: C_DARK, background: "transparent", border: "none", borderBottom: "1.5px solid #DDE1E8", padding: "6px 2px" },
     roundFieldRow: { display: "flex", gap: 8, marginBottom: 10 },
-    selectInput: { flex: 1, minWidth: 0, fontFamily: "inherit", fontSize: 13.5, color: C_DARK, background: C_WHITE, border: "1px solid #DDE1E8", borderRadius: 4, padding: "8px 6px" },
+    selectInput: { flex: 1, minWidth: 0, fontFamily: "inherit", fontSize: 13.5, color: C_DARK, background: C_WHITE, borderWidth: 1, borderStyle: "solid", borderColor: "#DDE1E8", borderRadius: 4, padding: "8px 6px" },
     selectInputWarn: { borderColor: C_RED, color: C_MUTED },
     payerWarn: { margin: "-2px 0 10px", fontSize: 11.5, fontWeight: 500, color: C_RED },
     roundChipHeadRow: { display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 6 },

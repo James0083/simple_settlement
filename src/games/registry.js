@@ -5,7 +5,7 @@
  * 결판이 안 나면(동점) onFinish 대신 onTie(동점자 id 배열) — 동점자끼리 다시 하거나 다른 게임을 고르게 한다.
  * component 가 null 이면 준비 중.
  * releaseAt: "YYYY-MM-DD" 면 그날 0시(한국 시간)부터 열린다 — 새 게임은 매주 월요일 하나씩 공개.
- *   공개일이 지나면 releaseAt 을 지운다(없으면 이미 공개로 본다).
+ *   공개일이 지나면 releaseAt 을 지운다(없으면 이미 공개로 본다). npm test 가 지난 날짜를 잡아낸다.
  * exactPlayers: 숫자면 정확히 그 인원일 때만 할 수 있다(숨바꼭질은 2명). 없으면 MIN_PLAYERS ~ MAX_PLAYERS.
  */
 import { RouletteGame } from "./RouletteGame.js";
