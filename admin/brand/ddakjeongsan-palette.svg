@@ -1,0 +1,127 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="886" viewBox="0 0 1200 886">
+<rect width="1200" height="886" fill="#EEF1F4"/>
+<rect x="48" y="48" width="56" height="56" rx="12" fill="#1A1D29"/>
+<g transform="translate(60 60) scale(1.33)" fill="none" stroke="#FFFFFF" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M5 19.5V5a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v7"/><path d="M5 19.5 6.6 18l1.6 1.5L9.8 18l1.6 1.5L13 19.2"/><path d="M8 7.5h6"/><path d="M8 10.75h6"/><path d="M8 14h4"/><path d="m13.3 14.7 2.6 2.6L20 11.2"/></g>
+<text x="124" y="88" font-family="Pretendard, 'Noto Sans KR', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif" font-size="38" font-weight="900" fill="#1A1D29" letter-spacing="-1">딱정산 컬러 팔레트</text>
+<text x="1152" y="88" font-family="'Space Grotesk', Pretendard, 'Noto Sans KR', sans-serif" font-size="16" font-weight="700" fill="#E8503A" text-anchor="end">v2.10 · 2026-10-22</text>
+<rect x="48" y="140" width="208" height="200" rx="8" fill="#E8503A" stroke="#D5D9E2"/>
+<text x="64" y="170" font-family="Pretendard, 'Noto Sans KR', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif" font-size="13" font-weight="700" fill="#FFFFFF" opacity="0.85">ACCENT</text>
+<text x="64" y="290" font-family="Pretendard, 'Noto Sans KR', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif" font-size="22" font-weight="900" fill="#FFFFFF">딱정산 레드</text>
+<text x="64" y="318" font-family="'Space Grotesk', Pretendard, 'Noto Sans KR', sans-serif" font-size="17" font-weight="700" fill="#FFFFFF">#E8503A</text>
+<rect x="272" y="140" width="208" height="200" rx="8" fill="#1A1D29" stroke="#D5D9E2"/>
+<text x="288" y="170" font-family="Pretendard, 'Noto Sans KR', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif" font-size="13" font-weight="700" fill="#FFFFFF" opacity="0.85">INK</text>
+<text x="288" y="290" font-family="Pretendard, 'Noto Sans KR', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif" font-size="22" font-weight="900" fill="#FFFFFF">잉크 네이비</text>
+<text x="288" y="318" font-family="'Space Grotesk', Pretendard, 'Noto Sans KR', sans-serif" font-size="17" font-weight="700" fill="#FFFFFF">#1A1D29</text>
+<rect x="496" y="140" width="208" height="200" rx="8" fill="#EEF1F4" stroke="#D5D9E2"/>
+<text x="512" y="170" font-family="Pretendard, 'Noto Sans KR', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif" font-size="13" font-weight="700" fill="#1A1D29" opacity="0.85">GROUND</text>
+<text x="512" y="290" font-family="Pretendard, 'Noto Sans KR', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif" font-size="22" font-weight="900" fill="#1A1D29">영수증 회색</text>
+<text x="512" y="318" font-family="'Space Grotesk', Pretendard, 'Noto Sans KR', sans-serif" font-size="17" font-weight="700" fill="#1A1D29">#EEF1F4</text>
+<rect x="720" y="140" width="208" height="200" rx="8" fill="#FFFFFF" stroke="#D5D9E2"/>
+<text x="736" y="170" font-family="Pretendard, 'Noto Sans KR', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif" font-size="13" font-weight="700" fill="#1A1D29" opacity="0.85">PAPER</text>
+<text x="736" y="290" font-family="Pretendard, 'Noto Sans KR', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif" font-size="22" font-weight="900" fill="#1A1D29">화이트</text>
+<text x="736" y="318" font-family="'Space Grotesk', Pretendard, 'Noto Sans KR', sans-serif" font-size="17" font-weight="700" fill="#1A1D29">#FFFFFF</text>
+<rect x="944" y="140" width="208" height="200" rx="8" fill="#0F9D64" stroke="#D5D9E2"/>
+<text x="960" y="170" font-family="Pretendard, 'Noto Sans KR', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif" font-size="13" font-weight="700" fill="#FFFFFF" opacity="0.85">OK</text>
+<text x="960" y="290" font-family="Pretendard, 'Noto Sans KR', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif" font-size="22" font-weight="900" fill="#FFFFFF">정산 그린</text>
+<text x="960" y="318" font-family="'Space Grotesk', Pretendard, 'Noto Sans KR', sans-serif" font-size="17" font-weight="700" fill="#FFFFFF">#0F9D64</text>
+<text x="48" y="388" font-family="Pretendard, 'Noto Sans KR', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif" font-size="15" font-weight="800" fill="#1A1D29">글자 (진한 → 연한)</text>
+<rect x="48" y="404" width="34" height="34" rx="6" fill="#1A1D29" stroke="#D5D9E2"/>
+<text x="94" y="419" font-family="Pretendard, 'Noto Sans KR', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif" font-size="14" font-weight="700" fill="#1A1D29">잉크 네이비</text>
+<text x="94" y="436" font-family="'Space Grotesk', Pretendard, 'Noto Sans KR', sans-serif" font-size="13" fill="#5C6178">#1A1D29</text>
+<rect x="48" y="448" width="34" height="34" rx="6" fill="#4B5165" stroke="#D5D9E2"/>
+<text x="94" y="463" font-family="Pretendard, 'Noto Sans KR', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif" font-size="14" font-weight="700" fill="#1A1D29">딤 그레이</text>
+<text x="94" y="480" font-family="'Space Grotesk', Pretendard, 'Noto Sans KR', sans-serif" font-size="13" fill="#5C6178">#4B5165</text>
+<rect x="48" y="492" width="34" height="34" rx="6" fill="#5C6178" stroke="#D5D9E2"/>
+<text x="94" y="507" font-family="Pretendard, 'Noto Sans KR', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif" font-size="14" font-weight="700" fill="#1A1D29">서브 그레이</text>
+<text x="94" y="524" font-family="'Space Grotesk', Pretendard, 'Noto Sans KR', sans-serif" font-size="13" fill="#5C6178">#5C6178</text>
+<rect x="48" y="536" width="34" height="34" rx="6" fill="#8A8FA3" stroke="#D5D9E2"/>
+<text x="94" y="551" font-family="Pretendard, 'Noto Sans KR', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif" font-size="14" font-weight="700" fill="#1A1D29">라벨 그레이</text>
+<text x="94" y="568" font-family="'Space Grotesk', Pretendard, 'Noto Sans KR', sans-serif" font-size="13" fill="#5C6178">#8A8FA3</text>
+<rect x="48" y="580" width="34" height="34" rx="6" fill="#9AA0B0" stroke="#D5D9E2"/>
+<text x="94" y="595" font-family="Pretendard, 'Noto Sans KR', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif" font-size="14" font-weight="700" fill="#1A1D29">뮤트 그레이</text>
+<text x="94" y="612" font-family="'Space Grotesk', Pretendard, 'Noto Sans KR', sans-serif" font-size="13" fill="#5C6178">#9AA0B0</text>
+<text x="425.3333333333333" y="388" font-family="Pretendard, 'Noto Sans KR', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif" font-size="15" font-weight="800" fill="#1A1D29">면 · 선</text>
+<rect x="425.3333333333333" y="404" width="34" height="34" rx="6" fill="#F6F8FB" stroke="#D5D9E2"/>
+<text x="471.3333333333333" y="419" font-family="Pretendard, 'Noto Sans KR', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif" font-size="14" font-weight="700" fill="#1A1D29">소프트 면</text>
+<text x="471.3333333333333" y="436" font-family="'Space Grotesk', Pretendard, 'Noto Sans KR', sans-serif" font-size="13" fill="#5C6178">#F6F8FB</text>
+<rect x="425.3333333333333" y="448" width="34" height="34" rx="6" fill="#F0F2F6" stroke="#D5D9E2"/>
+<text x="471.3333333333333" y="463" font-family="Pretendard, 'Noto Sans KR', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif" font-size="14" font-weight="700" fill="#1A1D29">구분 면</text>
+<text x="471.3333333333333" y="480" font-family="'Space Grotesk', Pretendard, 'Noto Sans KR', sans-serif" font-size="13" fill="#5C6178">#F0F2F6</text>
+<rect x="425.3333333333333" y="492" width="34" height="34" rx="6" fill="#E3E6EC" stroke="#D5D9E2"/>
+<text x="471.3333333333333" y="507" font-family="Pretendard, 'Noto Sans KR', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif" font-size="14" font-weight="700" fill="#1A1D29">테두리</text>
+<text x="471.3333333333333" y="524" font-family="'Space Grotesk', Pretendard, 'Noto Sans KR', sans-serif" font-size="13" fill="#5C6178">#E3E6EC</text>
+<rect x="425.3333333333333" y="536" width="34" height="34" rx="6" fill="#DDE1E8" stroke="#D5D9E2"/>
+<text x="471.3333333333333" y="551" font-family="Pretendard, 'Noto Sans KR', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif" font-size="14" font-weight="700" fill="#1A1D29">입력선</text>
+<text x="471.3333333333333" y="568" font-family="'Space Grotesk', Pretendard, 'Noto Sans KR', sans-serif" font-size="13" fill="#5C6178">#DDE1E8</text>
+<rect x="425.3333333333333" y="580" width="34" height="34" rx="6" fill="#C7CCD8" stroke="#D5D9E2"/>
+<text x="471.3333333333333" y="595" font-family="Pretendard, 'Noto Sans KR', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif" font-size="14" font-weight="700" fill="#1A1D29">점선</text>
+<text x="471.3333333333333" y="612" font-family="'Space Grotesk', Pretendard, 'Noto Sans KR', sans-serif" font-size="13" fill="#5C6178">#C7CCD8</text>
+<text x="802.6666666666666" y="388" font-family="Pretendard, 'Noto Sans KR', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif" font-size="15" font-weight="800" fill="#1A1D29">상태 틴트</text>
+<rect x="802.6666666666666" y="404" width="34" height="34" rx="6" fill="#FDF0EC" stroke="#D5D9E2"/>
+<text x="848.6666666666666" y="419" font-family="Pretendard, 'Noto Sans KR', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif" font-size="14" font-weight="700" fill="#1A1D29">레드 틴트</text>
+<text x="848.6666666666666" y="436" font-family="'Space Grotesk', Pretendard, 'Noto Sans KR', sans-serif" font-size="13" fill="#5C6178">#FDF0EC</text>
+<rect x="802.6666666666666" y="448" width="34" height="34" rx="6" fill="#F4C4B7" stroke="#D5D9E2"/>
+<text x="848.6666666666666" y="463" font-family="Pretendard, 'Noto Sans KR', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif" font-size="14" font-weight="700" fill="#1A1D29">레드 라인</text>
+<text x="848.6666666666666" y="480" font-family="'Space Grotesk', Pretendard, 'Noto Sans KR', sans-serif" font-size="13" fill="#5C6178">#F4C4B7</text>
+<rect x="802.6666666666666" y="492" width="34" height="34" rx="6" fill="#B8391F" stroke="#D5D9E2"/>
+<text x="848.6666666666666" y="507" font-family="Pretendard, 'Noto Sans KR', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif" font-size="14" font-weight="700" fill="#1A1D29">딥 레드</text>
+<text x="848.6666666666666" y="524" font-family="'Space Grotesk', Pretendard, 'Noto Sans KR', sans-serif" font-size="13" fill="#5C6178">#B8391F</text>
+<rect x="802.6666666666666" y="536" width="34" height="34" rx="6" fill="#E6F7EF" stroke="#D5D9E2"/>
+<text x="848.6666666666666" y="551" font-family="Pretendard, 'Noto Sans KR', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif" font-size="14" font-weight="700" fill="#1A1D29">그린 틴트</text>
+<text x="848.6666666666666" y="568" font-family="'Space Grotesk', Pretendard, 'Noto Sans KR', sans-serif" font-size="13" fill="#5C6178">#E6F7EF</text>
+<rect x="802.6666666666666" y="580" width="34" height="34" rx="6" fill="#0C6B4E" stroke="#D5D9E2"/>
+<text x="848.6666666666666" y="595" font-family="Pretendard, 'Noto Sans KR', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif" font-size="14" font-weight="700" fill="#1A1D29">딥 그린</text>
+<text x="848.6666666666666" y="612" font-family="'Space Grotesk', Pretendard, 'Noto Sans KR', sans-serif" font-size="13" fill="#5C6178">#0C6B4E</text>
+<rect x="802.6666666666666" y="624" width="34" height="34" rx="6" fill="#FFF8E1" stroke="#D5D9E2"/>
+<text x="848.6666666666666" y="639" font-family="Pretendard, 'Noto Sans KR', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif" font-size="14" font-weight="700" fill="#1A1D29">옐로 틴트</text>
+<text x="848.6666666666666" y="656" font-family="'Space Grotesk', Pretendard, 'Noto Sans KR', sans-serif" font-size="13" fill="#5C6178">#FFF8E1</text>
+<rect x="802.6666666666666" y="668" width="34" height="34" rx="6" fill="#7B5800" stroke="#D5D9E2"/>
+<text x="848.6666666666666" y="683" font-family="Pretendard, 'Noto Sans KR', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif" font-size="14" font-weight="700" fill="#1A1D29">딥 옐로</text>
+<text x="848.6666666666666" y="700" font-family="'Space Grotesk', Pretendard, 'Noto Sans KR', sans-serif" font-size="13" fill="#5C6178">#7B5800</text>
+<text x="48" y="752" font-family="Pretendard, 'Noto Sans KR', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif" font-size="15" font-weight="800" fill="#1A1D29">미니게임 플레이어 (참가자 순서대로)</text>
+<rect x="48" y="766" width="66.13333333333334" height="72" rx="4" fill="#E8503A"/>
+<text x="56" y="790" font-family="'Space Grotesk', Pretendard, 'Noto Sans KR', sans-serif" font-size="15" font-weight="700" fill="#FFFFFF">1</text>
+<text x="56" y="826" font-family="'Space Grotesk', Pretendard, 'Noto Sans KR', sans-serif" font-size="10.5" fill="#FFFFFF">#E8503A</text>
+<rect x="122.13333333333334" y="766" width="66.13333333333334" height="72" rx="4" fill="#1A1D29"/>
+<text x="130.13333333333333" y="790" font-family="'Space Grotesk', Pretendard, 'Noto Sans KR', sans-serif" font-size="15" font-weight="700" fill="#FFFFFF">2</text>
+<text x="130.13333333333333" y="826" font-family="'Space Grotesk', Pretendard, 'Noto Sans KR', sans-serif" font-size="10.5" fill="#FFFFFF">#1A1D29</text>
+<rect x="196.26666666666668" y="766" width="66.13333333333334" height="72" rx="4" fill="#0F9D64"/>
+<text x="204.26666666666668" y="790" font-family="'Space Grotesk', Pretendard, 'Noto Sans KR', sans-serif" font-size="15" font-weight="700" fill="#FFFFFF">3</text>
+<text x="204.26666666666668" y="826" font-family="'Space Grotesk', Pretendard, 'Noto Sans KR', sans-serif" font-size="10.5" fill="#FFFFFF">#0F9D64</text>
+<rect x="270.40000000000003" y="766" width="66.13333333333334" height="72" rx="4" fill="#F2B233"/>
+<text x="278.40000000000003" y="790" font-family="'Space Grotesk', Pretendard, 'Noto Sans KR', sans-serif" font-size="15" font-weight="700" fill="#1A1D29">4</text>
+<text x="278.40000000000003" y="826" font-family="'Space Grotesk', Pretendard, 'Noto Sans KR', sans-serif" font-size="10.5" fill="#1A1D29">#F2B233</text>
+<rect x="344.53333333333336" y="766" width="66.13333333333334" height="72" rx="4" fill="#3A6FE8"/>
+<text x="352.53333333333336" y="790" font-family="'Space Grotesk', Pretendard, 'Noto Sans KR', sans-serif" font-size="15" font-weight="700" fill="#FFFFFF">5</text>
+<text x="352.53333333333336" y="826" font-family="'Space Grotesk', Pretendard, 'Noto Sans KR', sans-serif" font-size="10.5" fill="#FFFFFF">#3A6FE8</text>
+<rect x="418.6666666666667" y="766" width="66.13333333333334" height="72" rx="4" fill="#8E5BD0"/>
+<text x="426.6666666666667" y="790" font-family="'Space Grotesk', Pretendard, 'Noto Sans KR', sans-serif" font-size="15" font-weight="700" fill="#FFFFFF">6</text>
+<text x="426.6666666666667" y="826" font-family="'Space Grotesk', Pretendard, 'Noto Sans KR', sans-serif" font-size="10.5" fill="#FFFFFF">#8E5BD0</text>
+<rect x="492.80000000000007" y="766" width="66.13333333333334" height="72" rx="4" fill="#F28C38"/>
+<text x="500.80000000000007" y="790" font-family="'Space Grotesk', Pretendard, 'Noto Sans KR', sans-serif" font-size="15" font-weight="700" fill="#1A1D29">7</text>
+<text x="500.80000000000007" y="826" font-family="'Space Grotesk', Pretendard, 'Noto Sans KR', sans-serif" font-size="10.5" fill="#1A1D29">#F28C38</text>
+<rect x="566.9333333333334" y="766" width="66.13333333333334" height="72" rx="4" fill="#2BB5A8"/>
+<text x="574.9333333333334" y="790" font-family="'Space Grotesk', Pretendard, 'Noto Sans KR', sans-serif" font-size="15" font-weight="700" fill="#1A1D29">8</text>
+<text x="574.9333333333334" y="826" font-family="'Space Grotesk', Pretendard, 'Noto Sans KR', sans-serif" font-size="10.5" fill="#1A1D29">#2BB5A8</text>
+<rect x="641.0666666666667" y="766" width="66.13333333333334" height="72" rx="4" fill="#C2185B"/>
+<text x="649.0666666666667" y="790" font-family="'Space Grotesk', Pretendard, 'Noto Sans KR', sans-serif" font-size="15" font-weight="700" fill="#FFFFFF">9</text>
+<text x="649.0666666666667" y="826" font-family="'Space Grotesk', Pretendard, 'Noto Sans KR', sans-serif" font-size="10.5" fill="#FFFFFF">#C2185B</text>
+<rect x="715.2" y="766" width="66.13333333333334" height="72" rx="4" fill="#9AA0B0"/>
+<text x="723.2" y="790" font-family="'Space Grotesk', Pretendard, 'Noto Sans KR', sans-serif" font-size="15" font-weight="700" fill="#1A1D29">10</text>
+<text x="723.2" y="826" font-family="'Space Grotesk', Pretendard, 'Noto Sans KR', sans-serif" font-size="10.5" fill="#1A1D29">#9AA0B0</text>
+<rect x="789.3333333333334" y="766" width="66.13333333333334" height="72" rx="4" fill="#795548"/>
+<text x="797.3333333333334" y="790" font-family="'Space Grotesk', Pretendard, 'Noto Sans KR', sans-serif" font-size="15" font-weight="700" fill="#FFFFFF">11</text>
+<text x="797.3333333333334" y="826" font-family="'Space Grotesk', Pretendard, 'Noto Sans KR', sans-serif" font-size="10.5" fill="#FFFFFF">#795548</text>
+<rect x="863.4666666666667" y="766" width="66.13333333333334" height="72" rx="4" fill="#9CCC65"/>
+<text x="871.4666666666667" y="790" font-family="'Space Grotesk', Pretendard, 'Noto Sans KR', sans-serif" font-size="15" font-weight="700" fill="#1A1D29">12</text>
+<text x="871.4666666666667" y="826" font-family="'Space Grotesk', Pretendard, 'Noto Sans KR', sans-serif" font-size="10.5" fill="#1A1D29">#9CCC65</text>
+<rect x="937.6000000000001" y="766" width="66.13333333333334" height="72" rx="4" fill="#F48FB1"/>
+<text x="945.6000000000001" y="790" font-family="'Space Grotesk', Pretendard, 'Noto Sans KR', sans-serif" font-size="15" font-weight="700" fill="#1A1D29">13</text>
+<text x="945.6000000000001" y="826" font-family="'Space Grotesk', Pretendard, 'Noto Sans KR', sans-serif" font-size="10.5" fill="#1A1D29">#F48FB1</text>
+<rect x="1011.7333333333335" y="766" width="66.13333333333334" height="72" rx="4" fill="#283593"/>
+<text x="1019.7333333333335" y="790" font-family="'Space Grotesk', Pretendard, 'Noto Sans KR', sans-serif" font-size="15" font-weight="700" fill="#FFFFFF">14</text>
+<text x="1019.7333333333335" y="826" font-family="'Space Grotesk', Pretendard, 'Noto Sans KR', sans-serif" font-size="10.5" fill="#FFFFFF">#283593</text>
+<rect x="1085.8666666666668" y="766" width="66.13333333333334" height="72" rx="4" fill="#4FC3F7"/>
+<text x="1093.8666666666668" y="790" font-family="'Space Grotesk', Pretendard, 'Noto Sans KR', sans-serif" font-size="15" font-weight="700" fill="#1A1D29">15</text>
+<text x="1093.8666666666668" y="826" font-family="'Space Grotesk', Pretendard, 'Noto Sans KR', sans-serif" font-size="10.5" fill="#1A1D29">#4FC3F7</text>
+</svg>

@@ -35,14 +35,13 @@
 
 - 2~15명, 폰 한 대를 돌려가며 하는 게임 16종: 룰렛 · 사다리 타기 · 폭탄 돌리기 · 해적룰렛(3D) · 악어이빨(3D) · 터치 대결 · 손가락 룰렛 · 숫자 맞추기 · 10초 맞추기 · 동물 레이스 · 숨바꼭질(2명 전용) · 반응속도 · 복불복 나눠내기 · 탑 쌓기 · 기억력 릴레이 · 라이어 게임(3~10명)
 - 새 게임은 `registry.js`의 `releaseAt`으로 **매주 월요일 하나씩** 자동 공개(한국 시간 0시) — 지금 예약: 동물 레이스 10/26, 숨바꼭질 11/2, 반응속도 11/9, 복불복 나눠내기 11/16, 탑 쌓기 11/23, 기억력 릴레이 11/30, 라이어 게임 12/7 (계획: `admin/PLAN_next_games.md`). 공개 전에는 카드에 공개일 표시. 공개 뒤 2주 동안 카드에 NEW 뱃지, 그 뒤 `releaseAt` 을 지운다(`npm test` 가 지울 때가 된 날짜를 잡아냄)
-- 게임 목록 순서(`gamesInListOrder`): ★ 즐겨찾기(누른 순서, 기기에 저장) → 즐겨찾기가 없을 때만 공개된 `pinFirst` 게임 → 나머지 공개 게임(`GAMES` 순서 — 새 게임은 맨 끝에 등록하므로 맨 아래) → 잠긴 게임. "기본 순서로"로 즐겨찾기를 비움
+- 게임 목록 순서(`gamesInListOrder`): ★ 즐겨찾기(누른 순서, 기기에 저장) → 즐겨찾기가 없을 때만 공개된 `pinFirst` 게임(복불복 나눠내기 — 공개되는 순간 맨 앞) → 나머지 공개 게임(`GAMES` 순서 — 새 게임은 맨 끝에 등록하므로 맨 아래) → 잠긴 게임. "기본 순서로"로 즐겨찾기를 비움
 - 인원이 정해진 게임은 `registry.js` 의 `exactPlayers`(숨바꼭질 = 2) 또는 `minPlayers` · `maxPlayers`(라이어 게임 = 3~10). 인원이 안 맞으면 카드를 눌러도 "정확히 2명이 필요해요" · "3명 이상 필요해요"로 막음(`playersOkFor`)
-- `pinFirst`(복불복 나눠내기): 공개되는 순간 목록 맨 앞으로(`gamesInListOrder`)
 - 폰을 돌려 가며 하는 게임은 차례마다 `useScrollToStage(active, turnKey)` 로 무대를 화면 맨 위로 올리고 탭바 위 화면 높이만큼 늘림
 - 복불복 나눠내기는 당첨자 대신 각자 낼 금액을 정함: `onFinish(id, { total, amounts })` → "정산에 추가"가 총액 + 금액 따로 입력이 채워진 회차를 만들고, 결제자만 고르면 됨
 - 차례가 있는 게임은 시작 전에 순서를 보여주고 위/아래 · 섞기로 바꿀 수 있음
 - 결과 → **정산에 추가**: 게임 참가자 전원이 참여하고 당첨자가 결제한 회차(`N차 룰렛 게임`)를 만듦(당첨자 1명일 때)
-- 동점(숫자 맞추기): 동점자끼리 같은 게임 재대결, 또는 동점자만 선택된 채 게임 목록으로 이동
+- 동점(숫자 맞추기 · 반응속도의 `onTie`): 동점자끼리 같은 게임 재대결, 또는 동점자만 선택된 채 게임 목록으로 이동. 터치 대결(3명 이상)은 꼴찌 동점이면 게임 안에서 다시 함
 - 효과음(기본 꺼짐, WebAudio 합성 + 해적 비명 `audio/scream.mp3`) · 진동(지원 기기)
 - `admin/sound-test.html` — 개발용 소리 테스트 페이지(모든 효과음을 버튼으로 재생)
 
@@ -85,7 +84,7 @@
 
 모든 계산은 참가자 목록과 회차 목록, 이 두 가지 상태로부터 파생됩니다. 상태와 이벤트 핸들러, 파생 값은 `src/settlement/useSettlement.js`에, 아래 정산 알고리즘(순수 함수)은 `src/settlement/settlement.js`에 있습니다.
 
-`useSettlement`는 셸(`App.js`)에서 호출하므로 탭을 옮겨도 입력이 남고, 다른 탭은 `addRoundFrom({ title, payerId, amount, participantIds })`으로 회차를 넘깁니다. 아무것도 입력하지 않은 회차 하나만 있으면 그 회차를 대체합니다.
+`useSettlement`는 셸(`App.js`)에서 호출하므로 탭을 옮겨도 입력이 남고, 다른 탭은 `addRoundFrom({ title, payerId, amount, participantIds, customAmounts })`으로 회차를 넘깁니다(`customAmounts` 는 복불복 나눠내기만). 아무것도 입력하지 않은 회차 하나만 있으면 그 회차를 대체합니다.
 
 localStorage 키 (모두 `ddak:` 접두사, `src/shared/storage.js`의 `load`/`save`로만 접근, 실패 시 저장 없이 동작): `roster`(명단) · `foodHistory`(최근 고른 메뉴 10개) · `sound`(효과음) · `liarCategory` · `liarRecent`(라이어 게임 마지막 카테고리 · 최근 제시어 30개) · `gameFavorites`(★ 고정한 게임 id, 누른 순서) · `entitlements`(`previewGames` — 공개 전 게임 미리 열기, `adFree`) · `coupangWeights`(쿠팡 배너 가중치, 개발·테스트용)
 
@@ -168,22 +167,25 @@ O(2ⁿ·n)이라 차액 있는 사람이 18명(`EXACT_MAX_PEOPLE`)까지는 정�
 - 사다리는 같은 높이에서 가로줄이 이웃끼리 붙지 않아 항상 1:1로 도착하고, 💸 칸 위치를 따로 균등하게 섞으므로 누가 어느 이름을 골라도 당첨 확률은 (당첨 개수)/n.
 - 폭탄은 15~45초 중 숨은 시각에 터지고(범위는 화면에 알리지 않음), 받은 뒤 0.8초는 넘기기가 잠김(연타 방지).
 
-**새 게임 추가**: 아래 규격의 컴포넌트를 만들고 `src/games/registry.js`의 `GAMES`에 한 줄 등록합니다. 아이콘은 `gameIcons.js`, 새 파일은 `sw.js`의 `CORE`에도 추가합니다.
+**새 게임 추가**: 아래 규격의 컴포넌트를 만들고 `src/games/registry.js`의 `GAMES` **맨 끝에** 한 줄 등록합니다(새 게임은 목록 맨 아래). 아이콘은 `gameIcons.js`. 서비스 워커 목록은 빌드가 만들므로 따로 손대지 않습니다. 차례 표시 · 순위 행 · 무대 스크롤 · 타이머 · 동점 처리는 `common.js` 의 `TurnBanner` · `RankRow` · `useScrollToStage(active, turnKey)` · `useTimers()` · `finishWithTie()` 를 씁니다.
 
 ```js
-// players: [{ id, name }] — 2 ~ MAX_PLAYERS(15)명
+// players: [{ id, name }] — 2 ~ MAX_PLAYERS(15)명 (게임별 인원은 아래 등록 필드로)
 function MyGame({ players, onFinish, onTie }) {
   // 연출이 끝나면 한 번만: onFinish(당첨자 id) 또는 onFinish([id, ...])(당첨 여러 명)
+  //   각자 낼 금액을 정하는 게임은 onFinish(id, { total, amounts: { [id]: 금액 } }) — 정산에 금액 따로 입력으로 넘어감
   // 결판이 안 나면(동점): onTie([동점자 id, ...]) — 재대결/다른 게임 선택 화면이 뜸
 }
 
 { id: "my", name: "내 게임", emoji: "🎲", icon: MyIcon, desc: "한 줄 설명", component: MyGame,
-  releaseAt: "2026-11-02" } // 선택 — 그날 0시(KST)부터 열림
+  releaseAt: "2026-11-02", // 선택 — 그날 0시(KST)부터 열림, 2주간 NEW. 월요일이어야 함(npm test)
+  exactPlayers: 2,         // 선택 — 정확히 이 인원만 (또는 minPlayers · maxPlayers)
+  pinFirst: true }         // 선택 — 즐겨찾기가 없는 사용자에게 공개 순간 맨 앞
 ```
 
 ## 수익화 · 공개 설정
 
-- `src/shared/entitlements.js` — 기능 판정은 이 파일 한 곳에서만: `canPlay(game)`(구현됐고 공개일이 지났는지) · `isReleased` · `releaseLabel`("10월 5일(월) 공개") · `isAdFree()`. 공개 전 게임은 콘솔에서 `localStorage.setItem("ddak:entitlements", '{"previewGames":true}')`로 그 기기에서만 미리 열 수 있음
+- `src/shared/entitlements.js` — 기능 판정은 이 파일 한 곳에서만: `canPlay(game)`(구현됐고 공개일이 지났는지) · `isReleased` · `releaseLabel`("10월 5일(월) 공개") · `isNewGame`(공개 뒤 `NEW_BADGE_DAYS`=14일) · `isAdFree()`. 공개 전 게임은 콘솔에서 `localStorage.setItem("ddak:entitlements", '{"previewGames":true}')`로 그 기기에서만 미리 열 수 있음
 - `src/shared/AdSlot.js` — 구글 애드센스 자리 8곳(크기는 `AD_SLOTS`). 지금은 `AD_ENABLED = false`라 아무것도 그리지 않음. 주소에 `?adpreview`를 붙이면 자리만 점선으로 보임. 켜는 순서는 파일 머리말, 배치 검토는 `admin/ADS_PLAN.md` 참고 (광고를 켜면 `privacy.html`의 "쿠키 및 추적"도 함께 고칠 것)
 - `src/food/coupang.js` — 쿠팡 파트너스 배너 3종 가중치 랜덤 노출(뭐먹지 결과 아래)
 - 하단 탭바의 **NEW 뱃지**(뭐먹지 · 미니게임)는 `TabBar.js`의 `NEW_UNTIL`(2026-10-31)까지 보이고 그 뒤 저절로 사라짐
@@ -231,7 +233,7 @@ function isMobileDevice() {
 await navigator.share({ files: [file] });
 ```
 
-입력 폼(이름/회차 입력 필드 등)은 캡처 영역 밖에 있어, 이미지에는 결과만 깔끔하게 담깁니다. Web Share API와 서비스 워커는 HTTPS(보안 컨텍스트)에서만 동작하는데, GitHub Pages는 기본적으로 HTTPS를 제공하므로 별도 설정이 필요 없습니다.
+입력 폼(이름/회차 입력 필드 등)은 캡처 영역 밖에 있어, 이미지에는 결과만 깔끔하게 담깁니다. Web Share API와 서비스 워커는 HTTPS(보안 컨텍스트)에서만 동작하는데, 배포처(Cloudflare Pages)가 HTTPS 를 제공하므로 별도 설정이 필요 없습니다.
 
 ## PWA (홈 화면 설치 · 오프라인)
 
@@ -266,7 +268,7 @@ if ("serviceWorker" in navigator) {
 
 ## 정적 페이지 · 법적 페이지 & 문의하기
 
-앱(`index.html`)은 자바스크립트로 그려지므로, 검색엔진·애드센스 심사가 읽을 수 있게 **정적 글 페이지** — 허브 `guide.html`(`/guide`)과 탭별 가이드 `guide/settle.html` · `guide/food.html` · `guide/games.html`(`/guide/settle` 등)를 두고, `index.html`에는 `<noscript>` 소개문과 링크를 넣었습니다. 새 정적 페이지를 만들면 `sitemap.xml`, `sw.js`의 `CORE`, 앱 푸터(`SiteFooter.js`), `guide.html` 허브에 함께 추가합니다. 주소 규칙: **`#` 없는 주소는 설명 글, `#` 있는 주소는 앱**(`/guide/food` 설명 ↔ `/#/food` 앱). `guide/` 안 페이지는 자원·링크를 `../` 로 참조하고, 주소를 옮기면 `_redirects` 에 301 을 남깁니다.
+앱(`index.html`)은 자바스크립트로 그려지므로, 검색엔진·애드센스 심사가 읽을 수 있게 **정적 글 페이지** — 허브 `guide.html`(`/guide`)과 탭별 가이드 `guide/settle.html` · `guide/food.html` · `guide/games.html`(`/guide/settle` 등)를 두고, `index.html`에는 `<noscript>` 소개문과 링크를 넣었습니다. 새 정적 페이지를 만들면 `sitemap.xml`, `vite.config.js` 의 `STATIC`(서비스 워커 목록은 빌드가 여기서 만든다), 앱 푸터(`SiteFooter.js`), `guide.html` 허브에 함께 추가합니다. 주소 규칙: **`#` 없는 주소는 설명 글, `#` 있는 주소는 앱**(`/guide/food` 설명 ↔ `/#/food` 앱). `guide/` 안 페이지는 자원·링크를 `../` 로 참조하고, 주소를 옮기면 `_redirects` 에 301 을 남깁니다.
 
 **검색 노출 규칙**: Cloudflare Pages 는 `/guide.html` 을 `/guide` 로 308 리디렉션하므로 `sitemap.xml` 의 `<loc>` 와 각 페이지 `canonical` 은 **`.html` 없는 최종 주소**로 적습니다. 내부 링크도 같은 최종 주소로 적어 리디렉션을 거치지 않게 합니다 — 정적 페이지는 `href="guide/settle"` · `href="../"`(홈), Vite 개발·미리보기 서버도 `.html` 없는 주소를 열고, 오프라인에서는 서비스 워커가 `경로.html` 캐시로 찾습니다. 새 페이지에는 `title` · `description` · `canonical` · OG 태그(`screenshots/og.png`, 1200×630)를 넣습니다. 없는 주소는 `404.html`(noindex)이 404 상태로 응답합니다. 홈에는 JSON-LD(`WebSite` · `WebApplication`), 가이드 페이지에는 `BreadcrumbList` · `Article`(`datePublished` · `dateModified`)이 있습니다 — 글을 고치면 `dateModified` 와 `sitemap.xml` 의 `lastmod` 를 같이 고칩니다. 웹 폰트는 Pretendard **dynamic-subset** CSS(쓰인 글자 조각만 받음, 첫 화면 폰트 약 3.8MB → 0.3MB).
 
@@ -301,10 +303,10 @@ src/
     coupang.js              #   쿠팡 파트너스 배너 선택
   games/                    # 미니게임 탭
     GamesScreen.js          #   참가자 · 게임 목록 · 플레이(GamePlay) · 동점 처리(TieResult)
-    registry.js             #   게임 목록 (MIN/MAX_PLAYERS, releaseAt)
+    registry.js             #   게임 목록 (MIN/MAX_PLAYERS, releaseAt) · 인원 판정 playersOkFor · 목록 순서 gamesInListOrder
     *Game.js                #   게임 16종 (liarWords.js = 라이어 게임 제시어)
     GameResult.js           #   결과 카드 · 정산에 추가
-    TurnOrder.js · common.js · palette.js   # 순서 정하기 · 차례 표시/큰 버튼 · 플레이어 색 15개
+    TurnOrder.js · common.js · palette.js   # 순서 정하기 · 공용 조각(차례 표시 · 큰 버튼 · 순위 행 · 무대 스크롤 · useTimers · finishWithTie) · 플레이어 색 15개
     gameIcons.js            #   게임 카드 아이콘 · 레이스 동물 15종 (SVG)
     random.js · wheel.js · josa.js · sfx.js # 공정한 난수 · 룰렛 곡선 · 조사 · 효과음/진동
     three/                  #   Three.js 무대(stage) · 3D 칸(ThreeView) · 해적/악어 장면
@@ -327,7 +329,8 @@ _headers                    # Cloudflare Pages 캐시 헤더
 ads.txt                     # 애드센스 판매자 인증 (pub-3948983509562369)
 privacy.html · terms.html · contact.html
 manifest.webmanifest · sw.js · favicon.svg · apple-touch-icon.png · icons/ · screenshots/
-admin/                      # 내부 문서(ADS_PLAN · PLAN_expansion) · 소리 테스트 페이지 (배포 안 함 — npm run dev 에서 /admin/sound-test.html)
+admin/                      # 내부 문서(ADS_PLAN · PLAN_expansion · PLAN_hideseek · PLAN_next_games) · 소리 테스트 페이지 (배포 안 함 — npm run dev 에서 /admin/sound-test.html)
+  brand/                    #   컬러 팔레트 (html · pdf · md · png · svg · ase · gpl · 토큰 json · css) — build-palette.mjs 가 생성, admin/brand/README.md
 tests/unit · tests/e2e         # npm test(단위) · npm run test:e2e(브라우저) — 아래 "테스트"
 docs/index.html             # 옛 GitHub Pages 주소 → 새 도메인 안내
 prototype/receipt-ocr.html  # 영수증 OCR 검토용 프로토타입 (앱 본체와 분리)
@@ -337,10 +340,10 @@ prototype/receipt-ocr.html  # 영수증 OCR 검토용 프로토타입 (앱 본�
 
 - **모듈**: 파일 맨 위에 한두 줄 한국어 머리말(무엇을·왜), 그 다음 `import`. 상수는 `UPPER_SNAKE`, 컴포넌트는 `PascalCase` 함수 컴포넌트 + named export(`export function X`)
 - **마크업**: `` html`...` `` (htm). 속성은 JSX와 같게 `className` · `style=${객체}` · `onClick`
-- **스타일**: 정적 스타일은 `src/shared/styles.js`의 `styles`에 이름을 붙여 두고 `style=${styles.x}`로 씀. 값이 상태에 따라 바뀌는 부분만 `{ ...styles.x, background: bg }`처럼 덮어씀. 브랜드 색은 `C_RED` 등 상수로
+- **스타일**: 정적 스타일은 `src/shared/styles.js`의 `styles`에 이름을 붙여 두고 `style=${styles.x}`로 씀. 값이 상태에 따라 바뀌는 부분만 `{ ...styles.x, background: bg }`처럼 덮어씀(덮어쓸 속성은 `border` 같은 축약형 대신 `borderColor` 처럼 나눠 둔다 — React 경고). 브랜드 색은 `C_RED` 등 상수로 — 홍보용 팔레트 파일은 `admin/brand/`(색을 바꾸면 같이 다시 생성)
 - **플랫폼 차이**: 클립보드 · 진동 · 외부 링크 · 이미지 저장처럼 웹과 토스 앱에서 다르게 동작하는 것은 `#platform`(`src/platform/web.js` · `ait.js`)을 거침. `navigator.*`·`window.open` 을 화면 코드에서 직접 부르지 않음. 앱인토스에서 빼야 하는 UI 는 `IS_AIT` 로 분기
 - **저장소**: `localStorage`를 직접 부르지 않고 `shared/storage.js`의 `load`/`save`(키 앞에 `ddak:`)
-- **게임**: 결과(또는 함정 위치)는 시작할 때 `random.js`로 확정, 차례로 고르는 게임은 칸 수를 인원의 배수로, `onFinish`는 한 번만. 타이머는 `useRef`에 모아 언마운트 때 정리
+- **게임**: 결과(또는 함정 위치)는 시작할 때 `random.js`로 확정, 차례로 고르는 게임은 칸 수를 인원의 배수로, `onFinish`는 한 번만. `setTimeout` 은 `common.js` 의 `useTimers()`(`later` · `clear`)로 걸어 언마운트 때 자동 취소. 여러 최상위 요소를 조건부로 그릴 땐 `Fragment` 로 감싼다(key 경고 — 브라우저 테스트가 실패 처리)
 - **주석**: 코드를 되풀이하지 말고 이유·제약을 한국어로 짧게
 - 루트에 새 정적 파일·페이지를 추가하면 `vite.config.js`의 `STATIC` 목록에도 넣음 (`src/` 모듈·오디오는 번들이 알아서 처리)
 
@@ -354,7 +357,7 @@ npm run dev        # 개발 서버 — http://localhost:5173 (파일을 고치�
 npm run build      # 프로덕션 번들 → dist/
 npm run preview    # dist/ 를 로컬에서 확인 (서비스 워커 포함)
 npm test           # 단위 테스트 (정산 알고리즘 · 게임 레지스트리 · 공개일 · 난수 · 새 게임 판정) — 1초 이내
-npm run test:e2e   # 브라우저 테스트 (정산 금액 따로 입력 · 결과표 배치 · 미니게임 14종 완주 · 게임 목록 순서) — 약 3분(폭탄 도화선 15~45초 포함)
+npm run test:e2e   # 브라우저 테스트 (정산 금액 따로 입력 · 결과표 배치 · 미니게임 12종 완주 · 게임 목록 순서) — 약 3분(폭탄 도화선 15~45초 포함)
 ```
 
 - **폰에서 테스트**: `npm run dev -- --host` 로 띄우고 같은 Wi-Fi에서 `http://<Mac의 IP>:5173`(IP는 `ipconfig getifaddr en0`). 서비스 워커·공유 기능까지 확인하려면 `npm run build && npm run preview -- --host` 후 HTTPS 터널을 씁니다: `cloudflared tunnel --url http://localhost:4173`

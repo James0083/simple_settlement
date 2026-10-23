@@ -1,0 +1,40 @@
+/* 딱정산 컬러 팔레트 v2.10 (2026-10-22) — admin/brand/build-palette.mjs 가 만든다. 원본은 src/shared/styles.js · src/games/palette.js */
+:root {
+  --ddak-core-red: #E8503A; /* 딱정산 레드 */
+  --ddak-core-ink: #1A1D29; /* 잉크 네이비 */
+  --ddak-core-ground: #EEF1F4; /* 영수증 회색 */
+  --ddak-core-paper: #FFFFFF; /* 화이트 */
+  --ddak-core-green: #0F9D64; /* 정산 그린 */
+  --ddak-text-ink: #1A1D29; /* 잉크 네이비 */
+  --ddak-text-dim: #4B5165; /* 딤 그레이 */
+  --ddak-text-sub: #5C6178; /* 서브 그레이 */
+  --ddak-text-label: #8A8FA3; /* 라벨 그레이 */
+  --ddak-text-muted: #9AA0B0; /* 뮤트 그레이 */
+  --ddak-surface-soft: #F6F8FB; /* 소프트 면 */
+  --ddak-surface-divider: #F0F2F6; /* 구분 면 */
+  --ddak-surface-border: #E3E6EC; /* 테두리 */
+  --ddak-surface-input: #DDE1E8; /* 입력선 */
+  --ddak-surface-dashed: #C7CCD8; /* 점선 */
+  --ddak-state-red-tint: #FDF0EC; /* 레드 틴트 */
+  --ddak-state-red-line: #F4C4B7; /* 레드 라인 */
+  --ddak-state-red-deep: #B8391F; /* 딥 레드 */
+  --ddak-state-green-tint: #E6F7EF; /* 그린 틴트 */
+  --ddak-state-green-deep: #0C6B4E; /* 딥 그린 */
+  --ddak-state-yellow-tint: #FFF8E1; /* 옐로 틴트 */
+  --ddak-state-yellow-deep: #7B5800; /* 딥 옐로 */
+  --ddak-player-1: #E8503A; /* 플레이어 1 */
+  --ddak-player-2: #1A1D29; /* 플레이어 2 */
+  --ddak-player-3: #0F9D64; /* 플레이어 3 */
+  --ddak-player-4: #F2B233; /* 플레이어 4 */
+  --ddak-player-5: #3A6FE8; /* 플레이어 5 */
+  --ddak-player-6: #8E5BD0; /* 플레이어 6 */
+  --ddak-player-7: #F28C38; /* 플레이어 7 */
+  --ddak-player-8: #2BB5A8; /* 플레이어 8 */
+  --ddak-player-9: #C2185B; /* 플레이어 9 */
+  --ddak-player-10: #9AA0B0; /* 플레이어 10 */
+  --ddak-player-11: #795548; /* 플레이어 11 */
+  --ddak-player-12: #9CCC65; /* 플레이어 12 */
+  --ddak-player-13: #F48FB1; /* 플레이어 13 */
+  --ddak-player-14: #283593; /* 플레이어 14 */
+  --ddak-player-15: #4FC3F7; /* 플레이어 15 */
+}

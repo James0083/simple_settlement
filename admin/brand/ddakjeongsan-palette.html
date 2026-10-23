@@ -1,0 +1,315 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>딱정산 컬러 팔레트</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&family=Space+Grotesk:wght@500;700&display=swap">
+<style>
+  /* 레이아웃: 앱의 "영수증" 카드처럼 종이 위에 놓인 세로 한 장 — 코어 → 비율 → 단계 색 → 게임 색 → 대비 → 글꼴 → 규칙 */
+  :root {
+    --ground: #EEF1F4; --paper: #FFFFFF; --ink: #1A1D29; --ink-2: #4B5165; --ink-3: #8A8FA3;
+    --rule: #E3E6EC; --soft: #F6F8FB; --accent: #E8503A; --ok: #0F9D64;
+    --font-body: "Pretendard", "Noto Sans KR", -apple-system, "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
+    --font-num: "Space Grotesk", "Pretendard", "Noto Sans KR", sans-serif;
+    color-scheme: light;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--ground); color: var(--ink); font-family: var(--font-body); font-size: 15px; line-height: 1.65;
+    -webkit-font-smoothing: antialiased; padding: 36px 16px 56px; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  .sheet { max-width: 880px; margin: 0 auto; display: flex; flex-direction: column; gap: 22px; }
+  .receipt { background: var(--paper); border-radius: 4px 4px 0 0; padding: 28px clamp(18px, 4vw, 36px) 30px; position: relative; break-inside: avoid; }
+  .receipt::after { content: ""; position: absolute; left: 0; right: 0; bottom: -12px; height: 12px;
+    background: linear-gradient(135deg, var(--paper) 8px, transparent 0) 0 0 / 16px 16px, linear-gradient(-135deg, var(--paper) 8px, transparent 0) 0 0 / 16px 16px; }
+  .brandrow { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+  .logo { width: 46px; height: 46px; border-radius: 10px; background: #1A1D29; display: grid; place-items: center; flex-shrink: 0; }
+  h1 { font-size: clamp(28px, 6vw, 40px); font-weight: 900; letter-spacing: -1.2px; margin: 0; line-height: 1.15; }
+  .stamp { font-family: var(--font-num); font-size: 12px; font-weight: 700; letter-spacing: 1px; color: var(--accent);
+    border: 2px solid var(--accent); border-radius: 4px; padding: 2px 8px; transform: rotate(-4deg); }
+  .lede { color: var(--ink-2); margin: 14px 0 0; max-width: 62ch; }
+  .meta { margin-top: 18px; display: flex; flex-wrap: wrap; gap: 8px 18px; font-size: 12.5px; color: var(--ink-3); border-top: 1px dashed var(--rule); padding-top: 14px; }
+  .meta b { color: var(--ink-2); }
+  h2 { font-size: 13px; font-weight: 700; letter-spacing: 1.5px; color: var(--ink-3); margin: 0 0 4px; }
+  .h2sub { font-size: 20px; font-weight: 800; letter-spacing: -0.4px; margin: 0 0 18px; }
+  p.note { color: var(--ink-2); font-size: 13.5px; margin: 14px 0 0; max-width: 68ch; }
+  .core { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; }
+  .chip { border: 1px solid var(--rule); border-radius: 6px; overflow: hidden; display: flex; flex-direction: column; min-width: 0; }
+  .chip .fill { height: 108px; padding: 12px; display: flex; flex-direction: column; justify-content: space-between; }
+  .chip .fill .sample { font-weight: 900; font-size: 22px; letter-spacing: -0.5px; }
+  .chip .fill .tag { font-size: 11px; font-weight: 700; letter-spacing: 0.5px; opacity: 0.85; }
+  .chip .info { padding: 10px 12px 12px; display: flex; flex-direction: column; gap: 2px; }
+  .chip .name { font-weight: 800; font-size: 14.5px; }
+  .chip .en { font-size: 11.5px; color: var(--ink-3); font-family: var(--font-num); }
+  .chip .role { font-size: 12px; color: var(--ink-3); line-height: 1.45; }
+  .codes { margin-top: 8px; display: flex; flex-direction: column; gap: 4px; }
+  .code { display: flex; justify-content: space-between; align-items: center; gap: 6px; width: 100%; font-family: var(--font-num); font-size: 12.5px;
+    font-variant-numeric: tabular-nums; color: var(--ink); background: var(--soft); border: 1px solid transparent; border-radius: 4px; padding: 4px 8px; cursor: pointer; text-align: left; }
+  .code:hover { border-color: var(--rule); }
+  .code:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+  .code .k { color: var(--ink-3); font-size: 10.5px; font-family: var(--font-body); font-weight: 700; }
+  .code.copied .k { color: var(--ok); }
+  .ratio { display: flex; height: 64px; border-radius: 6px; overflow: hidden; border: 1px solid var(--rule); }
+  .ratio > div { display: flex; align-items: flex-end; padding: 8px 10px; font-family: var(--font-num); font-size: 12px; font-weight: 700; min-width: 0; white-space: nowrap; overflow: hidden; }
+  .ratio-legend { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 6px 18px; margin-top: 12px; font-size: 13px; color: var(--ink-2); }
+  .ratio-legend span { font-family: var(--font-num); font-weight: 700; color: var(--ink); margin-right: 6px; }
+  .groups { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 22px 28px; }
+  .group h3 { font-size: 14px; font-weight: 800; margin: 0 0 10px; }
+  .row { display: grid; grid-template-columns: 34px 1fr auto; gap: 10px; align-items: center; padding: 6px 0; border-bottom: 1px dashed var(--rule); }
+  .row:last-child { border-bottom: none; }
+  .dot { width: 34px; height: 34px; border-radius: 6px; border: 1px solid rgba(26,29,41,0.12); }
+  .row .rn { font-size: 13px; font-weight: 700; line-height: 1.3; min-width: 0; }
+  .row .rn small { display: block; font-weight: 400; color: var(--ink-3); font-size: 11.5px; }
+  .row .code { width: auto; }
+  .states { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 10px; margin-top: 16px; }
+  .state { border-radius: 6px; padding: 10px 12px; font-size: 13px; font-weight: 700; border: 1px solid; }
+  .players { display: grid; grid-template-columns: repeat(auto-fill, minmax(118px, 1fr)); gap: 8px; }
+  .player { border-radius: 4px; padding: 10px 10px 8px; display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+  .player .pn { font-weight: 900; font-size: 15px; letter-spacing: -0.3px; }
+  .player .ph { font-family: var(--font-num); font-size: 11.5px; opacity: 0.9; background: none; border: none; color: inherit; padding: 0; text-align: left; cursor: pointer; }
+  .tablewrap { overflow-x: auto; }
+  table { border-collapse: collapse; width: 100%; min-width: 520px; font-size: 13.5px; }
+  th, td { text-align: left; padding: 9px 10px; border-bottom: 1px solid var(--rule); vertical-align: middle; }
+  th { font-size: 11.5px; color: var(--ink-3); font-weight: 700; letter-spacing: 0.5px; }
+  td.num { font-family: var(--font-num); font-variant-numeric: tabular-nums; font-weight: 700; white-space: nowrap; }
+  td small { color: var(--ink-3); font-family: var(--font-num); }
+  .pair { display: inline-flex; align-items: center; justify-content: center; min-width: 92px; height: 32px; padding: 0 10px; border-radius: 4px; font-weight: 800; font-size: 13px; border: 1px solid rgba(26,29,41,0.1); }
+  .pill { display: inline-block; font-size: 11.5px; font-weight: 700; padding: 2px 8px; border-radius: 999px; white-space: nowrap; }
+  .pill.pass { background: #E6F7EF; color: #0C6B4E; }
+  .pill.big { background: #FFF3D6; color: #7B5800; }
+  .pill.fail { background: #FDF0EC; color: #B8391F; }
+  .fonts { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 12px; }
+  .font { border: 1px solid var(--rule); border-radius: 6px; padding: 14px 16px; min-width: 0; }
+  .font .big { font-size: 34px; font-weight: 900; letter-spacing: -1px; line-height: 1.2; }
+  .font .num { font-family: var(--font-num); font-size: 34px; font-weight: 700; letter-spacing: -1px; line-height: 1.2; }
+  .font .fl { font-size: 12.5px; color: var(--ink-3); margin-top: 6px; }
+  ul.rules { margin: 0; padding-left: 18px; color: var(--ink-2); font-size: 14px; display: grid; gap: 6px; }
+  ul.rules b { color: var(--ink); }
+  .files { font-size: 13px; color: var(--ink-2); display: grid; grid-template-columns: max-content 1fr; gap: 4px 14px; margin: 0; }
+  .files dt { font-family: var(--font-num); font-weight: 700; color: var(--ink); }
+  .files dd { margin: 0; }
+  .toast { position: fixed; left: 50%; transform: translateX(-50%); bottom: 18px; background: var(--ink); color: var(--paper); font-size: 13px; font-weight: 700;
+    padding: 8px 14px; border-radius: 6px; opacity: 0; transition: opacity 0.2s; pointer-events: none; }
+  .toast.on { opacity: 1; }
+  @media (prefers-reduced-motion: reduce) { .toast { transition: none; } }
+  @media print {
+    body { background: #FFFFFF; padding: 0; font-size: 13px; }
+    .sheet { gap: 14px; max-width: none; }
+    .receipt { padding: 18px 22px; border: 1px solid var(--rule); border-radius: 4px; }
+    .receipt::after { display: none; }
+    .toast { display: none; }
+    .core { grid-template-columns: repeat(5, 1fr); gap: 8px; } /* A4 폭에서 4 + 1 로 끊기지 않게 */
+    .chip .fill .sample { font-size: 18px; }
+  }
+</style>
+</head>
+<body>
+<main class="sheet">
+  <header class="receipt">
+    <div class="brandrow">
+      <div class="logo" aria-hidden="true"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M5 19.5V5a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v7" /><path d="M5 19.5 6.6 18l1.6 1.5L9.8 18l1.6 1.5L13 19.2" /><path d="M8 7.5h6" /><path d="M8 10.75h6" /><path d="M8 14h4" /><path d="m13.3 14.7 2.6 2.6L20 11.2" /></svg></div>
+      <h1>딱정산 컬러 팔레트</h1>
+      <span class="stamp">v2.10</span>
+    </div>
+    <p class="lede">딱정산 앱 코드(공용 스타일 · 미니게임 색 · 로고 · 앱 아이콘)에 실제로 쓰인 색을 그대로 뽑았습니다.
+      영수증 종이 같은 밝은 회색 바탕에 남색 글씨, 그리고 도장처럼 찍히는 빨강 하나가 딱정산의 얼굴입니다. 화면에서는 색 코드를 누르면 복사돼요.</p>
+    <div class="meta">
+      <div><b>코어</b> 5색</div>
+      <div><b>글자 · 면 · 선</b> 10단계</div>
+      <div><b>상태</b> 7색</div>
+      <div><b>미니게임 플레이어</b> 15색</div>
+      <div><b>기준</b> 2026-10-22 · sRGB</div>
+    </div>
+  </header>
+
+  <section class="receipt">
+    <h2>01 · 코어 컬러</h2>
+    <p class="h2sub">브랜드를 만드는 다섯 가지 색</p>
+    <div class="core">
+      
+      <div class="chip">
+        <div class="fill" style="background:#E8503A; color:#FFFFFF;">
+          <span class="tag">ACCENT</span><span class="sample">딱정산</span>
+        </div>
+        <div class="info">
+          <span class="name">딱정산 레드</span>
+          <span class="en">Ddak Red</span>
+          <span class="role">강조 · 주 버튼 · 당첨 도장 · 경고</span>
+          <div class="codes"><button type="button" class="code" data-copy="#E8503A" aria-label="HEX #E8503A 복사"><span>#E8503A</span><span class="k">HEX</span></button><button type="button" class="code" data-copy="232, 80, 58" aria-label="RGB 232, 80, 58 복사"><span>232, 80, 58</span><span class="k">RGB</span></button></div>
+        </div>
+      </div>
+      <div class="chip">
+        <div class="fill" style="background:#1A1D29; color:#FFFFFF;">
+          <span class="tag">INK</span><span class="sample">딱정산</span>
+        </div>
+        <div class="info">
+          <span class="name">잉크 네이비</span>
+          <span class="en">Ink Navy</span>
+          <span class="role">기본 글씨 · 로고 · 앱 아이콘 바탕</span>
+          <div class="codes"><button type="button" class="code" data-copy="#1A1D29" aria-label="HEX #1A1D29 복사"><span>#1A1D29</span><span class="k">HEX</span></button><button type="button" class="code" data-copy="26, 29, 41" aria-label="RGB 26, 29, 41 복사"><span>26, 29, 41</span><span class="k">RGB</span></button></div>
+        </div>
+      </div>
+      <div class="chip">
+        <div class="fill" style="background:#EEF1F4; color:#1A1D29;">
+          <span class="tag">GROUND</span><span class="sample">딱정산</span>
+        </div>
+        <div class="info">
+          <span class="name">영수증 회색</span>
+          <span class="en">Receipt Gray</span>
+          <span class="role">페이지 바탕 · 브라우저 테마색</span>
+          <div class="codes"><button type="button" class="code" data-copy="#EEF1F4" aria-label="HEX #EEF1F4 복사"><span>#EEF1F4</span><span class="k">HEX</span></button><button type="button" class="code" data-copy="238, 241, 244" aria-label="RGB 238, 241, 244 복사"><span>238, 241, 244</span><span class="k">RGB</span></button></div>
+        </div>
+      </div>
+      <div class="chip">
+        <div class="fill" style="background:#FFFFFF; color:#1A1D29; border-bottom:1px solid #E3E6EC;">
+          <span class="tag">PAPER</span><span class="sample">딱정산</span>
+        </div>
+        <div class="info">
+          <span class="name">화이트</span>
+          <span class="en">Paper White</span>
+          <span class="role">영수증 카드 · 반전 글씨</span>
+          <div class="codes"><button type="button" class="code" data-copy="#FFFFFF" aria-label="HEX #FFFFFF 복사"><span>#FFFFFF</span><span class="k">HEX</span></button><button type="button" class="code" data-copy="255, 255, 255" aria-label="RGB 255, 255, 255 복사"><span>255, 255, 255</span><span class="k">RGB</span></button></div>
+        </div>
+      </div>
+      <div class="chip">
+        <div class="fill" style="background:#0F9D64; color:#FFFFFF;">
+          <span class="tag">OK</span><span class="sample">딱정산</span>
+        </div>
+        <div class="info">
+          <span class="name">정산 그린</span>
+          <span class="en">Settle Green</span>
+          <span class="role">완료 · 받을 돈 · 성공</span>
+          <div class="codes"><button type="button" class="code" data-copy="#0F9D64" aria-label="HEX #0F9D64 복사"><span>#0F9D64</span><span class="k">HEX</span></button><button type="button" class="code" data-copy="15, 157, 100" aria-label="RGB 15, 157, 100 복사"><span>15, 157, 100</span><span class="k">RGB</span></button></div>
+        </div>
+      </div>
+    </div>
+    <p class="note">앱 아이콘 · 로고는 <b>잉크 네이비 바탕 + 흰 선</b>, 브라우저 테마색과 앱 배경은 <b>영수증 회색</b>입니다.
+      빨강은 "정산 계산하기" 버튼, 결과의 "당첨" 도장처럼 <b>한 화면에 하나</b>만 쓰는 강조색이에요.</p>
+  </section>
+
+  <section class="receipt">
+    <h2>02 · 쓰는 비율</h2>
+    <p class="h2sub">앱 화면에서 각 색이 차지하는 대략의 면적</p>
+    <div class="ratio" role="img" aria-label="영수증 회색 45%, 화이트 35%, 잉크 네이비 12%, 딱정산 레드 6%, 정산 그린 2%">
+      <div style="flex:45; background:#EEF1F4; color:#1A1D29;">45%</div><div style="flex:35; background:#FFFFFF; color:#1A1D29; border-left:1px solid #E3E6EC;">35%</div><div style="flex:12; background:#1A1D29; color:#FFFFFF;">12%</div><div style="flex:6; background:#E8503A; color:#FFFFFF;">6%</div><div style="flex:2; background:#0F9D64; color:#FFFFFF;"></div>
+    </div>
+    <div class="ratio-legend"><div><span>45%</span>영수증 회색 — 바탕</div><div><span>35%</span>화이트 — 카드 · 영수증 종이</div><div><span>12%</span>잉크 네이비 — 글씨 · 로고</div><div><span>6%</span>딱정산 레드 — 버튼 · 도장</div><div><span>2%</span>정산 그린 — 완료 · 받을 돈</div></div>
+    <p class="note">포스터 · SNS 이미지도 이 비율을 따르면 앱과 같은 인상이 납니다. 빨강 면적이 10%를 넘으면 경고 화면처럼 보이기 시작해요.</p>
+  </section>
+
+  <section class="receipt">
+    <h2>03 · 글자 · 면 · 선 · 상태</h2>
+    <p class="h2sub">회색 단계와 상태 색</p>
+    <div class="groups">
+      
+      <div class="group">
+        <h3>글자 (진한 → 연한)</h3>
+        
+        <div class="row"><span class="dot" style="background:#1A1D29"></span><span class="rn">잉크 네이비<small>제목 · 본문</small></span><button type="button" class="code" data-copy="#1A1D29" aria-label="HEX #1A1D29 복사"><span>#1A1D29</span><span class="k">HEX</span></button></div>
+        <div class="row"><span class="dot" style="background:#4B5165"></span><span class="rn">딤 그레이<small>설명 문단</small></span><button type="button" class="code" data-copy="#4B5165" aria-label="HEX #4B5165 복사"><span>#4B5165</span><span class="k">HEX</span></button></div>
+        <div class="row"><span class="dot" style="background:#5C6178"></span><span class="rn">서브 그레이<small>보조 설명</small></span><button type="button" class="code" data-copy="#5C6178" aria-label="HEX #5C6178 복사"><span>#5C6178</span><span class="k">HEX</span></button></div>
+        <div class="row"><span class="dot" style="background:#8A8FA3"></span><span class="rn">라벨 그레이<small>섹션 라벨 · 단위</small></span><button type="button" class="code" data-copy="#8A8FA3" aria-label="HEX #8A8FA3 복사"><span>#8A8FA3</span><span class="k">HEX</span></button></div>
+        <div class="row"><span class="dot" style="background:#9AA0B0"></span><span class="rn">뮤트 그레이<small>비활성 · 힌트 (작은 글씨엔 비추천)</small></span><button type="button" class="code" data-copy="#9AA0B0" aria-label="HEX #9AA0B0 복사"><span>#9AA0B0</span><span class="k">HEX</span></button></div>
+      </div>
+      <div class="group">
+        <h3>면 · 선</h3>
+        
+        <div class="row"><span class="dot" style="background:#F6F8FB"></span><span class="rn">소프트 면<small>칩 · 게임 카드 바탕</small></span><button type="button" class="code" data-copy="#F6F8FB" aria-label="HEX #F6F8FB 복사"><span>#F6F8FB</span><span class="k">HEX</span></button></div>
+        <div class="row"><span class="dot" style="background:#F0F2F6"></span><span class="rn">구분 면<small>얇은 구분선</small></span><button type="button" class="code" data-copy="#F0F2F6" aria-label="HEX #F0F2F6 복사"><span>#F0F2F6</span><span class="k">HEX</span></button></div>
+        <div class="row"><span class="dot" style="background:#E3E6EC"></span><span class="rn">테두리<small>카드 · 표 테두리</small></span><button type="button" class="code" data-copy="#E3E6EC" aria-label="HEX #E3E6EC 복사"><span>#E3E6EC</span><span class="k">HEX</span></button></div>
+        <div class="row"><span class="dot" style="background:#DDE1E8"></span><span class="rn">입력선<small>입력칸 밑줄</small></span><button type="button" class="code" data-copy="#DDE1E8" aria-label="HEX #DDE1E8 복사"><span>#DDE1E8</span><span class="k">HEX</span></button></div>
+        <div class="row"><span class="dot" style="background:#C7CCD8"></span><span class="rn">점선<small>점선 버튼 · 잠긴 카드</small></span><button type="button" class="code" data-copy="#C7CCD8" aria-label="HEX #C7CCD8 복사"><span>#C7CCD8</span><span class="k">HEX</span></button></div>
+      </div>
+      <div class="group">
+        <h3>상태 틴트</h3>
+        
+        <div class="row"><span class="dot" style="background:#FDF0EC"></span><span class="rn">레드 틴트<small>경고 · 당첨 줄 바탕</small></span><button type="button" class="code" data-copy="#FDF0EC" aria-label="HEX #FDF0EC 복사"><span>#FDF0EC</span><span class="k">HEX</span></button></div>
+        <div class="row"><span class="dot" style="background:#F4C4B7"></span><span class="rn">레드 라인<small>경고 테두리</small></span><button type="button" class="code" data-copy="#F4C4B7" aria-label="HEX #F4C4B7 복사"><span>#F4C4B7</span><span class="k">HEX</span></button></div>
+        <div class="row"><span class="dot" style="background:#B8391F"></span><span class="rn">딥 레드<small>경고 글씨 · 버튼 그림자</small></span><button type="button" class="code" data-copy="#B8391F" aria-label="HEX #B8391F 복사"><span>#B8391F</span><span class="k">HEX</span></button></div>
+        <div class="row"><span class="dot" style="background:#E6F7EF"></span><span class="rn">그린 틴트<small>완료 바탕</small></span><button type="button" class="code" data-copy="#E6F7EF" aria-label="HEX #E6F7EF 복사"><span>#E6F7EF</span><span class="k">HEX</span></button></div>
+        <div class="row"><span class="dot" style="background:#0C6B4E"></span><span class="rn">딥 그린<small>완료 글씨</small></span><button type="button" class="code" data-copy="#0C6B4E" aria-label="HEX #0C6B4E 복사"><span>#0C6B4E</span><span class="k">HEX</span></button></div>
+        <div class="row"><span class="dot" style="background:#FFF8E1"></span><span class="rn">옐로 틴트<small>&quot;화면 가리기&quot; 안내 바탕</small></span><button type="button" class="code" data-copy="#FFF8E1" aria-label="HEX #FFF8E1 복사"><span>#FFF8E1</span><span class="k">HEX</span></button></div>
+        <div class="row"><span class="dot" style="background:#7B5800"></span><span class="rn">딥 옐로<small>안내 글씨</small></span><button type="button" class="code" data-copy="#7B5800" aria-label="HEX #7B5800 복사"><span>#7B5800</span><span class="k">HEX</span></button></div>
+      </div>
+    </div>
+    <div class="states">
+      <div class="state" style="background:#FDF0EC; border-color:#F4C4B7; color:#B8391F;">⚠ 결제한 사람을 선택하세요</div>
+      <div class="state" style="background:#E6F7EF; border-color:#C8E6C9; color:#0C6B4E;">✓ 정산 완료 · 송금 2번</div>
+      <div class="state" style="background:#FFF8E1; border-color:#FFE082; color:#7B5800;">다른 분들은 화면을 보지 않도록 해주세요!</div>
+    </div>
+  </section>
+
+  <section class="receipt">
+    <h2>04 · 미니게임 플레이어 컬러</h2>
+    <p class="h2sub">참가자 순서대로 돌아가며 쓰는 15색</p>
+    <div class="players">
+      <div class="player" style="background:#E8503A; color:#FFFFFF;"><span class="pn">1 · 민수</span><button type="button" class="ph" data-copy="#E8503A" aria-label="1번째 플레이어 색 #E8503A 복사">#E8503A</button></div><div class="player" style="background:#1A1D29; color:#FFFFFF;"><span class="pn">2 · 지영</span><button type="button" class="ph" data-copy="#1A1D29" aria-label="2번째 플레이어 색 #1A1D29 복사">#1A1D29</button></div><div class="player" style="background:#0F9D64; color:#FFFFFF;"><span class="pn">3 · 현우</span><button type="button" class="ph" data-copy="#0F9D64" aria-label="3번째 플레이어 색 #0F9D64 복사">#0F9D64</button></div><div class="player" style="background:#F2B233; color:#1A1D29;"><span class="pn">4 · 수진</span><button type="button" class="ph" data-copy="#F2B233" aria-label="4번째 플레이어 색 #F2B233 복사">#F2B233</button></div><div class="player" style="background:#3A6FE8; color:#FFFFFF;"><span class="pn">5 · 도윤</span><button type="button" class="ph" data-copy="#3A6FE8" aria-label="5번째 플레이어 색 #3A6FE8 복사">#3A6FE8</button></div><div class="player" style="background:#8E5BD0; color:#FFFFFF;"><span class="pn">6 · 서연</span><button type="button" class="ph" data-copy="#8E5BD0" aria-label="6번째 플레이어 색 #8E5BD0 복사">#8E5BD0</button></div><div class="player" style="background:#F28C38; color:#1A1D29;"><span class="pn">7 · 하준</span><button type="button" class="ph" data-copy="#F28C38" aria-label="7번째 플레이어 색 #F28C38 복사">#F28C38</button></div><div class="player" style="background:#2BB5A8; color:#1A1D29;"><span class="pn">8 · 지아</span><button type="button" class="ph" data-copy="#2BB5A8" aria-label="8번째 플레이어 색 #2BB5A8 복사">#2BB5A8</button></div><div class="player" style="background:#C2185B; color:#FFFFFF;"><span class="pn">9 · 은우</span><button type="button" class="ph" data-copy="#C2185B" aria-label="9번째 플레이어 색 #C2185B 복사">#C2185B</button></div><div class="player" style="background:#9AA0B0; color:#1A1D29;"><span class="pn">10 · 채원</span><button type="button" class="ph" data-copy="#9AA0B0" aria-label="10번째 플레이어 색 #9AA0B0 복사">#9AA0B0</button></div><div class="player" style="background:#795548; color:#FFFFFF;"><span class="pn">11 · 시우</span><button type="button" class="ph" data-copy="#795548" aria-label="11번째 플레이어 색 #795548 복사">#795548</button></div><div class="player" style="background:#9CCC65; color:#1A1D29;"><span class="pn">12 · 유나</span><button type="button" class="ph" data-copy="#9CCC65" aria-label="12번째 플레이어 색 #9CCC65 복사">#9CCC65</button></div><div class="player" style="background:#F48FB1; color:#1A1D29;"><span class="pn">13 · 준서</span><button type="button" class="ph" data-copy="#F48FB1" aria-label="13번째 플레이어 색 #F48FB1 복사">#F48FB1</button></div><div class="player" style="background:#283593; color:#FFFFFF;"><span class="pn">14 · 다인</span><button type="button" class="ph" data-copy="#283593" aria-label="14번째 플레이어 색 #283593 복사">#283593</button></div><div class="player" style="background:#4FC3F7; color:#1A1D29;"><span class="pn">15 · 예준</span><button type="button" class="ph" data-copy="#4FC3F7" aria-label="15번째 플레이어 색 #4FC3F7 복사">#4FC3F7</button></div>
+    </div>
+    <p class="note">미니게임에서 사람을 구분하는 보조 팔레트입니다(1번째 참가자 = 빨강, 2번째 = 네이비 …). 이름 글씨색까지 짝으로 정해져 있어요.
+      홍보물에서는 게임 · 이벤트처럼 <b>즐거운 분위기</b>가 필요한 곳에만 쓰고, 정산 기능 홍보에는 코어 색만 쓰는 걸 권해요.</p>
+  </section>
+
+  <section class="receipt">
+    <h2>05 · 글자 대비</h2>
+    <p class="h2sub">어떤 색 위에 어떤 글씨를 올려도 되는지</p>
+    <div class="tablewrap"><table>
+      <thead><tr><th>예시</th><th>글씨 / 바탕</th><th>대비</th><th>판정 (WCAG AA)</th></tr></thead>
+      <tbody>
+        <tr><td><span class="pair" style="color:#1A1D29; background:#EEF1F4;">₩19,000</span></td><td>본문 글씨 / 바탕<br><small>#1A1D29 / #EEF1F4</small></td><td class="num">14.80 : 1</td><td><span class="pill pass">모든 글씨</span></td></tr><tr><td><span class="pair" style="color:#1A1D29; background:#FFFFFF;">₩19,000</span></td><td>본문 글씨 / 카드<br><small>#1A1D29 / #FFFFFF</small></td><td class="num">16.78 : 1</td><td><span class="pill pass">모든 글씨</span></td></tr><tr><td><span class="pair" style="color:#FFFFFF; background:#1A1D29;">₩19,000</span></td><td>흰 글씨 / 네이비<br><small>#FFFFFF / #1A1D29</small></td><td class="num">16.78 : 1</td><td><span class="pill pass">모든 글씨</span></td></tr><tr><td><span class="pair" style="color:#4B5165; background:#FFFFFF;">₩19,000</span></td><td>설명 글씨 / 카드<br><small>#4B5165 / #FFFFFF</small></td><td class="num">7.88 : 1</td><td><span class="pill pass">모든 글씨</span></td></tr><tr><td><span class="pair" style="color:#E8503A; background:#1A1D29;">₩19,000</span></td><td>레드 글씨 / 네이비<br><small>#E8503A / #1A1D29</small></td><td class="num">4.51 : 1</td><td><span class="pill pass">모든 글씨</span></td></tr><tr><td><span class="pair" style="color:#FFFFFF; background:#E8503A;">₩19,000</span></td><td>버튼 글씨 / 레드<br><small>#FFFFFF / #E8503A</small></td><td class="num">3.72 : 1</td><td><span class="pill big">큰 글씨만</span></td></tr><tr><td><span class="pair" style="color:#E8503A; background:#FFFFFF;">₩19,000</span></td><td>레드 글씨 / 카드<br><small>#E8503A / #FFFFFF</small></td><td class="num">3.72 : 1</td><td><span class="pill big">큰 글씨만</span></td></tr><tr><td><span class="pair" style="color:#FFFFFF; background:#0F9D64;">₩19,000</span></td><td>흰 글씨 / 그린<br><small>#FFFFFF / #0F9D64</small></td><td class="num">3.48 : 1</td><td><span class="pill big">큰 글씨만</span></td></tr><tr><td><span class="pair" style="color:#B8391F; background:#FDF0EC;">₩19,000</span></td><td>경고 글씨 / 레드 틴트<br><small>#B8391F / #FDF0EC</small></td><td class="num">5.17 : 1</td><td><span class="pill pass">모든 글씨</span></td></tr><tr><td><span class="pair" style="color:#8A8FA3; background:#FFFFFF;">₩19,000</span></td><td>라벨 / 카드<br><small>#8A8FA3 / #FFFFFF</small></td><td class="num">3.21 : 1</td><td><span class="pill big">큰 글씨만</span></td></tr><tr><td><span class="pair" style="color:#9AA0B0; background:#FFFFFF;">₩19,000</span></td><td>뮤트 / 카드<br><small>#9AA0B0 / #FFFFFF</small></td><td class="num">2.62 : 1</td><td><span class="pill fail">글씨엔 쓰지 않기</span></td></tr>
+      </tbody>
+    </table></div>
+    <p class="note">흰 글씨 + 딱정산 레드는 3.7 : 1이라 <b>24px 이상이거나 굵은 19px 이상</b>일 때만 기준을 넘어요.
+      작은 글씨를 빨강과 함께 써야 하면 잉크 네이비 바탕에 빨강 글씨(4.5 : 1)로 바꾸세요.</p>
+  </section>
+
+  <section class="receipt">
+    <h2>06 · 함께 쓰는 글꼴</h2>
+    <p class="h2sub">색과 짝을 이루는 두 글꼴</p>
+    <div class="fonts">
+      <div class="font"><div class="big">모임 비용, 딱!</div><div class="fl"><b>Pretendard</b> — 제목 · 본문 전부 (앱 기본 글꼴). 제목은 800~900 굵기, 자간 살짝 좁게</div></div>
+      <div class="font"><div class="num">₩55,000</div><div class="fl"><b>Space Grotesk</b> — 금액 · 숫자 · 도장. 숫자 폭이 같은 tabular 숫자로</div></div>
+    </div>
+    <p class="note">Pretendard 가 설치돼 있지 않으면 Noto Sans KR(또는 기기 기본 글꼴)로 보여요. 디자인 작업에는 Pretendard 를 설치해서 쓰세요.</p>
+  </section>
+
+  <section class="receipt">
+    <h2>07 · 홍보물에 쓸 때</h2>
+    <p class="h2sub">지키면 앱과 같아 보이는 규칙</p>
+    <ul class="rules"><li><b>바탕은 영수증 회색이나 흰색.</b> 어두운 이미지가 필요하면 순검정 대신 잉크 네이비(#1A1D29)를 쓴다.</li><li><b>빨강은 한 군데만.</b> 핵심 문구 하나, 버튼 하나, 도장 하나처럼 시선이 갈 곳 한 곳에. 면적이 10%를 넘으면 경고 화면처럼 보인다.</li><li><b>초록은 &quot;끝났다 · 받는다&quot;에만.</b> 정산 완료, 받을 금액처럼 좋은 결과를 뜻할 때 쓴다.</li><li><b>모서리는 4~6px로 살짝만.</b> 앱의 카드 · 버튼은 영수증처럼 각진 편이다. 영수증 아래 지그재그 가장자리도 브랜드 요소다.</li><li><b>작은 글씨는 빨강 위에 올리지 않는다.</b> 흰 글씨 + 레드는 3.7 : 1이라 큰 글씨(24px 이상, 굵게 19px 이상)에만 쓴다.</li><li><b>인쇄할 때는 교정을 본다.</b> 모든 값은 화면용(sRGB)이다. 특히 레드는 인쇄 교정으로 한 번 확인한다.</li></ul>
+  </section>
+
+  <section class="receipt">
+    <h2>08 · 같은 팔레트, 다른 형식</h2>
+    <p class="h2sub">이 폴더(admin/brand)의 파일</p>
+    <dl class="files">
+      <dt>.pdf</dt><dd>인쇄 · 공유용 (이 페이지와 같은 내용)</dd>
+      <dt>.md</dt><dd>문서 · 노션 · GitHub</dd>
+      <dt>.png · .svg</dt><dd>스와치 이미지 — 슬라이드 · Figma · Illustrator 에 그대로 넣기</dd>
+      <dt>.ase</dt><dd>Adobe Photoshop · Illustrator · InDesign 스와치 불러오기</dd>
+      <dt>.gpl</dt><dd>GIMP · Inkscape · Krita 팔레트</dd>
+      <dt>-tokens.json</dt><dd>디자인 토큰 (W3C DTCG) — Figma Tokens Studio · Style Dictionary</dd>
+      <dt>-colors.css</dt><dd>웹 작업용 CSS 변수</dd>
+    </dl>
+  </section>
+</main>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+<script>
+  const toast = document.getElementById("toast");
+  let timer;
+  const show = (msg) => { toast.textContent = msg; toast.classList.add("on"); clearTimeout(timer); timer = setTimeout(() => toast.classList.remove("on"), 1400); };
+  document.addEventListener("click", (e) => {
+    const btn = e.target.closest("[data-copy]");
+    if (!btn) return;
+    const value = btn.dataset.copy;
+    const done = () => { btn.classList.add("copied"); setTimeout(() => btn.classList.remove("copied"), 1200); show(value + " 복사됨"); };
+    const fallback = () => {
+      const range = document.createRange();
+      range.selectNodeContents(btn.querySelector("span") || btn);
+      const sel = getSelection(); sel.removeAllRanges(); sel.addRange(range);
+      show("선택됐어요 — 복사해서 쓰세요");
+    };
+    try { navigator.clipboard.writeText(value).then(done, fallback); } catch (err) { fallback(); }
+  });
+</script>
+</body>
+</html>
