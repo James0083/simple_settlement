@@ -13,7 +13,8 @@
     "dev:ait": "vite --mode ait",
     "build:ait": "vite build --mode ait && ait build",
     "test": "node --test --disable-warning=ExperimentalWarning tests/unit/",
-    "test:e2e": "node --test --test-concurrency=1 --disable-warning=ExperimentalWarning tests/e2e/"
+    "test:e2e": "node --test --test-concurrency=1 --disable-warning=ExperimentalWarning tests/e2e/",
+    "record": "node scripts/record-gameplay.mjs"
   },
   "dependencies": {
     "@apps-in-toss/web-framework": "^3.7.0",

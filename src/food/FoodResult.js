@@ -9,6 +9,7 @@ import { styles } from "../shared/styles.js";
 import { GENRES } from "./foodData.js";
 import { formatPrice, searchQuery, naverMapUrl, kakaoMapUrl, RELAX_MESSAGES } from "./food.js";
 import { DISCLOSURE, TRACKING_CODE, pickBanner } from "./coupang.js";
+import { REC } from "../shared/rec.js";
 import { IS_AIT, externalLink, trackEvent } from "#platform";
 
 function CoupangBanner() {
@@ -140,7 +141,7 @@ export function FoodResult({ result, mode, copied, onPromote, onReroll, onChoose
         </div>
       `}
 
-      ${!IS_AIT && html`<${CoupangBanner} />`}
+      ${!IS_AIT && !(import.meta.env?.DEV && REC) && html`<${CoupangBanner} />`}
 
       <div style=${styles.actionRow}>
         <button className="settle-add-btn" style=${styles.rerollBtn} onClick=${onReroll}>다시 뽑기</button>

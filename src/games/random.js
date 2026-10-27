@@ -1,10 +1,14 @@
 /*
  * 미니게임용 난수 — crypto.getRandomValues 기반 (Math.random 보다 예측하기 어렵고 균등하다).
  * randInt 는 거절 샘플링으로 모듈로 편향을 없앤다.
+ * 녹화 모드(개발 서버 전용, src/shared/rec.js)에 시드를 주면 그 시드의 고정 난수를 쓴다 — 배포 빌드에는 없다.
  */
+import { REC } from "../shared/rec.js";
+
 const MAX = 0x100000000; // 2^32
 
 function uint32() {
+  if (import.meta.env?.DEV && REC?.rand) return REC.rand();
   const buf = new Uint32Array(1);
   crypto.getRandomValues(buf);
   return buf[0];

@@ -7,6 +7,7 @@ import { styles } from "./styles.js";
 import { routeHref } from "./router.js";
 import { BrandLogo } from "./BrandLogo.js";
 import { FoodIcon, DiceIcon } from "./icons.js";
+import { REC } from "./rec.js";
 
 // 이 날짜가 끝날 때까지(기기 시간 기준) NEW 뱃지를 보여준다
 const NEW_UNTIL = new Date(2026, 9, 31, 23, 59, 59); // 2026-10-31
@@ -17,7 +18,7 @@ const TABS = [
   { id: "games", label: "미니게임", Icon: DiceIcon, isNew: true },
 ];
 
-export const showNewBadge = (now = new Date()) => now <= NEW_UNTIL;
+export const showNewBadge = (now = new Date()) => !(import.meta.env?.DEV && REC) && now <= NEW_UNTIL; // 녹화 모드(rec.js)는 숨김
 
 export function TabBar({ route }) {
   const fresh = showNewBadge();

@@ -20,6 +20,7 @@ import { ChipGroup } from "../shared/ChipGroup.js";
 import { GAMES, MAX_PLAYERS, playersOkFor, playerRangeOf, gamesInListOrder } from "./registry.js";
 import { GameResult } from "./GameResult.js";
 import { AdSlot } from "../shared/AdSlot.js";
+import { REC } from "../shared/rec.js";
 import { trackEvent } from "#platform";
 
 function useSoundOn() {
@@ -38,10 +39,10 @@ function SoundToggle() {
   `;
 }
 
-// 소리가 꺼져 있으면 효과음·배경음을 못 들으므로 눈에 띄게 한 번 권한다 (켜면 사라진다)
+// 소리가 꺼져 있으면 효과음·배경음을 못 들으므로 눈에 띄게 한 번 권한다 (켜면 사라진다). 녹화 모드(rec.js)에서는 숨긴다.
 function SoundHint() {
   const on = useSoundOn();
-  if (on) return null;
+  if (on || (import.meta.env?.DEV && REC)) return null;
   return html`
     <button type="button" className="settle-add-btn" style=${styles.soundHint} onClick=${() => setSoundOn(true)}>
       🔊 소리 켜고 하면 더 재밌어요 · 켜기

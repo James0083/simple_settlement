@@ -2,8 +2,11 @@
  * localStorage 래퍼 — 기기 안에만 저장한다 (서버 없음).
  * 시크릿 모드·저장소 차단 환경에서는 접근 자체가 throw 할 수 있어 모두 try/catch 로 감싸고,
  * 실패하면 저장 없이 fallback 으로 동작한다.
+ * 녹화 모드(개발 서버 전용, rec.js)는 기기 명단 · 설정을 건드리지 않게 다른 이름("ddak-rec:")으로 저장한다.
  */
-const PREFIX = "ddak:";
+import { REC, REC_PREFIX } from "./rec.js";
+
+const PREFIX = import.meta.env?.DEV && REC ? REC_PREFIX : "ddak:";
 
 export function load(key, fallback) {
   try {

@@ -23,6 +23,7 @@ import { useEffect } from "react";
 import { html } from "./html.js";
 import { styles } from "./styles.js";
 import { isAdFree } from "./entitlements.js";
+import { REC } from "./rec.js";
 import { IS_AIT } from "#platform";
 
 // 애드센스 승인 후 true 로 변경
@@ -75,6 +76,7 @@ export function AdSlot({ placement }) {
 
   // 앱인토스: 외부 광고 네트워크 금지 — 토스 인앱 광고 연동 전까지 자리를 비운다
   if (IS_AIT) return null;
+  if (import.meta.env?.DEV && REC) return null; // 녹화 모드(rec.js)
   if (!AD_ENABLED) {
     if (!preview()) return null;
     return html`<div data-ad-slot=${placement} style=${{ ...box, ...styles.adSlotPreview }}>광고 자리 · ${placement} (${size.width}×${size.height})</div>`;

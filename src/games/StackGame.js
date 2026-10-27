@@ -5,7 +5,7 @@
  * 층이 오를수록 빨라지고 탑은 좁아지기만 하므로 따로 끝 조건 없이 누군가는 놓친다.
  * 놓친 블록은 떨어뜨린 자리에 흐리게 남겨 얼마나 빗나갔는지 보여준다. 차례를 넘겨받으면 판을 눌러도 시작된다.
  */
-import { useState, useRef, useEffect } from "react";
+import { Fragment, useState, useRef, useEffect } from "react";
 import { html } from "../shared/html.js";
 import { styles, C_RED, C_GREEN } from "../shared/styles.js";
 import { colorOf } from "./palette.js";
@@ -205,7 +205,7 @@ export function StackGame({ players, onFinish }) {
       <${TurnBanner} player=${players[playerIdx]} index=${playerIdx} />
       <p style=${styles.gameMeta}>
         ${height}층${phase === "play" ? ` · ${placedThisTurn + 1} / ${BLOCKS_PER_TURN}번째 블록` : ""}
-        ${flash && phase === "play" && html` · <strong style=${{ color: C_GREEN }}>${flash}</strong>`}
+        ${flash && phase === "play" && html`<${Fragment}> · <strong style=${{ color: C_GREEN }}>${flash}</strong><//>`}
       </p>
       ${board}
       ${phase === "ready" &&

@@ -332,6 +332,7 @@ manifest.webmanifest · sw.js · favicon.svg · apple-touch-icon.png · icons/ �
 admin/                      # 내부 문서(ADS_PLAN · PLAN_expansion · PLAN_hideseek · PLAN_next_games) · 소리 테스트 페이지 (배포 안 함 — npm run dev 에서 /admin/sound-test.html)
   brand/                    #   컬러 팔레트 (html · pdf · md · png · svg · ase · gpl · 토큰 json · css) — build-palette.mjs 가 생성, admin/brand/README.md
 tests/unit · tests/e2e         # npm test(단위) · npm run test:e2e(브라우저) — 아래 "테스트"
+scripts/record-gameplay.mjs    # npm run record — 미니게임 홍보 영상 녹화 (아래 "플레이 영상 녹화", 결과는 recordings/ · git 제외)
 docs/index.html             # 옛 GitHub Pages 주소 → 새 도메인 안내
 prototype/receipt-ocr.html  # 영수증 OCR 검토용 프로토타입 (앱 본체와 분리)
 ```
@@ -358,6 +359,7 @@ npm run build      # 프로덕션 번들 → dist/
 npm run preview    # dist/ 를 로컬에서 확인 (서비스 워커 포함)
 npm test           # 단위 테스트 (정산 알고리즘 · 게임 레지스트리 · 공개일 · 난수 · 새 게임 판정) — 1초 이내
 npm run test:e2e   # 브라우저 테스트 (정산 금액 따로 입력 · 결과표 배치 · 미니게임 12종 완주 · 게임 목록 순서) — 약 3분(폭탄 도화선 15~45초 포함)
+npm run record -- --all   # 미니게임 플레이 영상 녹화 → recordings/ (아래 "플레이 영상 녹화") — 약 3분
 ```
 
 - **폰에서 테스트**: `npm run dev -- --host` 로 띄우고 같은 Wi-Fi에서 `http://<Mac의 IP>:5173`(IP는 `ipconfig getifaddr en0`). 서비스 워커·공유 기능까지 확인하려면 `npm run build && npm run preview -- --host` 후 HTTPS 터널을 씁니다: `cloudflared tunnel --url http://localhost:4173`
@@ -369,6 +371,20 @@ npm run test:e2e   # 브라우저 테스트 (정산 금액 따로 입력 · 결�
 - **단위** `tests/unit/` — 정산 계산은 가이드 글(`guide/settle` · `guide/cases`)의 예시를 기대값으로 씁니다. 게임 레지스트리 테스트는 **NEW 뱃지 기간(공개 뒤 2주)이 끝난 `releaseAt` 이 남아 있으면 실패**해서 정리할 때를 알려줍니다(그때 `registry.js` 에서 지운다).
 - **브라우저** `tests/e2e/` — 테스트가 Vite 개발 서버를 빈 포트로 띄우고, 설치된 Chrome 을 `playwright-core` 로 엽니다(브라우저를 따로 내려받지 않음). Chrome 이 다른 경로에 있으면 `CHROME_PATH=/경로/chrome npm run test:e2e`. 공개 전 게임은 테스트 안에서 `previewGames` 권한을 켜고 확인합니다. 콘솔 오류가 나면 실패하며, React 개발 모드 경고(key 누락 · SVG 속성 이름 등)도 오류로 봅니다.
 - Node 에서 앱 모듈을 불러올 수 있도록 `package.json` 의 `imports` 가 `#platform` 을 웹 어댑터(`src/platform/web.js`)로 연결합니다. 빌드에서는 `vite.config.js` 의 별칭이 먼저 적용되므로 웹 · 앱인토스 번들은 영향이 없습니다.
+
+### 플레이 영상 녹화
+
+인스타 릴스 · 유튜브 쇼츠용으로 새 미니게임의 실제 플레이를 세로 영상으로 뽑습니다. 요구사항은 `admin/Gameplay recording requirements.md`.
+
+```sh
+npm run record -- --game=race   # 한 게임 (race · hideseek · reaction · splitluck · stack · simon · liar)
+npm run record -- --all         # 모두 — 게임마다 recordings/<id>.mp4 (1080×1920 · 30fps · H.264 · 무음 트랙) + recordings/<id>/*.png
+```
+
+- 스크립트가 개발 서버를 띄우고 **녹화 모드**로 엽니다: `?rec=1&unlock=all&players=민수,지영,수아,현우&seed=…&game=<id>`. 녹화 모드(`src/shared/rec.js`)는 공개 전 게임 열기 · 시드 고정 난수 · 광고/NEW 뱃지/소리 안내 숨김 · 터치 위치 표시를 켜고, 명단 · 설정은 기기 저장소와 따로(`ddak-rec:`) 씁니다. 개발 서버에서 같은 주소를 직접 열어 확인할 수도 있습니다.
+- 녹화 모드 코드는 모두 `import.meta.env?.DEV && REC` 로 감싸 **배포 빌드(웹 · 앱인토스)에서는 통째로 빠집니다** — 번들이 녹화 기능을 넣기 전과 바이트 단위로 같음을 확인했습니다.
+- 게임별 시나리오(누르는 순서 · 시간)와 원하는 결과가 나오는 **시드**는 스크립트의 `SCENARIOS` 에 고정돼 있어 다시 돌려도 당첨자 · 금액이 같습니다. 게임이 난수를 쓰는 순서를 바꾸면 결과가 달라지니(스크립트가 당첨자가 다르면 실패로 알려줌) 시드를 다시 찾습니다.
+- 필요: 설치된 Chrome(`CHROME_PATH`) · `ffmpeg` · `ffprobe`. 3D 게임을 헤드리스로 찍을 땐 `--swiftshader`, 창을 띄우려면 `--headed`.
 
 ## 배포
 
