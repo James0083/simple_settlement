@@ -73,6 +73,37 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous" />
 <link rel="stylesheet" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard-dynamic-subset.min.css" />
 <link rel="stylesheet" crossorigin href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&display=swap" />
+<style>
+  /* #root 안 소개문(.boot) — 앱 첫 화면(정산 탭)과 같은 틀(배경 · 영수증 카드 · 헤더 · 탭바)로 그려, 앱으로 바뀔 때 안쪽만 바뀌어 보이게.
+     값은 src/shared/styles.js 의 page · receipt · inner · header · tabBar 와 맞춘다. */
+  .boot { min-height: 100vh; background: #EEF1F4; display: flex; flex-direction: column; align-items: center;
+    padding: 40px 16px calc(90px + env(safe-area-inset-bottom)); font-family: 'Pretendard', -apple-system, sans-serif; color: #1A1D29; }
+  .boot-card { width: 100%; max-width: 440px; background: #FFFFFF; box-shadow: 0 18px 40px rgba(26,29,41,0.12), 0 2px 0 rgba(26,29,41,0.04); }
+  .boot-inner { padding: 22px 30px 48px; } /* inner 8·34 + 위아래 지그재그 띠 14 */
+  .boot-head { text-align: center; padding: 22px 0; }
+  .boot-head svg { display: block; margin: 0 auto 12px; font-size: 40px; }
+  .boot-head h1 { font-weight: 800; font-size: 34px; letter-spacing: -1px; margin: 0 0 10px; }
+  .boot-head p { font-size: 13.5px; line-height: 1.6; color: #5C6178; margin: 0 auto; max-width: 300px; word-break: keep-all; }
+  .boot-about { border-top: 1.5px dashed #DDE1E8; margin-top: 4px; padding-top: 22px; font-size: 13.5px; line-height: 1.7; color: #4B5165; word-break: keep-all; }
+  .boot-about p { margin: 0 0 10px; }
+  .boot-links { margin-top: 20px; display: flex; flex-direction: column; align-items: center; gap: 7px; width: 100%; }
+  .boot-guides { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; width: 100%; max-width: 300px; }
+  .boot-guides a { text-align: center; padding: 6px 12px; border: 1px solid #D5D9E2; border-radius: 4px; background: #FFFFFF;
+    color: #5C6178; font-size: 12.5px; font-weight: 600; text-decoration: none; }
+  .boot-legal { display: flex; flex-wrap: wrap; justify-content: center; gap: 4px 8px; font-size: 12px; color: #C7CCD8; }
+  .boot-legal a { color: #9AA0B0; text-decoration: none; }
+  .boot-tabs { position: fixed; left: 0; right: 0; bottom: 0; z-index: 50; background: rgba(255,255,255,0.97); border-top: 1px solid #E3E6EC;
+    padding-bottom: env(safe-area-inset-bottom); box-shadow: 0 -6px 18px rgba(26,29,41,0.05); }
+  .boot-tabs div { max-width: 440px; margin: 0 auto; display: flex; }
+  .boot-tabs a { flex: 1; height: 58px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px;
+    font-size: 11.5px; font-weight: 600; color: #9AA0B0; text-decoration: none; }
+  .boot-tabs a:first-child { color: #1A1D29; font-weight: 800; box-shadow: inset 0 2px 0 #E8503A; }
+  .boot-tabs svg { font-size: 22px; }
+  /* 소개 글 · 링크는 1초 뒤에야 보인다 — 보통은 그 전에 앱이 떠서 틀만 잠깐 보이고, 앱이 늦을 때만 글이 나타난다.
+     (숨겨도 HTML 에는 그대로 있어 검색 로봇은 읽는다) */
+  .boot-late { visibility: hidden; animation: boot-show 0s 1s forwards; }
+  @keyframes boot-show { to { visibility: visible; } }
+</style>
 <!-- /web-only -->
 
 <!--
@@ -141,27 +172,47 @@
 <body>
 <!--
   #root 안의 소개문 — 자바스크립트를 실행하지 않는 검색 로봇(네이버 Yeti 등)도 본문과 링크를 읽게 한다.
-  앱이 뜨면 React(createRoot)가 이 내용을 앱 화면으로 바꾼다. 느린 네트워크에서는 앱이 뜨기 전 잠깐 보인다.
+  앱이 뜨면 React(createRoot)가 이 내용을 앱 화면으로 바꾼다. 앱 첫 화면과 같은 틀(.boot — 스타일은 <head>)로 그리고,
+  소개 글 · 링크(.boot-late)는 1초가 지나도 앱이 안 떴을 때만 보인다.
   앱인토스 빌드에서는 web-only 구간이라 빠진다.
 -->
 <div id="root"><!-- web-only -->
-  <main style="max-width:440px;margin:40px auto;padding:28px 24px;background:#FFFFFF;font-family:'Pretendard',-apple-system,sans-serif;line-height:1.7;color:#1A1D29">
-    <h1 style="font-size:22px;margin:0 0 12px">딱정산 — 더치페이·N빵 모임 정산 계산기</h1>
-    <p style="font-size:14.5px;color:#4B5165">딱정산은 모임 비용을 1차·2차·3차 회차별로 나눠 기록하면, 사람마다 낸 돈과 부담할 돈을 계산하고
-      누가 누구에게 얼마를 보내면 되는지 알려주는 무료 웹앱입니다. 회차마다 참여한 사람이 달라도 참여한 사람끼리만 정확히 나눕니다.
-      똑같이 나누는 N빵은 물론, 사람마다 먹은 메뉴가 다를 때는 각자 낼 금액을 따로 적고 나머지만 나누는 더치페이도 됩니다.</p>
-    <p style="font-size:14.5px;color:#4B5165">인원·장르·가격대로 메뉴를 추천하는 "오늘 뭐먹지"와, 룰렛·사다리 타기·폭탄 돌리기 등 오늘 낼 사람을 정하는 미니게임도 함께 쓸 수 있습니다.
-      회원가입이 없고, 입력한 내용은 서버로 보내지 않고 기기 안에서만 계산합니다.</p>
-    <ul style="font-size:14px;padding-left:20px">
-      <li><a href="guide">사용 가이드</a></li>
-      <li><a href="guide/settle">더치페이·N빵 정산 계산 방식</a></li>
-      <li><a href="guide/cases">상황별 모임 정산 방법 — 회식 · 여행 · 생일</a></li>
-      <li><a href="guide/food">뭐먹지 가이드 — 오늘 뭐먹지 · 메뉴 추천</a></li>
-      <li><a href="guide/games">미니게임 가이드 — 사다리 타기 · 룰렛 · 내기 게임</a></li>
-      <li><a href="release-notes">버전정보</a></li>
-      <li><a href="privacy">개인정보처리방침</a> · <a href="terms">이용약관</a> · <a href="contact">문의하기</a></li>
-    </ul>
-  </main>
+  <div class="boot">
+    <main class="boot-card">
+      <div class="boot-inner">
+        <header class="boot-head">
+          <svg viewBox="0 0 24 24" width="1em" height="1em" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 19.5V5a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v7" /><path d="M5 19.5 6.6 18l1.6 1.5L9.8 18l1.6 1.5L13 19.2" /><path d="M8 7.5h6" /><path d="M8 10.75h6" /><path d="M8 14h4" /><path d="m13.3 14.7 2.6 2.6L20 11.2" /></svg>
+          <h1>딱정산</h1>
+          <p>N빵도 더치페이도, 회차별로 결제자와 참여자만 넣으면 자동으로 정산해드려요</p>
+        </header>
+        <div class="boot-about boot-late">
+          <p>딱정산은 모임 비용을 1차·2차·3차 회차별로 나눠 기록하면, 사람마다 낸 돈과 부담할 돈을 계산하고
+            누가 누구에게 얼마를 보내면 되는지 알려주는 무료 더치페이·N빵 정산 계산기입니다. 회차마다 참여한 사람이 달라도 참여한 사람끼리만 정확히 나눕니다.
+            사람마다 먹은 메뉴가 다를 때는 각자 낼 금액을 따로 적고 나머지만 나눌 수도 있습니다.</p>
+          <p>인원·장르·가격대로 메뉴를 추천하는 "오늘 뭐먹지"와, 룰렛·사다리 타기·폭탄 돌리기 등 오늘 낼 사람을 정하는 미니게임도 함께 쓸 수 있습니다.
+            회원가입이 없고, 입력한 내용은 서버로 보내지 않고 기기 안에서만 계산합니다.</p>
+        </div>
+      </div>
+    </main>
+    <div class="boot-links boot-late">
+      <nav class="boot-guides" aria-label="안내">
+        <a href="guide">사용 가이드</a>
+        <a href="guide/settle">정산 계산 방식</a>
+        <a href="guide/cases">상황별 모임 정산</a>
+        <a href="guide/food">뭐먹지 가이드</a>
+        <a href="guide/games">미니게임 가이드</a>
+        <a href="release-notes">버전정보</a>
+      </nav>
+      <footer class="boot-legal">
+        <a href="privacy">개인정보처리방침</a><span>·</span><a href="terms">이용약관</a><span>·</span><a href="contact">문의하기</a>
+      </footer>
+    </div>
+    <nav class="boot-tabs" aria-label="주요 메뉴"><div>
+      <a href="#/settle"><svg viewBox="0 0 24 24" width="1em" height="1em" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 19.5V5a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v7" /><path d="M5 19.5 6.6 18l1.6 1.5L9.8 18l1.6 1.5L13 19.2" /><path d="M8 7.5h6" /><path d="M8 10.75h6" /><path d="M8 14h4" /><path d="m13.3 14.7 2.6 2.6L20 11.2" /></svg><span>정산</span></a>
+      <a href="#/food"><svg viewBox="0 0 24 24" width="1em" height="1em" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 3v8" /><path d="M4.5 3v4.5a2.5 2.5 0 0 0 5 0V3" /><path d="M7 11v10" /><path d="M17 21V3c-2.2 1.2-3.5 3.6-3.5 7v3.5H17" /></svg><span>뭐먹지</span></a>
+      <a href="#/games"><svg viewBox="0 0 24 24" width="1em" height="1em" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3.5" y="3.5" width="17" height="17" rx="3" /><circle cx="8.5" cy="8.5" r="0.6" fill="currentColor" /><circle cx="15.5" cy="8.5" r="0.6" fill="currentColor" /><circle cx="12" cy="12" r="0.6" fill="currentColor" /><circle cx="8.5" cy="15.5" r="0.6" fill="currentColor" /><circle cx="15.5" cy="15.5" r="0.6" fill="currentColor" /></svg><span>미니게임</span></a>
+    </div></nav>
+  </div>
 <!-- /web-only --></div>
 <!-- web-only -->
 <noscript>

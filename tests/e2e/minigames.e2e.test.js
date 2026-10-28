@@ -265,8 +265,10 @@ test("게임 목록 — ★ 로 맨 앞에 고정하고 기기에 남는다, NEW
   const page = await app.browser.newPage({ viewport: { width: 375, height: 667 } });
   const errors = collectErrors(page);
   await openWithStorage(page, `${app.url}/#/games`, { roster: roster(...NAMES) });
-  const names = () => page.locator("button.game-card").evaluateAll((cards) => cards.map((c) => c.querySelector("span:nth-child(2)").firstChild.textContent.trim()));
-  const lockedFlags = () => page.locator("button.game-card").evaluateAll((cards) => cards.map((c) => c.classList.contains("game-card-locked")));
+  // 미니게임 화면은 따로 불러오므로(App.js lazy) 카드가 그려질 때까지 기다린 뒤 읽는다
+  const cards = async () => (await page.locator("button.game-card").first().waitFor(), page.locator("button.game-card"));
+  const names = async () => (await cards()).evaluateAll((cards) => cards.map((c) => c.querySelector("span:nth-child(2)").firstChild.textContent.trim()));
+  const lockedFlags = async () => (await cards()).evaluateAll((cards) => cards.map((c) => c.classList.contains("game-card-locked")));
 
   const flags = await lockedFlags();
   const firstLocked = flags.indexOf(true);
