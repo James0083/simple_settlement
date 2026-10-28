@@ -12,6 +12,7 @@
  *
  * 영상은 Playwright 의 recordVideo 대신 Chrome 의 화면 전송(CDP Page.startScreencast)으로 프레임을 받아 ffmpeg 로 묶는다.
  * recordVideo 는 deviceScaleFactor 를 무시하고 CSS 픽셀(360×640)로만 찍어, 1080×1920 영상의 왼쪽 위 구석에만 화면이 들어간다.
+ * 화면 전송은 초당 25장 남짓이라, 룰렛 원판처럼 빠르게 도는 구간은 시계를 멈추고 1/30초씩 진행하며 한 장씩 찍는다(h.stepped).
  *
  * 개발 서버를 띄우고 녹화 모드(src/shared/rec.js)로 연다: ?rec=1&unlock=all&players=…&seed=…&game=<id>
  * 시드는 원하는 결과(SCENARIOS 의 want)가 나오는 값을 찾아 고정했다. 게임이 난수를 쓰는 순서가 바뀌면
@@ -20,7 +21,7 @@
  */
 import { createServer } from "vite";
 import { chromium } from "playwright-core";
-import { mkdirSync, rmSync, writeFileSync } from "node:fs";
+import { linkSync, mkdirSync, rmSync, writeFileSync } from "node:fs";
 import { execFileSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
 import { join } from "node:path";
@@ -34,11 +35,11 @@ const VIDEO = { width: 1080, height: 1920 };
 const PLAYERS = ["민수", "지영", "수아", "현우"];
 
 // ── 화면 조작 도구 ─────────────────────────────────────────
-function helpers(page, shotDir) {
+function helpers(page, shotDir, cast) {
   const pause = (ms) => page.waitForTimeout(ms);
 
-  // 사람처럼 누른다 — 화면 밖(또는 하단 탭바 밑)이면 먼저 부드럽게 스크롤한 뒤 터치
-  const tap = async (locator, after = 600) => {
+  // 화면 밖(또는 하단 탭바 밑)이면 부드럽게 스크롤해서 보이게
+  const reveal = async (locator) => {
     await locator.waitFor();
     const inView = await locator.evaluate((el) => {
       const r = el.getBoundingClientRect();
@@ -49,6 +50,11 @@ function helpers(page, shotDir) {
       await locator.evaluate((el) => el.scrollIntoView({ behavior: "smooth", block: "center" }));
       await pause(650);
     }
+  };
+
+  // 사람처럼 누른다 — 안 보이면 먼저 스크롤한 뒤 터치
+  const tap = async (locator, after = 600) => {
+    await reveal(locator);
     await locator.tap();
     await pause(after);
   };
@@ -72,19 +78,89 @@ function helpers(page, shotDir) {
     el.dispatchEvent(new PointerEvent("pointerup", init));
   }`;
 
-  return { pause, tap, shot, big, banner, PRESS };
+  // 부드러운 스크롤이 완전히 멈출 때까지 (scrollY 가 10프레임 연속 그대로)
+  const scrollIdle = () =>
+    page.evaluate(
+      () =>
+        new Promise((resolve) => {
+          let last = scrollY;
+          let still = 0;
+          const frame = () => {
+            still = scrollY === last ? still + 1 : 0;
+            last = scrollY;
+            if (still >= 10) resolve();
+            else requestAnimationFrame(frame);
+          };
+          requestAnimationFrame(frame);
+        })
+    );
+
+  // locator 를 누른 뒤 ms 동안을 1/30초씩 멈춰 가며 한 장씩 찍는다 — 화면 전송은 초당 25장 남짓이라 빠르게 도는 룰렛 원판이
+  // 끊겨 보인다. 시계(page.clock — 시나리오에 clock: true)와 돌고 있는 애니메이션(CSS 전환 · 터치 표시)을 함께 멈추고
+  // 1/30초씩 진행한다. 찍은 장면들이 영상의 그 구간을 대신한다(encode). shots: { 몇 번째 장: 장면 이름 }
+  const stepped = async (locator, ms, shots = {}) => {
+    await reveal(locator);
+    await page.clock.pauseAt((await page.evaluate(() => Date.now())) + 50);
+    await locator.tap();
+    const from = Date.now() / 1000;
+    await page.evaluate(() => {
+      window.__recAnims = document.getAnimations().map((a) => (a.pause(), [a, a.currentTime]));
+    });
+    const files = [];
+    let t = 0;
+    for (let k = 0; k <= Math.ceil((ms * 30) / 1000); k++) {
+      const next = Math.round((k * 1000) / 30);
+      if (next > t) await page.clock.runFor(next - t);
+      t = next;
+      // 끝에 닿은 애니메이션은 finish() — 멈춘 채로 끝을 넘기면 끝난 것으로 치지 않아 터치 표시가 안 지워진다
+      await page.evaluate(
+        (t) =>
+          window.__recAnims.forEach(([a, c0]) => {
+            if (a.playState === "finished") return;
+            if (c0 + t >= a.effect.getComputedTiming().endTime) a.finish();
+            else a.currentTime = c0 + t;
+          }),
+        t
+      );
+      const file = join(cast.dir, `s${String(k).padStart(4, "0")}.jpg`);
+      await page.screenshot({ path: file, type: "jpeg", quality: 95 });
+      files.push(file);
+      if (shots[k]) await shot(shots[k]);
+    }
+    cast.segments.push({ from, to: Date.now() / 1000, files });
+    // 남은 애니메이션은 이어서 재생 (끝난 것에 play() 를 하면 처음부터 다시 돈다)
+    await page.evaluate(() => window.__recAnims.forEach(([a]) => a.playState !== "finished" && a.play()));
+    await page.clock.resume();
+  };
+
+  return { pause, tap, shot, big, banner, PRESS, scrollIdle, stepped };
 }
 
 // 결과 화면에서 멈췄다가, 당첨자가 한 명이면 "정산에 추가" → 정산 탭에 회차가 생기는 장면까지. 당첨자 이름을 돌려준다.
-async function finishAndSettle(page, h) {
+// result(선택): keepInView — 결과로 내려간 화면에서 이 요소(게임판) 윗부분이 잘리면 살짝 올려 다 보이게,
+//               hold — 결과 장면에서 멈추는 시간, toCard — "정산에 추가" 전에 결과 카드로 스크롤하고 멈춰 있는 시간
+async function finishAndSettle(page, h, { keepInView, hold = 1200, toCard } = {}) {
   await page.getByRole("button", { name: "한 판 더" }).waitFor({ timeout: 30000 });
   const result = (await page.getByText(/^오늘 계산은 .+님!$|님이 제일 많이 내요!$/).last().innerText()).trim();
   const loser = result.match(/^(?:오늘 계산은 )?(.+?)님/)[1];
   await h.pause(800); // 결과로 스크롤이 끝나기를 기다린다
+  if (keepInView) {
+    await h.scrollIdle();
+    await page.locator(keepInView).evaluate((el) => {
+      const top = el.getBoundingClientRect().top - 12;
+      if (top < 0) scrollBy({ top, behavior: "smooth" });
+    });
+    await h.scrollIdle();
+  }
   await h.shot("result");
-  await h.pause(1200);
+  await h.pause(hold);
   const add = page.getByRole("button", { name: "정산에 추가" });
   if ((await add.count()) === 0) return loser;
+  if (toCard != null) {
+    await add.evaluate((el) => el.scrollIntoView({ behavior: "smooth", block: "center" }));
+    await h.scrollIdle();
+    await h.pause(toCard);
+  }
   await h.tap(add, 900);
   const round = page.locator("input[placeholder^='정산 이름']").last();
   await round.evaluate((el) => el.scrollIntoView({ behavior: "smooth", block: "start" }));
@@ -96,6 +172,89 @@ async function finishAndSettle(page, h) {
 
 // ── 게임별 시나리오 ────────────────────────────────────────
 const SCENARIOS = {
+  roulette: {
+    loser: "현우",
+    seed: "roulette-1",
+    want: "바늘이 현우에서 멈춤",
+    clock: true,
+    result: { keepInView: "svg[aria-label='룰렛 원판']", hold: 2000, toCard: 1000 }, // 바늘 · 원판 전체가 보이는 결과 2초 → 결과 카드 1초
+    async play(page, h) {
+      await h.pause(1500);
+      await h.shot("start");
+      await h.stepped(h.big("돌리기"), 7000, { 45: "spinning" }); // RouletteGame 의 회전 시간 — 멈출 때까지 실제 속도로
+
+    },
+  },
+
+  ladder: {
+    loser: "현우",
+    seed: "ladder-12", // 당첨 1칸 — 현우(4번째 줄) 경로가 2번째 칸 💸 에 닿는다
+    want: "현우 사다리가 당첨 칸에 도착",
+    result: { keepInView: "button[aria-label='민수 사다리 타기']", hold: 2000, toCard: 1000 },
+    async play(page, h) {
+      await h.pause(1500);
+      await h.shot("start");
+      await h.tap(h.big("사다리 만들기"), 1500);
+      await h.tap(page.getByRole("button", { name: "현우 사다리 타기" }), 1300);
+      await h.shot("tracing");
+    },
+  },
+
+  bomb: {
+    loser: "현우",
+    seed: "bomb-509", // 순서 민수 · 지영 · 수아 · 현우, 15.774초 뒤 폭발
+    want: "현우 차례에 폭탄이 터짐",
+    result: { hold: 2000, toCard: 1000 },
+    async play(page, h) {
+      const FUSE_MS = 15774;
+      // 같은 간격으로 넘겨 11번 넘긴 뒤(현우 차례) 그 간격의 절반쯤 지나 터지게 — 탭 지연이 있어도 앞뒤로 여유가 있다
+      const every = FUSE_MS / 11.5;
+      await h.pause(1500);
+      await h.shot("start");
+      await h.tap(h.big("이 순서로 폭탄 시작"), 0);
+      const t0 = Date.now();
+      for (let k = 1; k <= 11; k++) {
+        await h.pause(Math.max(0, t0 + k * every - Date.now()));
+        await page.locator("button.settle-calc-btn", { hasText: "넘기기" }).tap();
+        if (k === 6) await h.shot("passing");
+      }
+      await page.locator("svg[aria-label='폭발']").waitFor({ timeout: 5000 }); // 폭탄 칸은 aria-hidden 이라 역할로는 못 찾는다
+      await h.shot("boom");
+    },
+  },
+
+  finger: {
+    loser: "현우",
+    seed: "finger-3", // 4번째로 올린 손가락(현우)이 뽑힌다
+    want: "현우 손가락이 뽑힘",
+    ready: "text=모두 손가락을 올리면", // 게임 화면이 전체 화면 판이라 큰 버튼이 없다
+    async play(page, h) {
+      // 손가락 여러 개를 동시에 대야 해서 Chrome 에 터치 신호를 직접 보낸다 (Playwright 의 tap 은 한 손가락)
+      const cdp = await page.context().newCDPSession(page);
+      const FINGERS = [[95, 170], [260, 195], [110, 350], [250, 320]]; // 민수 · 지영 · 수아 · 현우 순서로 올린다
+      const touch = (type, n) =>
+        cdp.send("Input.dispatchTouchEvent", {
+          type,
+          touchPoints: FINGERS.slice(0, n).map(([x, y], id) => ({ x, y, id, radiusX: 12, radiusY: 12, force: 1 })),
+        });
+      await h.pause(1500);
+      await h.shot("start");
+      for (let n = 1; n <= FINGERS.length; n++) {
+        await touch(n === 1 ? "touchStart" : "touchMove", n); // 이미 댄 손가락은 그대로, 새 손가락이 하나 더 닿는다
+        await h.pause(600);
+      }
+      await h.pause(1200);
+      await h.shot("countdown");
+      await page.getByText("빛나는 손가락의 주인이 당첨!").waitFor({ timeout: 6000 });
+      await h.pause(1500);
+      await h.shot("picked");
+      await touch("touchEnd", 0);
+      await h.pause(500);
+      await h.tap(page.getByRole("button", { name: "결과 입력하기" }), 900);
+      await h.tap(page.getByRole("button", { name: "현우", exact: true }), 0);
+    },
+  },
+
   race: {
     loser: "현우",
     seed: "race-15",
@@ -306,7 +465,8 @@ const SCENARIOS = {
 
 // ── 녹화 ──────────────────────────────────────────────────
 // 화면이 바뀔 때마다 Chrome 이 보내는 프레임(기기 픽셀 1080×1920)을 파일로 받아 둔다. stop() → 프레임 목록과 끝난 시각.
-async function startScreencast(page, dir) {
+// segments 에는 한 장씩 찍은 구간(h.stepped)이 쌓인다.
+async function startScreencast(page, dir, segments) {
   const cdp = await page.context().newCDPSession(page);
   const frames = [];
   cdp.on("Page.screencastFrame", ({ data, metadata, sessionId }) => {
@@ -318,31 +478,41 @@ async function startScreencast(page, dir) {
   await cdp.send("Page.startScreencast", { format: "jpeg", quality: 95, maxWidth: VIDEO.width, maxHeight: VIDEO.height });
   return async () => {
     await cdp.send("Page.stopScreencast");
-    return { frames, endTs: Date.now() / 1000 };
+    return { frames, endTs: Date.now() / 1000, segments };
   };
 }
 
-// 프레임마다 다음 프레임까지 보여 주는 시간을 적은 목록(concat) → 30fps mp4. 화면 전송에는 소리가 없어 무음 트랙을 붙인다.
-function encode({ frames, endTs }, dir, mp4) {
-  const list = frames.map((f, i) => {
-    const until = i + 1 < frames.length ? frames[i + 1].ts : endTs;
-    return `file '${f.file}'\nduration ${Math.max(0.001, until - f.ts).toFixed(4)}`;
-  });
-  list.push(`file '${frames.at(-1).file}'`); // concat 은 마지막 duration 을 쓰려면 마지막 파일을 한 번 더 적어야 한다
-  const listFile = join(dir, "frames.txt");
-  writeFileSync(listFile, list.join("\n"));
+// 받은 프레임을 1/30초 간격 장면 번호로 다시 늘어놓아(그 시각에 화면에 있던 프레임) → 30fps mp4. 화면 전송에는 소리가 없어 무음 트랙을 붙인다.
+// (ffmpeg concat 에 프레임별 시간을 적어 넘기면 이미지 입력의 시각이 1/25초 단위로 반올림돼 여섯 장마다 한 장씩 겹친다 — 그래서 여기서 직접 맞춘다)
+// 한 장씩 찍은 구간은 그동안 받은 전송 프레임을 버리고 1/30초씩 끼워 넣는다 — 찍느라 실제로 걸린 시간은 영상에서 뺀다.
+function encode({ frames, endTs, segments }, dir, mp4) {
+  const shift = (ts) => segments.reduce((d, s) => (ts >= s.to ? d + s.files.length / 30 - (s.to - s.from) : d), 0);
+  const shown = [
+    ...frames.filter((f) => !segments.some((s) => f.ts >= s.from && f.ts < s.to)),
+    ...segments.flatMap((s) => s.files.map((file, i) => ({ file, ts: s.from + i / 30 }))),
+  ]
+    .map((f) => ({ file: f.file, t: f.ts + shift(f.ts) }))
+    .sort((a, b) => a.t - b.t);
+  const t0 = shown[0].t;
+  const count = Math.round((endTs + shift(endTs) - t0) * 30);
+  for (let n = 0, i = 0; n < count; n++) {
+    // 반 장(1/60초) 여유 — 1/30초 간격으로 찍은 구간이 장면 번호와 어긋나 겹치거나 빠지지 않게
+    while (i + 1 < shown.length && shown[i + 1].t <= t0 + n / 30 + 1 / 60) i++;
+    linkSync(shown[i].file, join(dir, `o${String(n).padStart(5, "0")}.jpg`));
+  }
   execFileSync(FFMPEG, [
     "-y", "-loglevel", "error",
-    "-f", "concat", "-safe", "0", "-i", listFile,
+    "-framerate", "30", "-i", join(dir, "o%05d.jpg"),
     "-f", "lavfi", "-i", "anullsrc=channel_layout=stereo:sample_rate=48000",
     "-map", "0:v", "-map", "1:a", "-shortest",
-    "-vf", `fps=30,scale=${VIDEO.width}:${VIDEO.height}:flags=lanczos,format=yuv420p`,
+    "-vf", `scale=${VIDEO.width}:${VIDEO.height}:flags=lanczos,format=yuv420p`,
     "-c:v", "libx264", "-preset", "slow", "-crf", "16", "-profile:v", "high",
     "-c:a", "aac", "-b:a", "128k",
     "-movflags", "+faststart",
     mp4,
   ]);
-  return Number(execFileSync(FFPROBE, ["-v", "error", "-show_entries", "format=duration", "-of", "csv=p=0", mp4]).toString());
+  const secs = Number(execFileSync(FFPROBE, ["-v", "error", "-show_entries", "format=duration", "-of", "csv=p=0", mp4]).toString());
+  return { secs, count: shown.length };
 }
 
 async function record(browser, url, id) {
@@ -364,27 +534,29 @@ async function record(browser, url, id) {
     timezoneId: "Asia/Seoul",
   });
   const page = await context.newPage();
+  if (sc.clock) await page.clock.install(); // h.stepped 에서 시계를 멈췄다 1/30초씩 진행한다
   const errors = [];
   page.on("pageerror", (e) => errors.push(e.message));
   page.on("console", (m) => m.type() === "error" && errors.push(m.text()));
 
   const q = new URLSearchParams({ rec: "1", unlock: "all", players: players.join(","), seed: sc.seed, game: id });
   await page.goto(`${url}/?${q}`);
-  await page.locator("button.settle-calc-btn").first().waitFor();
+  await page.locator(sc.ready ?? "button.settle-calc-btn").first().waitFor();
   await page.evaluate(() => document.fonts.ready);
 
-  const stop = await startScreencast(page, frameDir);
-  const h = helpers(page, shotDir);
+  const segments = [];
+  const stop = await startScreencast(page, frameDir, segments);
+  const h = helpers(page, shotDir, { dir: frameDir, segments });
   await sc.play(page, h);
-  const loser = await finishAndSettle(page, h);
+  const loser = await finishAndSettle(page, h, sc.result);
   const capture = await stop();
   await context.close();
 
-  const secs = encode(capture, frameDir, join(OUT, `${id}.mp4`));
+  const { secs, count } = encode(capture, frameDir, join(OUT, `${id}.mp4`));
   rmSync(frameDir, { recursive: true, force: true });
   if (errors.length) throw new Error(`${id}: 페이지 오류\n${errors.join("\n")}`);
   if (loser !== sc.loser) throw new Error(`${id}: 당첨자가 ${sc.loser} 가 아니라 ${loser} — 시드를 다시 찾아야 한다`);
-  return { secs, loser, fps: capture.frames.length / secs };
+  return { secs, loser, fps: count / secs };
 }
 
 async function main() {

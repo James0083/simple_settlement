@@ -374,16 +374,17 @@ npm run record -- --all   # 미니게임 플레이 영상 녹화 → recordings/
 
 ### 플레이 영상 녹화
 
-인스타 릴스 · 유튜브 쇼츠용으로 새 미니게임의 실제 플레이를 세로 영상으로 뽑습니다. 요구사항은 `admin/Gameplay recording requirements.md`.
+인스타 릴스 · 유튜브 쇼츠용으로 미니게임의 실제 플레이를 세로 영상으로 뽑습니다. 요구사항은 `admin/Gameplay recording requirements.md`.
 
 ```sh
-npm run record -- --game=race   # 한 게임 (race · hideseek · reaction · splitluck · stack · simon · liar)
+npm run record -- --game=race   # 한 게임 (roulette · ladder · bomb · finger · race · hideseek · reaction · splitluck · stack · simon · liar)
 npm run record -- --all         # 모두 — 게임마다 recordings/<id>.mp4 (1080×1920 · 30fps · H.264 · 무음 트랙) + recordings/<id>/*.png
 ```
 
 - 스크립트가 개발 서버를 띄우고 **녹화 모드**로 엽니다: `?rec=1&unlock=all&players=민수,지영,수아,현우&seed=…&game=<id>`. 녹화 모드(`src/shared/rec.js`)는 공개 전 게임 열기 · 시드 고정 난수 · 광고/NEW 뱃지/소리 안내 숨김 · 터치 위치 표시를 켜고, 명단 · 설정은 기기 저장소와 따로(`ddak-rec:`) 씁니다. 개발 서버에서 같은 주소를 직접 열어 확인할 수도 있습니다.
 - 녹화 모드 코드는 모두 `import.meta.env?.DEV && REC` 로 감싸 **배포 빌드(웹 · 앱인토스)에서는 통째로 빠집니다** — 번들이 녹화 기능을 넣기 전과 바이트 단위로 같음을 확인했습니다.
 - 게임별 시나리오(누르는 순서 · 시간)와 원하는 결과가 나오는 **시드**는 스크립트의 `SCENARIOS` 에 고정돼 있어 다시 돌려도 당첨자 · 금액이 같습니다. 게임이 난수를 쓰는 순서를 바꾸면 결과가 달라지니(스크립트가 당첨자가 다르면 실패로 알려줌) 시드를 다시 찾습니다.
+- 룰렛 원판처럼 빠르게 도는 구간은 화면 전송(초당 25장 남짓) 대신 시계를 멈추고 1/30초씩 진행하며 한 장씩 찍어 끊김 없이 넣습니다.
 - 필요: 설치된 Chrome(`CHROME_PATH`) · `ffmpeg` · `ffprobe`. 3D 게임을 헤드리스로 찍을 땐 `--swiftshader`, 창을 띄우려면 `--headed`.
 
 ## 배포
