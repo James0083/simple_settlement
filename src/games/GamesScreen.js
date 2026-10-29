@@ -21,7 +21,7 @@ import { GAMES, MAX_PLAYERS, playersOkFor, playerRangeOf, gamesInListOrder } fro
 import { GameResult } from "./GameResult.js";
 import { AdSlot } from "../shared/AdSlot.js";
 import { REC } from "../shared/rec.js";
-import { trackEvent } from "#platform";
+import { IS_AIT, trackEvent } from "#platform";
 
 function useSoundOn() {
   const [on, setOn] = useState(isSoundOn);
@@ -118,10 +118,14 @@ function GamePlay({ game, players, s, onPickTied }) {
     navigate("settle");
   };
 
+  // 앱인토스는 내비게이션 바에 뒤로가기가 있어 "← 게임 목록" 을 빼고 소리 버튼만 오른쪽에 둔다
+  // (게임 화면은 #/games/<id> 라 그 뒤로가기가 게임 목록으로 돌아간다)
   return html`
     <${ReceiptCard}>
       <div style=${styles.gameTopRow}>
-        <a href=${routeHref("games")} style=${styles.backLink}>← 게임 목록</a>
+        ${IS_AIT
+          ? html`<span aria-hidden="true"></span>`
+          : html`<a href=${routeHref("games")} style=${styles.backLink}>← 게임 목록</a>`}
         <${SoundToggle} />
       </div>
       <header style=${styles.gameHeader}>

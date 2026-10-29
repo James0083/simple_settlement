@@ -56,7 +56,7 @@ export function App() {
     <div style=${styles.page}>
       ${route === "settle" && html`<${SettleScreen} s=${s} />`}
       <${Suspense} fallback=${html`<${ReceiptCard} />`}>
-        ${route === "food" && html`<${FoodScreen} s=${s} />`}
+        ${route === "food" && html`<${FoodScreen} s=${s} sub=${sub} />`}
         ${route === "games" && html`<${GamesScreen} s=${s} sub=${sub} />`}
       <//>
 

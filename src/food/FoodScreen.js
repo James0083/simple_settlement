@@ -3,7 +3,7 @@ import { useState, useRef } from "react";
 import { html } from "../shared/html.js";
 import { styles, C_MUTED } from "../shared/styles.js";
 import { load, save } from "../shared/storage.js";
-import { navigate } from "../shared/router.js";
+import { navigate, routeHref } from "../shared/router.js";
 import { FOODS, PAIRS } from "./foodData.js";
 import { recommend, mealForHour, searchQuery } from "./food.js";
 import { TOAST_MS } from "../shared/util.js";
@@ -25,7 +25,7 @@ function remember(food) {
   save(HISTORY_KEY, [food.id, ...list.filter((id) => id !== food.id)].slice(0, HISTORY_SIZE));
 }
 
-export function FoodScreen({ s }) {
+export function FoodScreen({ s, sub }) {
   const [input, setInput] = useState(() => ({
     people: s.validParticipantsCount > 0 ? Math.min(s.validParticipantsCount, MAX_PEOPLE) : 2,
     mode: "dineIn",
@@ -38,7 +38,14 @@ export function FoodScreen({ s }) {
   const [result, setResult] = useState(null);
   const [seen, setSeen] = useState([]);
   const [copied, setCopied] = useState(false);
-  const [view, setView] = useState("form"); // "form" | "result" | "list"
+  // 음식 전체 목록은 #/food/list — 주소가 있어야 기기 · 브라우저 · 앱인토스 내비게이션 바의 뒤로가기로 닫힌다
+  const openedList = useRef(false);
+  const openList = () => {
+    openedList.current = true;
+    navigate("food", "list");
+  };
+  // 목록을 여기서 열었으면 한 칸 뒤로, 주소로 바로 들어왔으면 뭐먹지로 바꾼다(뒤로 가면 사이트를 떠나므로)
+  const closeList = () => (openedList.current ? window.history.back() : window.location.replace(routeHref("food")));
   const resultRef = useRef(null);
 
   const changeInput = (next) => {
@@ -54,7 +61,6 @@ export function FoodScreen({ s }) {
     setSeen(r.reset ? ids : [...seen, ...ids]);
     setResult({ ...r, mode: input.mode, people: input.people });
     setCopied(false);
-    setView("form"); // 결과는 form 뷰에서 보여준다
     setTimeout(() => resultRef.current?.scrollIntoView({ behavior: "smooth", block: "start" }), 50);
   };
 
@@ -99,10 +105,10 @@ export function FoodScreen({ s }) {
     navigate("settle");
   };
 
-  if (view === "list") {
+  if (sub === "list") {
     return html`
       <${ReceiptCard}>
-        <${FoodListScreen} onBack=${() => setView("form")} />
+        <${FoodListScreen} onBack=${closeList} />
       <//>
     `;
   }
@@ -128,7 +134,7 @@ export function FoodScreen({ s }) {
             padding: "2px 0",
             textDecoration: "underline",
           }}
-          onClick=${() => setView("list")}
+          onClick=${openList}
         >
           전체 목록 보기 →
         </button>

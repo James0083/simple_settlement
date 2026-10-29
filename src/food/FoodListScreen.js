@@ -3,6 +3,7 @@ import { useState } from "react";
 import { html } from "../shared/html.js";
 import { styles } from "../shared/styles.js";
 import { FOODS, GENRES } from "./foodData.js";
+import { IS_AIT } from "#platform";
 
 const ALL_TAB = { id: "all", label: "전체" };
 const TABS = [ALL_TAB, ...GENRES];
@@ -14,7 +15,10 @@ export function FoodListScreen({ onBack }) {
   return html`
     <div style=${{ paddingBottom: 24 }}>
       <div style=${styles.foodListHead}>
-        <button type="button" style=${styles.foodListBack} onClick=${onBack}>← 뒤로</button>
+        <!-- 앱인토스는 내비게이션 바의 뒤로가기로 닫는다 (#/food/list) — 같은 폭의 빈칸으로 제목을 가운데에 둔다 -->
+        ${IS_AIT
+          ? html`<span style=${{ width: 48 }} aria-hidden="true"></span>`
+          : html`<button type="button" style=${styles.foodListBack} onClick=${onBack}>← 뒤로</button>`}
         <span style=${styles.foodListTitle}>음식 목록</span>
         <span style=${{ width: 48 }} aria-hidden="true"></span>
       </div>
